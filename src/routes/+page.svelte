@@ -11,6 +11,7 @@
 	import CalendarTable from '$lib/components/CalendarTable.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
 	import CommandRef from '$lib/components/CommandRef.svelte';
+	import logoUrl from '$lib/assets/logo.png';
 
 	onMount(() => {
 		startWebSocket();
@@ -41,7 +42,8 @@
 		<!-- Logo -->
 		<div class="mb-6 inline-flex items-center gap-3">
 			<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 border border-accent/20">
-				<span class="text-2xl font-black text-accent">F</span>
+				<!-- <span class="text-2xl font-black text-accent">F</span> -->
+				<img src={logoUrl} alt="Fio logo">
 			</div>
 			<span class="text-3xl font-bold tracking-tight">Fio</span>
 		</div>
