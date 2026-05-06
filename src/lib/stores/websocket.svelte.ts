@@ -1,4 +1,4 @@
-import { CORE_WS_URL } from '$lib/config';
+import { CORE_WS_URL, API_KEY } from '$lib/config';
 import type { PriceData } from '$lib/types';
 
 // Use Svelte 5 runes for fine-grained reactivity
@@ -13,8 +13,7 @@ let reconnectDelay = 2000;
 function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	const url = `${CORE_WS_URL}/api/v1/ws/market?bot_id=web_client&api_key=olin`;
-	console.log('[WS] Connecting to:', url);
+	const url = `${CORE_WS_URL}/api/v1/ws/market?bot_id=web_client&api_key=${API_KEY}`;
 	ws = new WebSocket(url);
 
 	ws.onopen = () => {
