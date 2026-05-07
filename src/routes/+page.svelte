@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { DISCORD_INVITE } from '$lib/config';
-	import { startWebSocket, stopWebSocket, marketStore } from '$lib/stores/websocket.svelte';
+	import { startWebSocket, stopWebSocket, marketStore, realtimeNewsStore } from '$lib/stores/websocket.svelte';
 	import { forexNews, equityNews, newsLoading, startNewsPolling, stopNewsPolling } from '$lib/stores/news';
 	import { startCalendarPolling, stopCalendarPolling } from '$lib/stores/calendar';
 
@@ -117,8 +117,8 @@
 		</div>
 
 		<div class="grid gap-8 lg:grid-cols-2">
-			<NewsFeed title="Forex & Global" items={$forexNews} loading={$newsLoading} />
-			<NewsFeed title="Equity / Saham" items={$equityNews} loading={$newsLoading} />
+			<NewsFeed title="Forex & Global" items={realtimeNewsStore.mergeForex($forexNews)} loading={$newsLoading} />
+			<NewsFeed title="Equity / Saham" items={realtimeNewsStore.mergeEquity($equityNews)} loading={$newsLoading} />
 		</div>
 	</div>
 </section>
