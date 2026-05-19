@@ -23,7 +23,6 @@
 	let isDarkTheme = $state(false);
 
 	onMount(() => {
-		// Check local storage or system preference for theme
 		if (typeof window !== 'undefined') {
 			const storedTheme = localStorage.getItem('theme');
 			if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -56,10 +55,8 @@
 </script>
 
 <div class="min-h-screen bg-bg text-text">
-	<!-- Top Navigation -->
 	<header class="sticky top-0 z-50 flex h-[52px] shrink-0 items-center justify-between border-b border-border bg-surface px-4 shadow-sm">
 		<div class="flex items-center gap-6">
-			<!-- Logo -->
 			<a href="/" class="flex items-center gap-2">
 				<div class="flex h-8 w-8 items-center justify-center rounded bg-accent/10">
 					<img src={logoUrl} alt="Fio" class="h-6 w-6 object-contain" />
@@ -67,7 +64,6 @@
 				<span class="text-lg font-bold tracking-tight">Fio</span>
 			</a>
 
-			<!-- Search / Symbol Input Mock -->
 			<div class="hidden items-center gap-2 rounded bg-bg px-3 py-1.5 text-sm text-text-muted md:flex border border-border focus-within:border-accent/50 transition-colors">
 				<Search class="h-4 w-4" />
 				<input 
@@ -78,7 +74,6 @@
 			</div>
 		</div>
 
-		<!-- Top Nav Actions -->
 		<div class="flex items-center gap-4">
 			<div class="hidden items-center gap-3 border-r border-border pr-4 md:flex text-xs">
 				<div class="flex items-center gap-1.5">
@@ -105,14 +100,11 @@
 		</div>
 	</header>
 
-	<!-- Sticky ticker -->
 	<div class="sticky top-[52px] z-40">
 		<TickerStrip />
 	</div>
 
-	<!-- Hero -->
 	<header class="relative px-4 py-24 md:px-8 md:py-32 lg:px-16 overflow-hidden">
-		<!-- Subtle Grid Background -->
 		<div class="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20"></div>
 		
 		<div class="relative mx-auto max-w-4xl text-center">
@@ -127,7 +119,6 @@
 				streamed directly to your Discord server.
 			</p>
 
-			<!-- CTA -->
 			<div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
 				<a
 					href={DISCORD_INVITE}
@@ -149,7 +140,6 @@
 
 	<div class="h-px bg-border w-full"></div>
 
-	<!-- Live Market -->
 	<section id="market" class="px-4 py-16 md:px-8 lg:px-16">
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -167,7 +157,6 @@
 
 	<div class="h-px bg-border w-full"></div>
 
-	<!-- News Section -->
 	<section id="news" class="px-4 py-16 md:px-8 lg:px-16">
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -190,7 +179,6 @@
 
 	<div class="h-px bg-border w-full"></div>
 
-	<!-- Calendar -->
 	<section id="calendar" class="px-4 py-16 md:px-8 lg:px-16">
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -208,15 +196,12 @@
 
 	<div class="h-px bg-border w-full"></div>
 
-	<!-- Features -->
 	<FeatureGrid />
 
 	<div class="h-px bg-border w-full"></div>
 
-	<!-- Commands -->
 	<CommandRef />
 
-	<!-- Footer -->
 	<footer class="border-t border-border px-4 py-8 md:px-8 lg:px-16">
 		<div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
 			<div class="flex items-center gap-2 text-sm text-text-muted">

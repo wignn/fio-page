@@ -1,43 +1,42 @@
 <script lang="ts">
 	import type { Component } from 'svelte';
 
-	// Inline SVG icons as Svelte snippets — no external dependency needed
 	const features = [
 		{
 			title: 'Live Price Alerts',
 			description: 'Set custom price alerts for any symbol. Get instant DM notifications when your target is hit.',
 			command: '/market_alert XAUUSD 3400',
-			iconPath: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' // Zap
+			iconPath: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z'
 		},
 		{
 			title: 'Forex News Feed',
 			description: 'Auto-post high-impact forex news from FXStreet, Forex Factory, and Investing.com to your channel.',
 			command: '/forex_news_setup #channel',
-			iconPath: 'M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2M18 14h-8M15 18h-5M10 6h8v4h-8V6z' // Newspaper
+			iconPath: 'M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2M18 14h-8M15 18h-5M10 6h8v4h-8V6z'
 		},
 		{
 			title: 'Stock News',
 			description: 'Real-time Indonesian equity news from CNBC, Kontan, Bisnis Indonesia, and IDX Channel.',
 			command: '/stocknews subscribe',
-			iconPath: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3' // BarChart3
+			iconPath: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3'
 		},
 		{
 			title: 'Economic Calendar',
 			description: 'Get reminded 15 minutes before high-impact events. NFP, CPI, interest rate decisions — never miss one.',
 			command: '/calendar_setup #channel',
-			iconPath: 'M8 2v4M16 2v4M3 10h18M21 8v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zM8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01' // CalendarDays
+			iconPath: 'M8 2v4M16 2v4M3 10h18M21 8v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zM8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01'
 		},
 		{
 			title: 'X / Twitter Feed',
 			description: 'Auto-forward tweets from configured accounts directly to your Discord channel.',
 			command: '/twitter_setup #channel',
-			iconPath: 'M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z' // Twitter
+			iconPath: 'M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z'
 		},
 		{
 			title: 'Volatility Detector',
 			description: 'Monitors XAUUSD ATR in real-time. Alerts when current ATR exceeds 2x the historical average.',
 			command: '/volatility_setup #channel',
-			iconPath: 'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z' // Flame
+			iconPath: 'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'
 		}
 	];
 </script>

@@ -1,11 +1,10 @@
 import { CORE_WS_URL, API_KEY } from '$lib/config';
 import type { PriceData, NewsItem } from '$lib/types';
 
-// Use Svelte 5 runes for fine-grained reactivity
 let priceMap = $state<Record<string, PriceData>>({});
 let isConnected = $state(false);
 
-// Real-time news queues (newest first, capped)
+// Newest-first realtime news buffers are capped to bound memory usage.
 let realtimeForexNews = $state<NewsItem[]>([]);
 let realtimeEquityNews = $state<NewsItem[]>([]);
 const MAX_REALTIME_NEWS = 30;
@@ -17,7 +16,6 @@ let reconnectDelay = 2000;
 function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	// Connect to general WS with all channels (market + news + equity)
 	const url = `${CORE_WS_URL}/api/v1/ws?bot_id=web_client&api_key=${API_KEY}&channels=market_data,news,equity_news`;
 	ws = new WebSocket(url);
 
@@ -43,7 +41,7 @@ function connect() {
 				handleEquityNews(msg.data);
 			}
 		} catch {
-			// ignore non-JSON or irrelevant messages
+			// Ignore non-JSON frames and channel messages outside this client contract.
 		}
 	};
 
@@ -101,7 +99,6 @@ function handleForexNews(data: any) {
 		currency_pairs: article.currency_pairs?.join?.(', ') ?? article.currency_pairs ?? null
 	};
 
-	// Deduplicate by id
 	if (realtimeForexNews.some((n) => n.id === item.id)) return;
 
 	realtimeForexNews = [item, ...realtimeForexNews].slice(0, MAX_REALTIME_NEWS);
@@ -170,7 +167,7 @@ export const realtimeNewsStore = {
 	get equityNews() {
 		return realtimeEquityNews;
 	},
-	/** Merge REST-fetched items with realtime items (deduped, newest first) */
+	/** Merge REST-fetched and realtime items, keeping newest realtime records first. */
 	mergeForex(restItems: NewsItem[]): NewsItem[] {
 		return dedupeAndMerge(realtimeForexNews, restItems);
 	},
@@ -183,14 +180,12 @@ function dedupeAndMerge(realtime: NewsItem[], rest: NewsItem[]): NewsItem[] {
 	const seen = new Set<string>();
 	const merged: NewsItem[] = [];
 
-	// Realtime items first (newest)
 	for (const item of realtime) {
 		if (!seen.has(item.id)) {
 			seen.add(item.id);
 			merged.push(item);
 		}
 	}
-	// Then REST items
 	for (const item of rest) {
 		if (!seen.has(item.id)) {
 			seen.add(item.id);

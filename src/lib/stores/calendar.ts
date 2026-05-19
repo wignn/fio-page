@@ -15,7 +15,7 @@ async function fetchCalendar() {
 		const data = await res.json();
 		if (data.items) calendarEvents.set(data.items);
 	} catch {
-		// silent
+		// Keep the previous calendar snapshot when polling fails.
 	} finally {
 		calendarLoading.set(false);
 	}

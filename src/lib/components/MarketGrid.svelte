@@ -17,22 +17,19 @@
 		return `${Math.floor(sec / 60)}m`;
 	}
 
-	// Flash tracking with automatic cleanup
+	// Track short-lived price movement highlights.
 	let flashMap = $state<Map<string, 'up' | 'down'>>(new Map());
 	const activeTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 	$effect(() => {
-		// Only iterate over prices that were updated recently (last 1000ms)
-		// to allow for slower updates or network jitter
+		// Apply highlights only to recent ticks so delayed updates do not flicker.
 		const now = Date.now();
 		for (const p of allPrices) {
 			if (p.direction !== 'none' && now - p.updated_at < 1000) {
-				// If already flashing the same direction, don't restart to avoid flicker
 				if (activeTimeouts.has(p.symbol) && flashMap.get(p.symbol) === p.direction) {
 					continue;
 				}
 
-				// Clear existing timeout if any
 				if (activeTimeouts.has(p.symbol)) {
 					clearTimeout(activeTimeouts.get(p.symbol));
 				}
@@ -58,7 +55,6 @@
 </script>
 
 <div class="flex flex-col bg-bg">
-	<!-- Header -->
 	<div class="flex h-10 shrink-0 items-center justify-between border-b border-border bg-surface px-4">
 		<div class="flex items-center gap-4">
 			<h2 class="text-xs font-semibold uppercase tracking-wider text-text">Market Watch</h2>
@@ -77,7 +73,6 @@
 			</div>
 		</div>
 	{:else}
-		<!-- Table Container -->
 		<div class="max-h-[600px] overflow-auto custom-scrollbar">
 			<table class="w-full text-[13px]">
 				<thead class="sticky top-0 z-10 bg-surface">
@@ -103,7 +98,7 @@
 								{formatPrice(p)}
 							</td>
 							<td class="py-1 px-2 text-right font-mono text-xs {p.direction === 'up' ? 'text-green' : p.direction === 'down' ? 'text-red' : 'text-text-dim'}">
-								{p.direction === 'up' ? '+' : p.direction === 'down' ? '-' : ''}{(Math.random() * 0.5).toFixed(2)}% <!-- Mocking change % as the backend only returns direction currently -->
+								{p.direction === 'up' ? '+' : p.direction === 'down' ? '-' : ''}{(Math.random() * 0.5).toFixed(2)}%
 							</td>
 							<td class="hidden py-1 px-2 text-right text-[11px] text-text-dim lg:table-cell">
 								{p.source.toUpperCase()}
