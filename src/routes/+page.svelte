@@ -15,6 +15,7 @@
 	import TickerStrip from '$lib/components/TickerStrip.svelte';
 	import MarketGrid from '$lib/components/MarketGrid.svelte';
 	import PriceChart from '$lib/components/PriceChart.svelte';
+	import MarketHeatmap from '$lib/components/MarketHeatmap.svelte';
 	import NewsFeed from '$lib/components/NewsFeed.svelte';
 	import CalendarTable from '$lib/components/CalendarTable.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
@@ -22,6 +23,7 @@
 	import logoUrl from '$lib/assets/logo.png';
 
 	let selectedSymbol = $state('SPX');
+	let viewMode = $state('chart');
 
 	let isDarkTheme = $state(false);
 
@@ -156,24 +158,55 @@
 				<div>
 					<h2 class="text-2xl font-bold tracking-tight text-text">Market Board</h2>
 				</div>
+				<div class="flex items-center gap-1.5 bg-surface-2 p-1 rounded-lg border border-border self-start sm:self-auto">
+					<button
+						onclick={() => viewMode = 'chart'}
+						class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer
+						{viewMode === 'chart'
+							? 'bg-surface text-text shadow-sm border border-border/80'
+							: 'text-text-dim hover:text-text'}"
+					>
+						Chart & List
+					</button>
+					<button
+						onclick={() => viewMode = 'heatmap'}
+						class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer
+						{viewMode === 'heatmap'
+							? 'bg-surface text-text shadow-sm border border-border/80'
+							: 'text-text-dim hover:text-text'}"
+					>
+						Market Heatmap
+					</button>
+				</div>
 			</div>
 			
-			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				<div class="lg:col-span-2">
-					<PriceChart symbol={selectedSymbol} />
+			{#if viewMode === 'chart'}
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+					<div class="lg:col-span-2">
+						<PriceChart symbol={selectedSymbol} />
+					</div>
+					<div class="lg:col-span-1">
+						<MarketGrid selected={selectedSymbol} onselect={(sym) => selectedSymbol = sym} />
+					</div>
 				</div>
-				<div class="lg:col-span-1">
-					<MarketGrid selected={selectedSymbol} onselect={(sym) => selectedSymbol = sym} />
-				</div>
-			</div>
 
-			<!-- 4 Compact Mini-Charts at bottom row -->
-			<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-				<PriceChart symbol="SPX" height={160} compact={true} />
-				<PriceChart symbol="XAUUSD" height={160} compact={true} />
-				<PriceChart symbol="BTCUSDT" height={160} compact={true} />
-				<PriceChart symbol="DXY" height={160} compact={true} />
-			</div>
+				<!-- 4 Compact Mini-Charts at bottom row -->
+				<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+					<PriceChart symbol="SPX" height={160} compact={true} />
+					<PriceChart symbol="XAUUSD" height={160} compact={true} />
+					<PriceChart symbol="BTCUSDT" height={160} compact={true} />
+					<PriceChart symbol="DXY" height={160} compact={true} />
+				</div>
+			{:else}
+				<div class="animate-fade-in">
+					<MarketHeatmap
+						onselect={(sym) => {
+							selectedSymbol = sym;
+							viewMode = 'chart';
+						}}
+					/>
+				</div>
+			{/if}
 		</div>
 	</section>
 
