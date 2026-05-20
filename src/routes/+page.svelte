@@ -167,11 +167,12 @@
 				</div>
 			</div>
 
-			<!-- 3 Compact Mini-Charts at bottom row -->
-			<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+			<!-- 4 Compact Mini-Charts at bottom row -->
+			<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+				<PriceChart symbol="SPX" height={160} compact={true} />
+				<PriceChart symbol="XAUUSD" height={160} compact={true} />
 				<PriceChart symbol="BTCUSDT" height={160} compact={true} />
 				<PriceChart symbol="DXY" height={160} compact={true} />
-				<PriceChart symbol="XAUUSD" height={160} compact={true} />
 			</div>
 		</div>
 	</section>

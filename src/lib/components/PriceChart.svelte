@@ -218,7 +218,7 @@
 			},
 			handleScale: {
 				mouseWheel: !compact,
-				pinchTrigger: !compact,
+				pinch: !compact,
 				axisPressedMouseMove: !compact,
 			},
 			handleScroll: {
@@ -270,7 +270,7 @@
 			historyData = data;
 			
 			if (areaSeries && data.length > 0) {
-				areaSeries.setData(data);
+				areaSeries.setData(data as any);
 				chart?.timeScale().fitContent();
 			}
 			loading = false;
