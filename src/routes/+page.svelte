@@ -14,11 +14,14 @@
 	import { startCalendarPolling, stopCalendarPolling } from '$lib/stores/calendar';
 	import TickerStrip from '$lib/components/TickerStrip.svelte';
 	import MarketGrid from '$lib/components/MarketGrid.svelte';
+	import PriceChart from '$lib/components/PriceChart.svelte';
 	import NewsFeed from '$lib/components/NewsFeed.svelte';
 	import CalendarTable from '$lib/components/CalendarTable.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
 	import CommandRef from '$lib/components/CommandRef.svelte';
 	import logoUrl from '$lib/assets/logo.png';
+
+	let selectedSymbol = $state('BTCUSDT');
 
 	let isDarkTheme = $state(false);
 
@@ -144,13 +147,18 @@
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
-					<h2 class="text-2xl font-bold tracking-tight text-text">Market Quotes</h2>
-					<p class="text-sm text-text-muted">Real-time tick data</p>
+					<h2 class="text-2xl font-bold tracking-tight text-text">Market Board</h2>
+					<p class="text-sm text-text-muted">Real-time charting and active rates watch</p>
 				</div>
 			</div>
 			
-			<div class="overflow-hidden rounded border border-border bg-surface shadow-sm">
-				<MarketGrid />
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<div class="lg:col-span-2">
+					<PriceChart symbol={selectedSymbol} />
+				</div>
+				<div class="lg:col-span-1">
+					<MarketGrid selected={selectedSymbol} onselect={(sym) => selectedSymbol = sym} />
+				</div>
 			</div>
 		</div>
 	</section>

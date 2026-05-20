@@ -1,4 +1,4 @@
-import { CORE_WS_URL, API_KEY } from '$lib/config';
+import { CORE_WS_URL, API_KEY, CORE_REST_URL } from '$lib/config';
 import type { PriceData, NewsItem } from '$lib/types';
 
 let priceMap = $state<Record<string, PriceData>>({});
@@ -137,7 +137,39 @@ function scheduleReconnect() {
 	}, reconnectDelay);
 }
 
+async function fetchInitialPrices() {
+	try {
+		const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
+		const res = await fetch(`${restBaseUrl}/api/v1/market/prices`);
+		if (res.ok) {
+			const data = await res.json();
+			if (data.items) {
+				for (const item of data.items) {
+					if (!priceMap[item.symbol]) {
+						priceMap[item.symbol] = {
+							symbol: item.symbol,
+							price: item.price,
+							bid: item.bid ?? null,
+							ask: item.ask ?? null,
+							volume: item.volume ?? null,
+							source: item.source ?? '',
+							asset_type: item.asset_type ?? '',
+							received_at: item.received_at ?? null,
+							direction: 'none',
+							prev_price: item.price,
+							updated_at: Date.now()
+						};
+					}
+				}
+			}
+		}
+	} catch (e) {
+		console.warn('[WS] Failed to fetch initial prices:', e);
+	}
+}
+
 export function startWebSocket() {
+	fetchInitialPrices();
 	connect();
 }
 
