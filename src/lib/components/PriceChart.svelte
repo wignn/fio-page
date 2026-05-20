@@ -3,6 +3,7 @@
 	import { createChart, AreaSeries, type IChartApi, type ISeriesApi } from 'lightweight-charts';
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
+	import { CORE_REST_URL } from '$lib/config';
 
 	interface Props {
 		symbol: string;
@@ -86,13 +87,13 @@
 			badge = 'SPX';
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-			logo = { type: 'svg', url: '' };
+			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/s-and-p-500.svg' };
 		} else if (upper === 'DXY') {
 			name = 'US Dollar Index';
 			badge = 'DXY';
 			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-emerald-600/20';
 			format = (val: number) => val.toFixed(3);
-			logo = { type: 'svg', url: '' };
+			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/u-s-dollar-index.svg' };
 		}
 
 		return { name, badge, badgeColor, format, logo };
@@ -106,7 +107,8 @@
 		const limit = 120; 
 
 		try {
-			const res = await fetch(`/api/v1/market/history/${upperSym}`);
+			const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
+			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}`);
 			if (res.ok) {
 				const data = await res.json();
 				if (Array.isArray(data) && data.length > 0) {
@@ -195,6 +197,7 @@
 				background: { color: bgColor },
 				textColor: textColor,
 				fontFamily: "'Inter', sans-serif",
+				attributionLogo: false,
 			},
 			grid: {
 				vertLines: { visible: !compact, color: gridColor, style: 2 },
@@ -327,7 +330,7 @@
 			<div class="flex items-center gap-2">
 				{#if meta.logo.type === 'img'}
 					<div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
-						<img src={meta.logo.url} alt={meta.name} class="h-4.5 w-4.5 object-contain" />
+						<img src={meta.logo.url} alt={meta.name} class="h-full w-full object-cover rounded-full" />
 					</div>
 				{:else}
 					<div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
@@ -362,7 +365,7 @@
 			<div class="flex items-center gap-3">
 				{#if meta.logo.type === 'img'}
 					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
-						<img src={meta.logo.url} alt={meta.name} class="h-7 w-7 object-contain" />
+						<img src={meta.logo.url} alt={meta.name} class="h-full w-full object-cover rounded-full" />
 					</div>
 				{:else}
 					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
@@ -385,7 +388,6 @@
 						<h3 class="text-base font-bold text-text">{meta.name}</h3>
 						<span class="rounded bg-surface-2 border border-border px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-text-dim">{symbol}</span>
 					</div>
-					<p class="text-xs text-text-muted mt-0.5">Real-time TradingView Chart</p>
 				</div>
 			</div>
 

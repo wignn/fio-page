@@ -45,7 +45,7 @@
 		<h3 class="text-xs font-semibold uppercase tracking-wider text-text-muted">{title}</h3>
 	</div>
 
-	{#if loading}
+	{#if loading && items.length === 0}
 		<div class="space-y-3">
 			{#each Array(4) as _}
 				<div class="h-12 animate-pulse rounded bg-surface-2"></div>

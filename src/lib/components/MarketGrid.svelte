@@ -81,14 +81,14 @@
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
 			unit = 'USD';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-			logo = { type: 'svg', url: '' };
+			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/s-and-p-500.svg' };
 		} else if (sym === 'DXY') {
 			name = 'US Dollar Index';
 			badge = 'DXY';
 			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-[#10B981]/20';
 			unit = 'RATE';
 			format = (val: number) => val.toFixed(3);
-			logo = { type: 'svg', url: '' };
+			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/u-s-dollar-index.svg' };
 		}
 
 		return { name, badge, badgeColor, unit, format, logo };
@@ -186,7 +186,7 @@
 					<div class="flex items-center justify-between w-full">
 						{#if details.logo.type === 'img'}
 							<div class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
-								<img src={details.logo.url} alt={details.badge} class="h-4.5 w-4.5 object-contain" />
+								<img src={details.logo.url} alt={details.badge} class="h-full w-full object-cover rounded-full" />
 							</div>
 						{:else}
 							<div class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
