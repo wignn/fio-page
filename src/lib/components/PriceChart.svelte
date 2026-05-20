@@ -105,51 +105,31 @@
 		const now = Math.floor(Date.now() / 1000);
 		const limit = 120; 
 
-		if (upperSym.endsWith('USDT')) {
-			try {
-				const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${upperSym}&interval=1m&limit=${limit}`);
-				if (!res.ok) throw new Error(`Binance error: ${res.status}`);
-				const data = await res.json();
-				return data.map((item: any) => ({
-					time: Math.floor(item[0] / 1000),
-					value: parseFloat(item[4]) // close price
-				}));
-			} catch (e) {
-				console.warn('[PriceChart] Binance history fetch failed, using fallback', e);
-			}
-		}
-
-		let yahooSymbol = `${upperSym}=X`;
-		if (upperSym === 'XAUUSD') yahooSymbol = 'GC=F'; 
-		if (upperSym === 'SPX') yahooSymbol = '^GSPC';
-		if (upperSym === 'DXY') yahooSymbol = 'DX-Y.NYB';
-
 		try {
-			const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1m&range=1d`;
-			const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-			const res = await fetch(proxyUrl);
+			const res = await fetch(`/api/v1/market/history/${upperSym}`);
 			if (res.ok) {
-				const wrapper = await res.json();
-				const data = JSON.parse(wrapper.contents);
-				const result = data.chart.result[0];
-				const timestamps = result.timestamp;
-				const closes = result.indicators.quote[0].close;
-
-				const history = [];
-				for (let i = 0; i < timestamps.length; i++) {
-					if (closes[i] !== null && closes[i] !== undefined) {
-						history.push({
-							time: timestamps[i],
-							value: closes[i]
-						});
-					}
-				}
-				if (history.length > 0) {
-					return history.slice(-limit);
+				const data = await res.json();
+				if (Array.isArray(data) && data.length > 0) {
+					return data;
 				}
 			}
 		} catch (e) {
-			console.warn('[PriceChart] Yahoo Finance history fetch failed, using fallback', e);
+			console.warn(`[PriceChart] Backend history proxy fetch failed for ${upperSym}, trying direct Binance/fallback`, e);
+		}
+
+		if (upperSym.endsWith('USDT')) {
+			try {
+				const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${upperSym}&interval=1m&limit=${limit}`);
+				if (res.ok) {
+					const data = await res.json();
+					return data.map((item: any) => ({
+						time: Math.floor(item[0] / 1000),
+						value: parseFloat(item[4])
+					}));
+				}
+			} catch (e) {
+				console.warn('[PriceChart] Direct Binance fallback fetch failed', e);
+			}
 		}
 
 		const fallbackData = [];
