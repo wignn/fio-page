@@ -20,7 +20,6 @@
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
 	import CommandRef from '$lib/components/CommandRef.svelte';
 	import logoUrl from '$lib/assets/logo.png';
-	import github from '$lib/assets/github.svg'
 
 	let selectedSymbol = $state('SPX');
 
@@ -156,7 +155,6 @@
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h2 class="text-2xl font-bold tracking-tight text-text">Market Board</h2>
-					<p class="text-sm text-text-muted">Real-time charting and active rates watch</p>
 				</div>
 			</div>
 			
@@ -185,7 +183,6 @@
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h2 class="text-2xl font-bold tracking-tight text-text">Latest News</h2>
-					<p class="text-sm text-text-muted">Aggregated market intelligence</p>
 				</div>
 			</div>
 
