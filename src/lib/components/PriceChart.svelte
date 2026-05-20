@@ -57,24 +57,6 @@
 			badgeColor = 'bg-[#F3BA2F]/10 text-[#F3BA2F] border border-[#F3BA2F]/20';
 			format = (val: number) => `$${val.toFixed(2)}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/bnb@2x.png' };
-		} else if (upper === 'XRPUSDT') {
-			name = 'Ripple';
-			badge = 'XRP';
-			badgeColor = 'bg-[#23292F]/10 text-[#23292F] dark:bg-white/10 dark:text-white border dark:border-white/20';
-			format = (val: number) => `$${val.toFixed(4)}`;
-			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/xrp@2x.png' };
-		} else if (upper === 'DOGEUSDT') {
-			name = 'Dogecoin';
-			badge = 'DOGE';
-			badgeColor = 'bg-[#C2A633]/10 text-[#C2A633] border border-[#C2A633]/20';
-			format = (val: number) => `$${val.toFixed(5)}`;
-			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/doge@2x.png' };
-		} else if (upper === 'ADAUSDT') {
-			name = 'Cardano';
-			badge = 'ADA';
-			badgeColor = 'bg-[#0033AD]/10 text-[#0033AD] border border-[#0033AD]/20';
-			format = (val: number) => `$${val.toFixed(4)}`;
-			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/ada@2x.png' };
 		} else if (upper === 'EURUSD') {
 			name = 'Euro / US Dollar';
 			badge = 'EUR';
