@@ -21,7 +21,7 @@
 	import CommandRef from '$lib/components/CommandRef.svelte';
 	import logoUrl from '$lib/assets/logo.png';
 
-	let selectedSymbol = $state('BTCUSDT');
+	let selectedSymbol = $state('SPX');
 
 	let isDarkTheme = $state(false);
 
@@ -159,6 +159,13 @@
 				<div class="lg:col-span-1">
 					<MarketGrid selected={selectedSymbol} onselect={(sym) => selectedSymbol = sym} />
 				</div>
+			</div>
+
+			<!-- 3 Compact Mini-Charts at bottom row -->
+			<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+				<PriceChart symbol="BTCUSDT" height={160} compact={true} />
+				<PriceChart symbol="DXY" height={160} compact={true} />
+				<PriceChart symbol="XAUUSD" height={160} compact={true} />
 			</div>
 		</div>
 	</section>

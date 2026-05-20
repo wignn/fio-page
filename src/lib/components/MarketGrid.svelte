@@ -96,6 +96,20 @@
 			unit = 'USD';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 			logo = { type: 'svg', url: '' };
+		} else if (sym === 'SPX') {
+			name = 'S&P 500 Index';
+			badge = 'SPX';
+			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
+			unit = 'USD';
+			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+			logo = { type: 'svg', url: '' };
+		} else if (sym === 'DXY') {
+			name = 'US Dollar Index';
+			badge = 'DXY';
+			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-[#10B981]/20';
+			unit = 'RATE';
+			format = (val: number) => val.toFixed(3);
+			logo = { type: 'svg', url: '' };
 		}
 
 		return { name, badge, badgeColor, unit, format, logo };
@@ -197,11 +211,23 @@
 							</div>
 						{:else}
 							<div class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
-								<svg class="h-3.5 w-3.5" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M16 28 L48 28 L40 18 L24 18 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-									<path d="M8 46 L36 46 L30 36 L14 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-									<path d="M28 46 L56 46 L50 36 L34 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-								</svg>
+								{#if p.symbol.toUpperCase() === 'XAUUSD'}
+									<svg class="h-3.5 w-3.5" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M16 28 L48 28 L40 18 L24 18 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+										<path d="M8 46 L36 46 L30 36 L14 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+										<path d="M28 46 L56 46 L50 36 L34 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+									</svg>
+								{:else if p.symbol.toUpperCase() === 'SPX'}
+									<svg class="h-3.5 w-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+										<polyline points="16 7 22 7 22 13"></polyline>
+									</svg>
+								{:else}
+									<svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+										<polyline points="16 7 22 7 22 13"></polyline>
+									</svg>
+								{/if}
 							</div>
 						{/if}
 						<span class="text-[9.5px] font-bold text-text-dim uppercase font-mono tracking-tighter">

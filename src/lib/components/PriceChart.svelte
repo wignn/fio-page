@@ -6,8 +6,10 @@
 
 	interface Props {
 		symbol: string;
+		height?: number;
+		compact?: boolean;
 	}
-	let { symbol }: Props = $props();
+	let { symbol, height = 380, compact = false }: Props = $props();
 
 	let chartContainer = $state<HTMLDivElement | null>(null);
 	let chart: IChartApi | null = null;
@@ -97,6 +99,18 @@
 			badgeColor = 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20';
 			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			logo = { type: 'svg', url: '' };
+		} else if (upper === 'SPX') {
+			name = 'S&P 500 Index';
+			badge = 'SPX';
+			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
+			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+			logo = { type: 'svg', url: '' };
+		} else if (upper === 'DXY') {
+			name = 'US Dollar Index';
+			badge = 'DXY';
+			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-emerald-600/20';
+			format = (val: number) => val.toFixed(3);
+			logo = { type: 'svg', url: '' };
 		}
 
 		return { name, badge, badgeColor, format, logo };
@@ -125,6 +139,8 @@
 
 		let yahooSymbol = `${upperSym}=X`;
 		if (upperSym === 'XAUUSD') yahooSymbol = 'GC=F'; 
+		if (upperSym === 'SPX') yahooSymbol = '^GSPC';
+		if (upperSym === 'DXY') yahooSymbol = 'DX-Y.NYB';
 
 		try {
 			const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1m&range=1d`;
@@ -158,6 +174,8 @@
 		let price = initialPrice > 0 ? initialPrice : 1.0850; 
 		if (upperSym.includes('JPY')) price = 150.0;
 		if (upperSym === 'XAUUSD') price = 2400.0;
+		if (upperSym === 'SPX') price = 5200.0;
+		if (upperSym === 'DXY') price = 104.50;
 		if (upperSym.endsWith('USDT')) price = upperSym.startsWith('BTC') ? 95000.0 : 3000.0;
 
 		const intervalSec = 60;
@@ -210,36 +228,37 @@
 
 		chart = createChart(chartContainer, {
 			width: chartContainer.clientWidth,
-			height: 380,
+			height: height,
 			layout: {
 				background: { color: bgColor },
 				textColor: textColor,
 				fontFamily: "'Inter', sans-serif",
 			},
 			grid: {
-				vertLines: { color: gridColor, style: 2 },
-				horzLines: { color: gridColor, style: 2 },
+				vertLines: { visible: !compact, color: gridColor, style: 2 },
+				horzLines: { visible: !compact, color: gridColor, style: 2 },
 			},
 			rightPriceScale: {
 				borderVisible: false,
 				scaleMargins: {
-					top: 0.2,
-					bottom: 0.15,
+					top: compact ? 0.15 : 0.2,
+					bottom: compact ? 0.1 : 0.15,
 				},
 			},
 			timeScale: {
+				visible: !compact,
 				borderVisible: false,
 				timeVisible: true,
 				secondsVisible: false,
 			},
 			handleScale: {
-				mouseWheel: true,
-				pinchTrigger: true,
-				axisPressedMouseMove: true,
+				mouseWheel: !compact,
+				pinchTrigger: !compact,
+				axisPressedMouseMove: !compact,
 			},
 			handleScroll: {
-				mouseWheel: true,
-				pressedMouseMove: true,
+				mouseWheel: !compact,
+				pressedMouseMove: !compact,
 			},
 		});
 
@@ -254,7 +273,7 @@
 		const resizeObserver = new ResizeObserver((entries) => {
 			if (entries[0] && chart) {
 				const { width } = entries[0].contentRect;
-				chart.resize(width, 380);
+				chart.resize(width, height);
 			}
 		});
 		resizeObserver.observe(chartContainer);
@@ -341,47 +360,93 @@
 </script>
 
 <div class="flex flex-col bg-surface border border-border rounded-lg shadow-sm overflow-hidden animate-fade-in">
-	<div class="flex items-center justify-between border-b border-border bg-surface px-6 py-4">
-		<div class="flex items-center gap-3">
-			{#if meta.logo.type === 'img'}
-				<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
-					<img src={meta.logo.url} alt={meta.name} class="h-7 w-7 object-contain" />
-				</div>
-			{:else}
-				<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
-					<svg class="h-6 w-6" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M16 28 L48 28 L40 18 L24 18 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-						<path d="M8 46 L36 46 L30 36 L14 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-						<path d="M28 46 L56 46 L50 36 L34 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-					</svg>
-				</div>
-			{/if}
-			<div>
-				<div class="flex items-center gap-2">
-					<h3 class="text-base font-bold text-text">{meta.name}</h3>
-					<span class="rounded bg-surface-2 border border-border px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-text-dim">{symbol}</span>
-				</div>
-				<p class="text-xs text-text-muted mt-0.5">Real-time TradingView Chart</p>
+	{#if compact}
+		<div class="flex items-center justify-between border-b border-border bg-surface px-4 py-2.5">
+			<div class="flex items-center gap-2">
+				{#if meta.logo.type === 'img'}
+					<div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
+						<img src={meta.logo.url} alt={meta.name} class="h-4.5 w-4.5 object-contain" />
+					</div>
+				{:else}
+					<div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
+						{#if symbol.toUpperCase() === 'XAUUSD'}
+							<svg class="h-4 w-4" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M16 28 L48 28 L40 18 L24 18 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+								<path d="M8 46 L36 46 L30 36 L14 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+								<path d="M28 46 L56 46 L50 36 L34 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+							</svg>
+						{:else}
+							<svg class="h-4 w-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+								<polyline points="16 7 22 7 22 13"></polyline>
+							</svg>
+						{/if}
+					</div>
+				{/if}
+				<span class="rounded bg-surface-2 border border-border px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-text-dim">{symbol}</span>
+				<span class="text-xs font-bold text-text truncate max-w-[85px]">{meta.name}</span>
+			</div>
+			<div class="text-right flex items-center gap-1.5">
+				<span class="font-mono text-xs font-bold text-text">
+					{meta.format(currentPrice || (historyData.length > 0 ? historyData[historyData.length-1].value : 0))}
+				</span>
+				<span class="text-[9px] font-bold font-mono {direction === 'up' ? 'text-green' : direction === 'down' ? 'text-red' : 'text-text-dim'}">
+					{priceChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%
+				</span>
 			</div>
 		</div>
-
-		<div class="text-right">
-			<div class="text-2xl font-bold font-mono text-text">
-				{meta.format(currentPrice || (historyData.length > 0 ? historyData[historyData.length-1].value : 0))}
+	{:else}
+		<div class="flex items-center justify-between border-b border-border bg-surface px-6 py-4">
+			<div class="flex items-center gap-3">
+				{#if meta.logo.type === 'img'}
+					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
+						<img src={meta.logo.url} alt={meta.name} class="h-7 w-7 object-contain" />
+					</div>
+				{:else}
+					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
+						{#if symbol.toUpperCase() === 'XAUUSD'}
+							<svg class="h-6 w-6" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M16 28 L48 28 L40 18 L24 18 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+								<path d="M8 46 L36 46 L30 36 L14 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+								<path d="M28 46 L56 46 L50 36 L34 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+							</svg>
+						{:else}
+							<svg class="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+								<polyline points="16 7 22 7 22 13"></polyline>
+							</svg>
+						{/if}
+					</div>
+				{/if}
+				<div>
+					<div class="flex items-center gap-2">
+						<h3 class="text-base font-bold text-text">{meta.name}</h3>
+						<span class="rounded bg-surface-2 border border-border px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-text-dim">{symbol}</span>
+					</div>
+					<p class="text-xs text-text-muted mt-0.5">Real-time TradingView Chart</p>
+				</div>
 			</div>
-			<div class="flex items-center justify-end gap-1.5 text-xs font-semibold font-mono mt-0.5 {direction === 'up' ? 'text-green' : direction === 'down' ? 'text-red' : 'text-text-dim'}">
-				<span>{direction === 'up' ? '▲' : direction === 'down' ? '▼' : '■'}</span>
-				<span>{priceChange >= 0 ? '+' : ''}{meta.format(priceChange)} ({priceChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%)</span>
+
+			<div class="text-right">
+				<div class="text-2xl font-bold font-mono text-text">
+					{meta.format(currentPrice || (historyData.length > 0 ? historyData[historyData.length-1].value : 0))}
+				</div>
+				<div class="flex items-center justify-end gap-1.5 text-xs font-semibold font-mono mt-0.5 {direction === 'up' ? 'text-green' : direction === 'down' ? 'text-red' : 'text-text-dim'}">
+					<span>{direction === 'up' ? '▲' : direction === 'down' ? '▼' : '■'}</span>
+					<span>{priceChange >= 0 ? '+' : ''}{meta.format(priceChange)} ({priceChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%)</span>
+				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 
-	<div class="relative bg-surface p-4">
+	<div class="relative bg-surface p-2.5">
 		{#if loading}
 			<div class="absolute inset-0 flex items-center justify-center bg-surface/75 z-10">
 				<div class="flex flex-col items-center">
-					<div class="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
-					<span class="text-xs text-text-muted mt-3 font-semibold">Loading real market data...</span>
+					<div class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
+					{#if !compact}
+						<span class="text-xs text-text-muted mt-2 font-semibold">Loading real market data...</span>
+					{/if}
 				</div>
 			</div>
 		{/if}
