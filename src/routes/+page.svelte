@@ -18,7 +18,7 @@
 	import MarketHeatmap from '$lib/components/MarketHeatmap.svelte';
 	import NewsFeed from '$lib/components/NewsFeed.svelte';
 	import CalendarTable from '$lib/components/CalendarTable.svelte';
-	import SentimentAnalyzer from '$lib/components/SentimentAnalyzer.svelte';
+	import SentimentDashboard from '$lib/components/SentimentDashboard.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
 	import CommandRef from '$lib/components/CommandRef.svelte';
 	import logoUrl from '$lib/assets/logo.png';
@@ -213,6 +213,26 @@
 
 	<div class="h-px bg-border w-full"></div>
 
+	<section id="analyzer" class="px-4 py-16 md:px-8 lg:px-16">
+		<div class="mx-auto max-w-7xl">
+			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div>
+					<h2 class="text-2xl font-bold tracking-tight text-text">AI Sentiment Dashboard</h2>
+				</div>
+			</div>
+
+			<div class="overflow-hidden rounded border border-border bg-surface shadow-sm">
+				<SentimentDashboard
+					forexItems={realtimeNewsStore.mergeForex($forexNews)}
+					stockItems={realtimeNewsStore.mergeStock($stockNews)}
+					selectedSymbol={selectedSymbol}
+				/>
+			</div>
+		</div>
+	</section>
+
+	<div class="h-px bg-border w-full"></div>
+
 	<section id="forex" class="px-4 py-16 md:px-8 lg:px-16">
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -245,23 +265,6 @@
 
 			<div class="overflow-hidden rounded border border-border bg-surface shadow-sm">
 				<CalendarTable />
-			</div>
-		</div>
-	</section>
-
-	<div class="h-px bg-border w-full"></div>
-
-	<section id="analyzer" class="px-4 py-16 md:px-8 lg:px-16">
-		<div class="mx-auto max-w-7xl">
-			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div>
-					<h2 class="text-2xl font-bold tracking-tight text-text">AI Sentiment Analyzer</h2>
-					<p class="text-sm text-text-muted">Powered by FinBERT model</p>
-				</div>
-			</div>
-
-			<div class="overflow-hidden rounded border border-border bg-surface shadow-sm">
-				<SentimentAnalyzer />
 			</div>
 		</div>
 	</section>

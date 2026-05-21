@@ -45,7 +45,6 @@
 		error = null;
 	}
 
-	// Sentiment style helpers
 	function getSentimentBadgeColor(sentiment: string) {
 		const s = sentiment.toLowerCase();
 		if (s === 'positive' || s === 'bullish') return 'bg-green/10 text-green border-green/20';
