@@ -10,7 +10,7 @@
 	} from 'lucide-svelte';
 	import { DISCORD_INVITE } from '$lib/config';
 	import { startWebSocket, stopWebSocket, marketStore, realtimeNewsStore } from '$lib/stores/websocket.svelte';
-	import { forexNews, equityNews, newsLoading, startNewsPolling, stopNewsPolling } from '$lib/stores/news';
+	import { forexNews, stockNews, newsLoading, startNewsPolling, stopNewsPolling } from '$lib/stores/news';
 	import { startCalendarPolling, stopCalendarPolling } from '$lib/stores/calendar';
 	import TickerStrip from '$lib/components/TickerStrip.svelte';
 	import MarketGrid from '$lib/components/MarketGrid.svelte';
@@ -213,11 +213,11 @@
 
 	<div class="h-px bg-border w-full"></div>
 
-	<section id="news" class="px-4 py-16 md:px-8 lg:px-16">
+	<section id="forex" class="px-4 py-16 md:px-8 lg:px-16">
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
-					<h2 class="text-2xl font-bold tracking-tight text-text">Latest News</h2>
+					<h2 class="text-2xl font-bold tracking-tight text-text">Forex News</h2>
 				</div>
 			</div>
 
@@ -226,7 +226,7 @@
 					<NewsFeed title="Forex & Global" items={realtimeNewsStore.mergeForex($forexNews)} loading={$newsLoading} />
 				</div>
 				<div class="rounded border border-border bg-surface shadow-sm">
-					<NewsFeed title="Equity / Saham" items={realtimeNewsStore.mergeEquity($equityNews)} loading={$newsLoading} />
+					<NewsFeed title="Stock / Saham" items={realtimeNewsStore.mergeStock($stockNews)} loading={$newsLoading} />
 				</div>
 			</div>
 		</div>

@@ -6,7 +6,7 @@ let isConnected = $state(false);
 
 // Newest-first realtime news buffers are capped to bound memory usage.
 let realtimeForexNews = $state<NewsItem[]>([]);
-let realtimeEquityNews = $state<NewsItem[]>([]);
+let realtimeStockNews = $state<NewsItem[]>([]);
 const MAX_REALTIME_NEWS = 30;
 
 let ws: WebSocket | null = null;
@@ -16,7 +16,7 @@ let reconnectDelay = 2000;
 function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	const url = `${CORE_WS_URL}/api/v1/ws?bot_id=web_client&api_key=${API_KEY}&channels=market_data,news,equity_news`;
+	const url = `${CORE_WS_URL}/api/v1/ws?bot_id=web_client&api_key=${API_KEY}&channels=market_data,forex_news,stock_news`;
 	ws = new WebSocket(url);
 
 	ws.onopen = () => {
@@ -31,14 +31,14 @@ function connect() {
 
 			if (msg.event === 'market.trade' && msg.data?.tick) {
 				handleMarketTrade(msg.data.tick);
-			} else if (msg.event === 'news.new' || msg.event === 'news.high_impact') {
+			} else if (msg.event === 'forex_news.new' || msg.event === 'forex_news.high_impact') {
 				handleForexNews(msg.data);
 			} else if (
-				msg.event === 'equity.news.new' ||
+				msg.event === 'stock_news.new' ||
 				msg.event === 'stock.news.new' ||
 				msg.event === 'stock.news.high_impact'
 			) {
-				handleEquityNews(msg.data);
+				handleStockNews(msg.data);
 			}
 		} catch {
 			// Ignore non-JSON frames and channel messages outside this client contract.
@@ -104,7 +104,7 @@ function handleForexNews(data: any) {
 	realtimeForexNews = [item, ...realtimeForexNews].slice(0, MAX_REALTIME_NEWS);
 }
 
-function handleEquityNews(data: any) {
+function handleStockNews(data: any) {
 	const article = data?.article;
 	if (!article) return;
 
@@ -124,9 +124,9 @@ function handleEquityNews(data: any) {
 		category: article.category ?? undefined
 	};
 
-	if (realtimeEquityNews.some((n) => n.id === item.id)) return;
+	if (realtimeStockNews.some((n) => n.id === item.id)) return;
 
-	realtimeEquityNews = [item, ...realtimeEquityNews].slice(0, MAX_REALTIME_NEWS);
+	realtimeStockNews = [item, ...realtimeStockNews].slice(0, MAX_REALTIME_NEWS);
 }
 
 function scheduleReconnect() {
@@ -196,15 +196,15 @@ export const realtimeNewsStore = {
 	get forexNews() {
 		return realtimeForexNews;
 	},
-	get equityNews() {
-		return realtimeEquityNews;
+	get stockNews() {
+		return realtimeStockNews;
 	},
 	/** Merge REST-fetched and realtime items, keeping newest realtime records first. */
 	mergeForex(restItems: NewsItem[]): NewsItem[] {
 		return dedupeAndMerge(realtimeForexNews, restItems);
 	},
-	mergeEquity(restItems: NewsItem[]): NewsItem[] {
-		return dedupeAndMerge(realtimeEquityNews, restItems);
+	mergeStock(restItems: NewsItem[]): NewsItem[] {
+		return dedupeAndMerge(realtimeStockNews, restItems);
 	}
 };
 

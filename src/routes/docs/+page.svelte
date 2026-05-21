@@ -84,7 +84,7 @@
 				['GET', '/api/v1/forex/news/latest?limit=10', 'Latest processed forex news with analysis fields.'],
 				['GET', '/api/v1/forex/news/{id}', 'Fetch one stored forex article.'],
 				['GET', '/api/v1/forex/calendar?impact=high&limit=10', 'Upcoming Forex Factory calendar events.'],
-				['GET', '/api/v1/equity/news?limit=10', 'Latest processed equity news.'],
+				['GET', '/api/v1/stock/news?limit=10', 'Latest processed stock news.'],
 				['POST', '/api/v1/content/scrape', 'Private article scraping endpoint.']
 			]
 		},
@@ -112,8 +112,8 @@
 		['/api/v1/ws', 'General stream with query-based subscriptions.'],
 		['/api/v1/ws/market', 'All live market trade events.'],
 		['/api/v1/ws/market/{symbol}', 'Market data for one symbol route.'],
-		['/api/v1/ws/news', 'Forex news events.'],
-		['/api/v1/ws/equity', 'Equity news events.'],
+		['/api/v1/ws/forex-news', 'Forex news events.'],
+		['/api/v1/ws/stock', 'Stock news events.'],
 		['/api/v1/ws/calendar', 'Economic calendar reminder events.'],
 		['/api/v1/ws/x', 'Configured X/Twitter feed events.'],
 		['/api/v1/ws/x/{symbol}', 'Symbol-oriented X stream route.']
@@ -121,9 +121,9 @@
 
 	const events = [
 		'market.trade',
-		'news.new',
-		'news.high_impact',
-		'equity.news.new',
+		'forex_news.new',
+		'forex_news.high_impact',
+		'stock_news.new',
 		'calendar.reminder',
 		'gold.volatility_spike',
 		'x.new',
@@ -134,7 +134,7 @@
 	const botCommands = [
 		['/market_alert XAUUSD 3400', 'Create a direct price alert for a symbol.'],
 		['/forex_news_setup #channel', 'Send forex news updates to a Discord channel.'],
-		['/stocknews subscribe', 'Subscribe to Indonesian equity news.'],
+		['/stocknews subscribe', 'Subscribe to Indonesian stock news.'],
 		['/calendar_setup #channel', 'Enable economic calendar reminders.'],
 		['/twitter_setup #channel', 'Forward configured X account posts.'],
 		['/volatility_setup #channel', 'Enable volatility spike alerts.']
