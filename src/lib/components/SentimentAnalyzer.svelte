@@ -49,6 +49,7 @@
 		const s = sentiment.toLowerCase();
 		if (s === 'positive' || s === 'bullish') return 'bg-green/10 text-green border-green/20';
 		if (s === 'negative' || s === 'bearish') return 'bg-red/10 text-red border-red/20';
+		if (s === 'mixed') return 'bg-amber/10 text-amber border-amber/20';
 		return 'bg-text-dim/10 text-text border-text-dim/20';
 	}
 
@@ -56,6 +57,7 @@
 		const s = sentiment.toLowerCase();
 		if (s === 'positive' || s === 'bullish') return 'bg-green/10 text-green border-l-2 border-green px-2 py-1 rounded-r';
 		if (s === 'negative' || s === 'bearish') return 'bg-red/10 text-red border-l-2 border-red px-2 py-1 rounded-r';
+		if (s === 'mixed') return 'bg-amber/10 text-amber border-l-2 border-amber px-2 py-1 rounded-r';
 		return 'bg-surface border-l-2 border-text-dim/40 px-2 py-1 rounded-r text-text';
 	}
 </script>
@@ -189,6 +191,121 @@
 								{#each result.entities.currencies as curr}
 									<span class="rounded bg-surface px-2 py-0.5 text-[10px] font-mono text-accent border border-border">${curr}</span>
 								{/each}
+							{/if}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Translation layer details -->
+				{#if result.translated}
+					<div class="mt-4 border-t border-border pt-4 flex flex-col gap-2">
+						<div class="flex items-center justify-between">
+							<span class="text-xs font-semibold text-text-muted">Terjemahan Otomatis</span>
+							<span class="text-[10px] font-mono bg-accent/15 text-accent px-1.5 py-0.5 rounded border border-accent/20">
+								{result.language?.toUpperCase()} → {result.analysis_language?.toUpperCase()}
+							</span>
+						</div>
+						<div class="text-xs bg-surface border border-border p-3 rounded text-text-muted leading-relaxed max-h-32 overflow-y-auto italic">
+							"{result.translated_text}"
+						</div>
+					</div>
+				{/if}
+
+				<!-- Macro economic event info -->
+				{#if result.event && result.event.type}
+					<div class="mt-4 border-t border-border pt-4 flex flex-col gap-2">
+						<div class="text-xs font-semibold text-text-muted">Detail Data Makroekonomi:</div>
+						<div class="bg-surface border border-border rounded p-3 flex flex-col gap-2">
+							<div class="flex justify-between items-center pb-2 border-b border-border/60">
+								<span class="text-xs font-bold text-text truncate max-w-[180px]">{result.event.type}</span>
+								<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border text-text-muted uppercase">
+									{result.event.country || 'Global'}
+								</span>
+							</div>
+							<div class="grid grid-cols-3 gap-2 text-center text-xs mt-1">
+								<div class="flex flex-col p-1.5 bg-surface-2/40 rounded">
+									<span class="text-[10px] text-text-dim">Actual</span>
+									<span class="font-mono font-bold text-text">{result.event.actual !== null && result.event.actual !== undefined ? result.event.actual : '-'} {result.event.unit || ''}</span>
+								</div>
+								<div class="flex flex-col p-1.5 bg-surface-2/40 rounded">
+									<span class="text-[10px] text-text-dim">Forecast</span>
+									<span class="font-mono font-bold text-text-muted">{result.event.forecast !== null && result.event.forecast !== undefined ? result.event.forecast : '-'} {result.event.unit || ''}</span>
+								</div>
+								<div class="flex flex-col p-1.5 bg-surface-2/40 rounded">
+									<span class="text-[10px] text-text-dim">Previous</span>
+									<span class="font-mono font-bold text-text-muted">{result.event.previous !== null && result.event.previous !== undefined ? result.event.previous : '-'} {result.event.unit || ''}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Asset market impact grid -->
+				{#if result.market_impact && Object.keys(result.market_impact).length > 0}
+					<div class="mt-4 border-t border-border pt-4 flex flex-col gap-2">
+						<div class="text-xs font-semibold text-text-muted">Proyeksi Dampak Aset:</div>
+						<div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+							{#each Object.entries(result.market_impact) as [asset, impact]}
+								{@const impLower = String(impact).toLowerCase()}
+								<div class="flex flex-col items-center justify-center p-2 rounded border border-border bg-surface text-center">
+									<span class="text-[10px] font-bold text-text-dim uppercase tracking-wider">{asset}</span>
+									<span class="text-[10px] font-black uppercase mt-1 px-1.5 py-0.5 rounded
+										{impLower === 'bullish' || impLower === 'positive' ? 'bg-green/10 text-green border border-green/20' : 
+										 impLower === 'bearish' || impLower === 'negative' ? 'bg-red/10 text-red border border-red/20' : 
+										 'bg-text-dim/10 text-text border border-text-dim/20'}"
+									>
+										{impact}
+									</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<!-- AI trading intelligence -->
+				{#if result.final_signal || result.reason}
+					<div class="mt-4 border-t border-border pt-4 flex flex-col gap-3">
+						<div class="text-xs font-semibold text-text-muted">AI Trading Intelligence:</div>
+						<div class="p-4 rounded-lg border bg-surface flex flex-col gap-3
+							{result.final_signal?.toLowerCase() === 'buy' || result.final_signal?.toLowerCase() === 'bullish' ? 'border-green/20 bg-green/5' : 
+							 result.final_signal?.toLowerCase() === 'sell' || result.final_signal?.toLowerCase() === 'bearish' ? 'border-red/20 bg-red/5' : 
+							 'border-border'}"
+						>
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-2">
+									<span class="text-xs font-semibold text-text-dim">Signal:</span>
+									<span class="text-sm font-black uppercase px-2.5 py-0.5 rounded border
+										{result.final_signal?.toLowerCase() === 'buy' || result.final_signal?.toLowerCase() === 'bullish' ? 'bg-green/10 text-green border-green/20' : 
+										 result.final_signal?.toLowerCase() === 'sell' || result.final_signal?.toLowerCase() === 'bearish' ? 'bg-red/10 text-red border-red/20' : 
+										 'bg-text-dim/10 text-text border-text-dim/20'}"
+									>
+										{result.final_signal || 'NO_SIGNAL'}
+									</span>
+								</div>
+								{#if result.confidence !== undefined && result.confidence !== null}
+									<div class="flex items-center gap-2 text-xs">
+										<span class="font-semibold text-text-dim">Confidence:</span>
+										<span class="font-mono font-black text-text">{(result.confidence * 100).toFixed(0)}%</span>
+									</div>
+								{/if}
+							</div>
+
+							{#if result.confidence !== undefined && result.confidence !== null}
+								<div class="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
+									<div 
+										class="h-full rounded-full transition-all duration-700
+											{result.final_signal?.toLowerCase() === 'buy' || result.final_signal?.toLowerCase() === 'bullish' ? 'bg-green' : 
+											 result.final_signal?.toLowerCase() === 'sell' || result.final_signal?.toLowerCase() === 'bearish' ? 'bg-red' : 
+											 'bg-text-dim'}"
+										style="width: {result.confidence * 100}%"
+									></div>
+								</div>
+							{/if}
+
+							{#if result.reason}
+								<p class="text-xs text-text-muted leading-relaxed italic mt-1 bg-surface-2/40 p-2.5 rounded border border-border/50">
+									"{result.reason}"
+								</p>
 							{/if}
 						</div>
 					</div>

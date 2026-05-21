@@ -27,15 +27,19 @@
 
 	function sentimentColor(s: string | null): string {
 		if (!s) return 'text-text-dim';
-		if (s === 'positive' || s === 'bullish') return 'text-green';
-		if (s === 'negative' || s === 'bearish') return 'text-red';
+		const v = s.toLowerCase();
+		if (v === 'positive' || v === 'bullish') return 'text-green';
+		if (v === 'negative' || v === 'bearish') return 'text-red';
+		if (v === 'mixed') return 'text-amber';
 		return 'text-text-dim';
 	}
 
 	function sentimentDot(s: string | null): string {
 		if (!s) return 'bg-text-dim';
-		if (s === 'positive' || s === 'bullish') return 'bg-green';
-		if (s === 'negative' || s === 'bearish') return 'bg-red';
+		const v = s.toLowerCase();
+		if (v === 'positive' || v === 'bullish') return 'bg-green';
+		if (v === 'negative' || v === 'bearish') return 'bg-red';
+		if (v === 'mixed') return 'bg-amber';
 		return 'bg-text-dim';
 	}
 
@@ -53,7 +57,7 @@
 			} else if (s === 'negative' || s === 'bearish') {
 				negative++;
 				total++;
-			} else if (s === 'neutral') {
+			} else if (s === 'neutral' || s === 'mixed') {
 				neutral++;
 				total++;
 			}

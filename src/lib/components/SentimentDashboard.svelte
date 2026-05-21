@@ -62,7 +62,7 @@
 			const s = item.sentiment?.toLowerCase();
 			if (s === 'positive' || s === 'bullish') positive++;
 			else if (s === 'negative' || s === 'bearish') negative++;
-			else if (s === 'neutral') neutral++;
+			else if (s === 'neutral' || s === 'mixed') neutral++;
 		}
 		const total = positive + negative + neutral;
 		const score = total > 0 ? (positive - negative) / total : 0;
@@ -109,7 +109,7 @@
 			const s = item.sentiment?.toLowerCase();
 			if (s === 'positive' || s === 'bullish') { entry.positive++; entry.total++; }
 			else if (s === 'negative' || s === 'bearish') { entry.negative++; entry.total++; }
-			else if (s === 'neutral') { entry.neutral++; entry.total++; }
+			else if (s === 'neutral' || s === 'mixed') { entry.neutral++; entry.total++; }
 		}
 		return [...map.entries()]
 			.sort((a, b) => b[1].total - a[1].total)
@@ -132,6 +132,7 @@
 		const v = s.toLowerCase();
 		if (v === 'positive' || v === 'bullish') return 'bg-green/10 text-green border-green/20';
 		if (v === 'negative' || v === 'bearish') return 'bg-red/10 text-red border-red/20';
+		if (v === 'mixed') return 'bg-amber/10 text-amber border-amber/20';
 		return 'bg-text-dim/10 text-text border-text-dim/20';
 	}
 
@@ -140,6 +141,7 @@
 		const v = s.toLowerCase();
 		if (v === 'positive' || v === 'bullish') return 'bg-green';
 		if (v === 'negative' || v === 'bearish') return 'bg-red';
+		if (v === 'mixed') return 'bg-amber';
 		return 'bg-text-dim';
 	}
 
