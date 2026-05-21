@@ -38,12 +38,49 @@
 		if (s === 'negative' || s === 'bearish') return 'bg-red';
 		return 'bg-text-dim';
 	}
+
+	// Calculate reactive aggregate sentiment statistics
+	let stats = $derived.by(() => {
+		let positive = 0;
+		let negative = 0;
+		let neutral = 0;
+		let total = 0;
+		for (const item of items) {
+			const s = item.sentiment?.toLowerCase();
+			if (s === 'positive' || s === 'bullish') {
+				positive++;
+				total++;
+			} else if (s === 'negative' || s === 'bearish') {
+				negative++;
+				total++;
+			} else if (s === 'neutral') {
+				neutral++;
+				total++;
+			}
+		}
+		return { positive, negative, neutral, total };
+	});
 </script>
 
 <div class="flex flex-col p-4">
-	<div class="mb-4 flex items-center justify-between">
+	<div class="mb-3 flex items-center justify-between">
 		<h3 class="text-xs font-semibold uppercase tracking-wider text-text-muted">{title}</h3>
+		{#if stats.total > 0}
+			<div class="flex items-center gap-2 text-[10px] font-mono">
+				<span class="text-green font-bold">▲ {((stats.positive / stats.total) * 100).toFixed(0)}%</span>
+				<span class="text-text-dim font-bold">■ {((stats.neutral / stats.total) * 100).toFixed(0)}%</span>
+				<span class="text-red font-bold">▼ {((stats.negative / stats.total) * 100).toFixed(0)}%</span>
+			</div>
+		{/if}
 	</div>
+
+	{#if stats.total > 0}
+		<div class="mb-4 h-1.5 w-full bg-border rounded-full overflow-hidden flex">
+			<div class="h-full bg-green transition-all duration-500" style="width: {(stats.positive / stats.total) * 100}%" title="Positive"></div>
+			<div class="h-full bg-text-dim transition-all duration-500" style="width: {(stats.neutral / stats.total) * 100}%" title="Neutral"></div>
+			<div class="h-full bg-red transition-all duration-500" style="width: {(stats.negative / stats.total) * 100}%" title="Negative"></div>
+		</div>
+	{/if}
 
 	{#if loading && items.length === 0}
 		<div class="space-y-3">
