@@ -4,6 +4,7 @@
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
 	import { CORE_REST_URL } from '$lib/config';
+	import { getLocalLogo } from '$lib/logo';
 
 	interface Props {
 		symbol: string;
@@ -33,6 +34,7 @@
 		let badgeColor = 'bg-accent/10 text-accent';
 		let format = (val: number) => val.toFixed(5);
 		let logo = { type: 'img', url: '' };
+		let displaySymbol = upper;
 
 		if (upper === 'BTCUSDT') {
 			name = 'Bitcoin';
@@ -53,11 +55,18 @@
 			format = (val: number) => `$${val.toFixed(2)}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/sol@2x.png' };
 		} else if (upper === 'BNBUSDT') {
-			name = 'Binance Coin';
+			name = 'BNB';
 			badge = 'BNB';
 			badgeColor = 'bg-[#F3BA2F]/10 text-[#F3BA2F] border border-[#F3BA2F]/20';
 			format = (val: number) => `$${val.toFixed(2)}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/bnb@2x.png' };
+		} else if (upper === 'XAUTUSDT') {
+			name = 'Tether Gold';
+			badge = 'XAUT';
+			displaySymbol = 'XAUT';
+			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
+			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
+			logo = { type: 'svg', url: '' };
 		} else if (upper === 'EURUSD') {
 			name = 'Euro / US Dollar';
 			badge = 'EUR';
@@ -81,22 +90,25 @@
 			badge = 'GOLD';
 			badgeColor = 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20';
 			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-			logo = { type: 'svg', url: '' };
 		} else if (upper === 'SPX') {
 			name = 'S&P 500 Index';
 			badge = 'SPX';
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/s-and-p-500.svg' };
 		} else if (upper === 'DXY') {
 			name = 'US Dollar Index';
 			badge = 'DXY';
 			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-emerald-600/20';
 			format = (val: number) => val.toFixed(3);
-			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/u-s-dollar-index.svg' };
 		}
 
-		return { name, badge, badgeColor, format, logo };
+		// Prioritize local logo over any fallback URL defined above
+		const localLogoUrl = getLocalLogo(upper);
+		if (localLogoUrl) {
+			logo = { type: 'img', url: localLogoUrl };
+		}
+
+		return { name, badge, badgeColor, format, logo, displaySymbol };
 	}
 
 	let meta = $derived(getSymbolMeta(symbol));
@@ -116,28 +128,13 @@
 				}
 			}
 		} catch (e) {
-			console.warn(`[PriceChart] Backend history proxy fetch failed for ${upperSym}, trying direct Binance/fallback`, e);
-		}
-
-		if (upperSym.endsWith('USDT')) {
-			try {
-				const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${upperSym}&interval=1m&limit=${limit}`);
-				if (res.ok) {
-					const data = await res.json();
-					return data.map((item: any) => ({
-						time: Math.floor(item[0] / 1000),
-						value: parseFloat(item[4])
-					}));
-				}
-			} catch (e) {
-				console.warn('[PriceChart] Direct Binance fallback fetch failed', e);
-			}
+			console.warn(`[PriceChart] Backend history fetch failed for ${upperSym}, using generated fallback`, e);
 		}
 
 		const fallbackData = [];
 		let price = initialPrice > 0 ? initialPrice : 1.0850; 
 		if (upperSym.includes('JPY')) price = 150.0;
-		if (upperSym === 'XAUUSD') price = 2400.0;
+		if (upperSym === 'XAUUSD') price = 4500.0;
 		if (upperSym === 'SPX') price = 5200.0;
 		if (upperSym === 'DXY') price = 104.50;
 		if (upperSym.endsWith('USDT')) price = upperSym.startsWith('BTC') ? 95000.0 : 3000.0;
@@ -348,7 +345,7 @@
 						{/if}
 					</div>
 				{/if}
-				<span class="rounded bg-surface-2 border border-border px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-text-dim">{symbol}</span>
+				<span class="rounded bg-surface-2 border border-border px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-text-dim">{meta.displaySymbol}</span>
 				<span class="text-xs font-bold text-text truncate max-w-[85px]">{meta.name}</span>
 			</div>
 			<div class="text-right flex items-center gap-1.5">
@@ -386,7 +383,7 @@
 				<div>
 					<div class="flex items-center gap-2">
 						<h3 class="text-base font-bold text-text">{meta.name}</h3>
-						<span class="rounded bg-surface-2 border border-border px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-text-dim">{symbol}</span>
+						<span class="rounded bg-surface-2 border border-border px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-text-dim">{meta.displaySymbol}</span>
 					</div>
 				</div>
 			</div>

@@ -2,6 +2,8 @@
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
 
+	import { getLocalLogo } from '$lib/logo';
+
 	interface Props {
 		selected: string;
 		onselect: (symbol: string) => void;
@@ -9,15 +11,40 @@
 	let { selected, onselect }: Props = $props();
 
 	let allPrices: PriceData[] = $derived(marketStore.prices);
+	const primarySymbols = ['XAUUSD', 'BTCUSDT', 'ETHUSDT', 'SPX', 'USDJPY', 'EURUSD', 'DXY', 'BBCA'];
+	let livePrices: PriceData[] = $derived.by(() => {
+		const bySymbol = new Map(allPrices.map((price) => [price.symbol.toUpperCase(), price]));
+		return primarySymbols.map((symbol) => bySymbol.get(symbol) ?? placeholderPrice(symbol));
+	});
 
-	function getSymbolDetails(symbol: string) {
+	function placeholderPrice(symbol: string): PriceData {
+		const assetType = symbol.endsWith('USDT') ? 'crypto' : symbol === 'SPX' || symbol === 'DXY' ? 'index' : symbol === 'XAUUSD' ? 'commodity' : symbol === 'BBCA' ? 'stock' : 'forex';
+		return {
+			symbol,
+			price: 0,
+			bid: null,
+			ask: null,
+			volume: null,
+			source: 'market_data',
+			asset_type: assetType,
+			received_at: null,
+			direction: 'none',
+			prev_price: 0,
+			updated_at: 0
+		};
+	}
+
+	function getSymbolDetails(itemOrSymbol: PriceData | string) {
+		const symbol = typeof itemOrSymbol === 'string' ? itemOrSymbol : itemOrSymbol.symbol;
+		const category = typeof itemOrSymbol === 'string' ? getAssetCategory({ symbol, asset_type: '', price: 0 } as PriceData) : getAssetCategory(itemOrSymbol);
 		const sym = symbol.toUpperCase();
 		let name = sym;
-		let badge = sym.substring(0, 3);
+		let badge = sym.substring(0, 4);
 		let badgeColor = 'bg-accent/10 text-accent border border-accent/20';
-		let unit = 'USD';
-		let format = (val: number) => val.toFixed(5);
-		let logo = { type: 'img', url: '' };
+		let unit = category === 'forex' ? 'RATE' : category === 'stocks' ? 'EQTY' : category === 'indices' ? 'IDX' : 'USD';
+		let format = (val: number) => formatPrice(val, category, sym);
+		let logo = { type: 'svg', url: '' };
+		let displaySymbol = sym;
 
 		if (sym === 'BTCUSDT') {
 			name = 'Bitcoin';
@@ -41,7 +68,7 @@
 			format = (val: number) => val.toFixed(2);
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/sol@2x.png' };
 		} else if (sym === 'BNBUSDT') {
-			name = 'Binance Coin';
+			name = 'BNB';
 			badge = 'BNB';
 			badgeColor = 'bg-[#F3BA2F]/10 text-[#F3BA2F] border border-[#F3BA2F]/20';
 			unit = 'USD';
@@ -50,10 +77,11 @@
 		} else if (sym === 'XAUTUSDT') {
 			name = 'Tether Gold';
 			badge = 'XAUT';
+			displaySymbol = 'XAUT';
 			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
 			unit = 'USD';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/crypto/XTVCXAUT--big.svg' };
+			logo = { type: 'svg', url: '' };
 		} else if (sym === 'EURUSD') {
 			name = 'Euro / USD';
 			badge = 'EUR';
@@ -81,24 +109,69 @@
 			badgeColor = 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20';
 			unit = 'USD';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-			logo = { type: 'svg', url: '' };
 		} else if (sym === 'SPX') {
 			name = 'S&P 500 Index';
 			badge = 'SPX';
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
 			unit = 'USD';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/s-and-p-500.svg' };
 		} else if (sym === 'DXY') {
 			name = 'US Dollar Index';
 			badge = 'DXY';
 			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-[#10B981]/20';
 			unit = 'RATE';
 			format = (val: number) => val.toFixed(3);
-			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/indices/u-s-dollar-index.svg' };
+		} else if (category === 'stocks') {
+			name = `${sym} Equity`;
+			badge = sym.slice(0, 4);
+			badgeColor = 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
+			unit = 'IDR';
+		} else if (category === 'indices') {
+			name = `${sym} Index`;
+			badge = sym.slice(0, 5);
+			badgeColor = 'bg-violet-500/10 text-violet-400 border border-violet-500/20';
+			unit = 'IDX';
+		} else if (category === 'forex') {
+			name = sym.length === 6 ? `${sym.slice(0, 3)} / ${sym.slice(3)}` : sym;
+			badge = sym.slice(0, 3);
+			badgeColor = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+			unit = 'RATE';
 		}
 
-		return { name, badge, badgeColor, unit, format, logo };
+		// Prioritize local logo over any fallback URL defined above
+		const localLogoUrl = getLocalLogo(sym);
+		if (localLogoUrl) {
+			logo = { type: 'img', url: localLogoUrl };
+		}
+
+		return { name, badge, badgeColor, unit, format, logo, displaySymbol };
+	}
+
+
+	function getAssetCategory(item: PriceData): string {
+		const assetType = (item.asset_type ?? '').toLowerCase();
+		if (['stock', 'stocks', 'equity', 'saham'].includes(assetType)) return 'stocks';
+		if (['forex', 'fx', 'currency'].includes(assetType)) return 'forex';
+		if (['index', 'indices', 'global_index'].includes(assetType)) return 'indices';
+		if (['crypto', 'cryptocurrency'].includes(assetType)) return 'crypto';
+		if (['commodity', 'commodities', 'metal', 'energy'].includes(assetType)) return 'commodities';
+
+		const sym = item.symbol.toUpperCase();
+		if (sym.endsWith('USDT')) return 'crypto';
+		if (sym === 'XAUUSD' || sym.startsWith('XAU')) return 'commodities';
+		if (/^[A-Z]{6}$/.test(sym)) return 'forex';
+		return 'stocks';
+	}
+
+	function formatPrice(val: number, category: string, symbol: string): string {
+		if (category === 'crypto') return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+		if (category === 'stocks' || category === 'indices') return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+		if (category === 'forex') {
+			if (symbol.includes('JPY')) return val.toFixed(3);
+			if (symbol.includes('IDR')) return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+			return val.toFixed(5);
+		}
+		return val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 	}
 
 	let flashMap = $state<Map<string, 'up' | 'down'>>(new Map());
@@ -163,20 +236,13 @@
 		<h2 class="text-sm font-bold tracking-tight text-text">Live Instruments</h2>
 		<div class="flex items-center gap-1.5 text-xs text-text-dim">
 			<span class="inline-block h-2 w-2 rounded-full {allPrices.length > 0 ? 'bg-green animate-pulse' : 'bg-red'}"></span>
-			<span class="font-medium font-mono">{allPrices.length} live</span>
+			<span class="font-medium font-mono">{livePrices.filter((p) => p.price > 0).length}/6 live</span>
 		</div>
 	</div>
 
-	<!-- Sidebar Instruments Grid (Kotak-Kotak, Tanpa Scrollbar Dalam) -->
-	{#if allPrices.length === 0}
-		<div class="flex flex-col items-center justify-center p-12 text-center flex-1 min-h-[300px]">
-			<div class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
-			<p class="text-xs text-text-muted mt-3 font-semibold">Connecting to live feed...</p>
-		</div>
-	{:else}
 		<div class="grid grid-cols-2 gap-2.5 p-3.5 bg-surface">
-			{#each allPrices as p (p.symbol)}
-				{@const details = getSymbolDetails(p.symbol)}
+			{#each livePrices as p (p.symbol)}
+				{@const details = getSymbolDetails(p)}
 				{@const pct = getPercentChange(p)}
 				{@const flash = flashMap.get(p.symbol)}
 				{@const isSelected = selected === p.symbol}
@@ -217,7 +283,7 @@
 							</div>
 						{/if}
 						<span class="text-[9.5px] font-bold text-text-dim uppercase font-mono tracking-tighter">
-							{p.symbol}
+							{details.displaySymbol}
 						</span>
 					</div>
 
@@ -239,6 +305,5 @@
 				</button>
 			{/each}
 		</div>
-	{/if}
 </div>
 

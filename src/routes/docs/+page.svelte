@@ -134,7 +134,7 @@
 	const faqs = [
 		['Is this only a Discord bot?', 'No. The Discord bot is one delivery surface. The platform also exposes HTTP APIs, WebSocket streams, and a management portal.'],
 		['How are API keys stored?', 'Raw API keys are shown once, then stored securely as SHA-256 hashes. Revocation and label updates happen through the developer portal.'],
-		['Can tenants configure their own sources?', 'Tenant configuration supports TradingView symbols and custom RSS feeds, subject to plan capabilities and limits.']
+		['Can tenants configure their own sources?', 'Tenant configuration supports market symbols and custom RSS feeds, subject to plan capabilities and limits.']
 	];
 </script>
 
@@ -293,7 +293,7 @@ curl "$CORE_REST_URL/api/v1/forex/news/latest?limit=5" \\
 				<div class="grid gap-4 md:grid-cols-3">
 					{@render FeatureCard('Dashboard', 'Review account status, current plan, usage summary, and service activity from a single operational view.')}
 					{@render FeatureCard('API keys', 'Create, rename, and revoke API keys. The platform allows up to 10 active keys per user.')}
-					{@render FeatureCard('Tenant config', 'Configure TradingView symbols and custom RSS feeds. Validation follows the active plan limits.')}
+					{@render FeatureCard('Tenant config', 'Configure market symbols and custom RSS feeds. Validation follows the active plan limits.')}
 				</div>
 				<p class="mt-6 rounded-lg border border-blue/25 bg-blue/10 p-4 text-sm leading-6 text-text-muted">
 					The developer portal is where you manage your user identity, plans, API keys, and configuration.
@@ -335,7 +335,7 @@ curl "$CORE_REST_URL/api/v1/forex/news/latest?limit=5" \\
   "bid": 3399.9,
   "ask": 3400.6,
   "volume": null,
-  "source": "tiingo",
+  "source": "market_data",
   "asset_type": "forex",
   "received_at": "2026-05-15T10:00:00Z"
 }`
