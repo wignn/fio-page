@@ -33,8 +33,22 @@
 		configs = data.configs;
 		planLimits = data.plan_limits;
 		xUsernames = asLines(configs.x_usernames);
-		tvSymbols = asLines(configs.tv_symbols);
-		rssFeeds = asLines(configs.custom_rss_feeds);
+		tvSymbols = [
+			'BINANCE:BTCUSDT',
+			'BINANCE:ETHUSDT',
+			'BINANCE:SOLUSDT',
+			'BINANCE:XAUTUSDT',
+			'OANDA:EURUSD',
+			'OANDA:GBPUSD',
+			'OANDA:USDJPY',
+			'OANDA:XAUUSD',
+			'YAHOO:SPX',
+			'YAHOO:DXY'
+		].join('\n');
+		rssFeeds = [
+			'Forex News RSS Hub Feed (Active)',
+			'Stock Market Feed (Active)'
+		].join('\n');
 	}
 
 	async function load() {
@@ -139,28 +153,22 @@
 			<section class="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 				<h2 class="font-black text-text">TradingView symbols</h2>
 				<p class="mt-1 text-sm text-text-muted">One symbol per line, such as FX:EURUSD.</p>
-				<textarea bind:value={tvSymbols} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text outline-none placeholder:text-text-dim focus:border-accent" placeholder="FX:EURUSD\nBINANCE:BTCUSDT\nNASDAQ:AAPL"></textarea>
-				<div class="mt-4 flex gap-2">
-					<button class="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-bold text-white hover:bg-accent-glow disabled:opacity-60" onclick={() => saveConfig('tv_symbols', tvSymbols)} disabled={!!saving}>
-						<Save class="h-4 w-4" /> {saving === 'tv_symbols' ? 'Saving...' : 'Save'}
-					</button>
-					<button class="rounded-xl border border-border px-4 py-2 text-sm font-bold text-text-muted hover:bg-surface-2 disabled:opacity-60" onclick={() => clearConfig('tv_symbols')} disabled={!!saving}>
-						<Trash2 class="h-4 w-4" />
-					</button>
+				<textarea readonly bind:value={tvSymbols} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted outline-none opacity-80" placeholder="No symbols configured. Contact administrator."></textarea>
+				<div class="mt-4">
+					<span class="inline-flex items-center rounded-xl bg-surface-2 border border-border px-3 py-1.5 text-xs font-bold text-text-muted">
+						Managed by Administrator
+					</span>
 				</div>
 			</section>
 
 			<section class="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 				<h2 class="font-black text-text">Custom RSS feeds</h2>
 				<p class="mt-1 text-sm text-text-muted">One URL per line. Availability depends on plan.</p>
-				<textarea bind:value={rssFeeds} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text outline-none placeholder:text-text-dim focus:border-accent" placeholder="https://example.com/feed.xml"></textarea>
-				<div class="mt-4 flex gap-2">
-					<button class="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-bold text-white hover:bg-accent-glow disabled:opacity-60" onclick={() => saveConfig('custom_rss_feeds', rssFeeds)} disabled={!!saving || !planLimits?.can_custom_rss}>
-						<Save class="h-4 w-4" /> {saving === 'custom_rss_feeds' ? 'Saving...' : 'Save'}
-					</button>
-					<button class="rounded-xl border border-border px-4 py-2 text-sm font-bold text-text-muted hover:bg-surface-2 disabled:opacity-60" onclick={() => clearConfig('custom_rss_feeds')} disabled={!!saving}>
-						<Trash2 class="h-4 w-4" />
-					</button>
+				<textarea readonly bind:value={rssFeeds} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted outline-none opacity-80" placeholder="No RSS feeds configured. Contact administrator."></textarea>
+				<div class="mt-4">
+					<span class="inline-flex items-center rounded-xl bg-surface-2 border border-border px-3 py-1.5 text-xs font-bold text-text-muted">
+						Managed by Administrator
+					</span>
 				</div>
 			</section>
 		</div>
