@@ -109,14 +109,14 @@
 	];
 
 	const wsChannels = [
-		['/api/v1/ws', 'General stream with query-based subscriptions.'],
-		['/api/v1/ws/market', 'All live market trade events.'],
-		['/api/v1/ws/market/{symbol}', 'Market data for one symbol route.'],
-		['/api/v1/ws/forex-news', 'Forex news events.'],
-		['/api/v1/ws/stock', 'Stock news events.'],
-		['/api/v1/ws/calendar', 'Economic calendar reminder events.'],
-		['/api/v1/ws/x', 'Configured X/Twitter feed events.'],
-		['/api/v1/ws/x/{symbol}', 'Symbol-oriented X stream route.']
+		['/ws/v1', 'Provider-style endpoint. Connect once, then send SUBSCRIBE or UNSUBSCRIBE commands.'],
+		['market_data', 'All live market trade events allowed by the tenant plan.'],
+		['market_data:XAUUSD', 'Live market data for one symbol.'],
+		['forex_news', 'Forex news events.'],
+		['stock_news', 'Stock news events.'],
+		['calendar', 'Economic calendar reminder events.'],
+		['x:federalreserve', 'Configured X/Twitter feed events for one username.'],
+		['all', 'Compatibility stream for internal/bot clients with full access.']
 	];
 
 	const events = [
@@ -369,8 +369,8 @@ Content-Type: application/json
 				<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
 					<div class="rounded-lg border border-border bg-surface">
 						<div class="border-b border-border p-5">
-							<h3 class="text-lg font-semibold">Stream routes</h3>
-							<p class="mt-2 text-sm text-text-muted">Each specialized route auto-subscribes to its corresponding channel.</p>
+							<h3 class="text-lg font-semibold">Provider-style streams</h3>
+							<p class="mt-2 text-sm text-text-muted">Connect once to /ws/v1, then subscribe or unsubscribe to named streams dynamically.</p>
 						</div>
 						<div class="divide-y divide-border">
 							{#each wsChannels as channel}
@@ -386,12 +386,20 @@ Content-Type: application/json
 						{@render CodeBlock(
 							'Browser connection',
 							`const ws = new WebSocket(
-  \`\${CORE_WS_URL}/api/v1/ws/market?api_key=\${apiKey}\`
+  \`\${CORE_WS_URL}/ws/v1?api_key=\${apiKey}\`
 );
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    method: 'SUBSCRIBE',
+    params: ['market_data:XAUUSD', 'forex_news'],
+    id: 1
+  }));
+};
 
 ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
-  console.log(message.event, message.data);
+  console.log(message.stream, message.event, message.data);
 };`
 						)}
 

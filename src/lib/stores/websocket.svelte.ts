@@ -12,17 +12,20 @@ const MAX_REALTIME_NEWS = 30;
 let ws: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectDelay = 2000;
+let requestId = 1;
+let desiredStreams = new Set(['market_data', 'forex_news', 'stock_news']);
 
 function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	const url = `${CORE_WS_URL}/api/v1/ws?bot_id=web_client&api_key=${API_KEY}&channels=market_data,forex_news,stock_news`;
+	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&api_key=${API_KEY}`;
 	ws = new WebSocket(url);
 
 	ws.onopen = () => {
 		console.log('[WS] Connected to core (market + news)');
 		reconnectDelay = 2000;
 		isConnected = true;
+		sendCommand('SUBSCRIBE', [...desiredStreams]);
 	};
 
 	ws.onmessage = (evt) => {
@@ -129,6 +132,17 @@ function handleStockNews(data: any) {
 	realtimeStockNews = [item, ...realtimeStockNews].slice(0, MAX_REALTIME_NEWS);
 }
 
+function sendCommand(method: string, params: string[] = []) {
+	if (!ws || ws.readyState !== WebSocket.OPEN) return;
+	ws.send(
+		JSON.stringify({
+			method,
+			params,
+			id: requestId++
+		})
+	);
+}
+
 function scheduleReconnect() {
 	if (reconnectTimer) clearTimeout(reconnectTimer);
 	reconnectTimer = setTimeout(() => {
@@ -171,6 +185,20 @@ async function fetchInitialPrices() {
 export function startWebSocket() {
 	fetchInitialPrices();
 	connect();
+}
+
+export function subscribe(streams: string[]) {
+	for (const stream of streams) desiredStreams.add(stream);
+	sendCommand('SUBSCRIBE', streams);
+}
+
+export function unsubscribe(streams: string[]) {
+	for (const stream of streams) desiredStreams.delete(stream);
+	sendCommand('UNSUBSCRIBE', streams);
+}
+
+export function listSubscriptions() {
+	sendCommand('LIST_SUBSCRIPTIONS');
 }
 
 export function stopWebSocket() {
