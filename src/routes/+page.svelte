@@ -89,7 +89,8 @@
 				{/if}
 			</button>
 			<a href="/docs" class="text-sm font-medium text-text-muted transition-colors hover:text-text">Docs</a>
-			
+				<!-- <a href="/portal" class="text-sm font-medium text-text-muted transition-colors hover:text-text">Portal</a>
+			 -->
 			<a 
 				href="https://github.com/wignn/atlsd" 
 				target="_blank"
@@ -144,9 +145,15 @@
 					</svg>
 					Add to Discord
 				</a>
-				<a href="#market" class="text-sm font-medium text-text-muted transition-colors hover:text-text">
-					View Live Data ↓
-				</a>
+					<!-- <a
+						href="/portal"
+						class="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3 text-sm font-semibold text-text transition-all hover:border-accent/50 hover:text-accent"
+					>
+						Open Portal
+					</a> -->
+					<a href="#market" class="text-sm font-medium text-text-muted transition-colors hover:text-text">
+						View Live Data ↓
+					</a>
 			</div>
 		</div>
 	</header>

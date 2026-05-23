@@ -47,6 +47,13 @@
 			unit = 'USD';
 			format = (val: number) => val.toFixed(1);
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/bnb@2x.png' };
+		} else if (sym === 'XAUTUSDT') {
+			name = 'Tether Gold';
+			badge = 'XAUT';
+			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
+			unit = 'USD';
+			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+			logo = { type: 'img', url: 'https://s3-symbol-logo.tradingview.com/crypto/XTVCXAUT--big.svg' };
 		} else if (sym === 'EURUSD') {
 			name = 'Euro / USD';
 			badge = 'EUR';

@@ -29,8 +29,6 @@
 		{ id: 'api', label: 'API Reference' },
 		{ id: 'websocket', label: 'WebSocket Streams' },
 		{ id: 'bot', label: 'Discord Bot' },
-		{ id: 'deployment', label: 'Deployment' },
-		{ id: 'operations', label: 'Operations' },
 		{ id: 'security', label: 'Security' },
 		{ id: 'faq', label: 'FAQ' }
 	];
@@ -87,36 +85,29 @@
 				['GET', '/api/v1/stock/news?limit=10', 'Latest processed stock news.'],
 				['POST', '/api/v1/content/scrape', 'Private article scraping endpoint.']
 			]
-		},
-		{
-			name: 'Control plane API',
-			base: 'CONTROL_PLANE_URL',
-			auth: 'JWT Bearer token after login or registration.',
-			endpoints: [
-				['POST', '/api/v1/auth/register', 'Create an account and receive the first API key.'],
-				['POST', '/api/v1/auth/login', 'Exchange email and password for a JWT session.'],
-				['GET', '/api/v1/auth/me', 'Read profile, plan limits, active keys, and OAuth links.'],
-				['GET', '/api/v1/keys', 'List API keys for the authenticated user.'],
-				['POST', '/api/v1/keys', 'Create a new API key. The raw key is shown once.'],
-				['PATCH', '/api/v1/keys/{id}', 'Rename an API key.'],
-				['DELETE', '/api/v1/keys/{id}', 'Revoke an API key.'],
-				['GET', '/api/v1/config', 'Read tenant configuration and plan limits.'],
-				['PUT', '/api/v1/config/{key}', 'Update tenant config such as tv_symbols or custom_rss_feeds.'],
-				['GET', '/api/v1/usage', 'Usage summary for the current account.'],
-				['GET', '/api/v1/plans', 'Public plan catalog.']
-			]
 		}
 	];
 
 	const wsChannels = [
-		['/ws/v1', 'Provider-style endpoint. Connect once, then send SUBSCRIBE or UNSUBSCRIBE commands.'],
+		['/ws/v1', 'Provider-style endpoint. Connect once, authenticate, then send stream commands.'],
 		['market_data', 'All live market trade events allowed by the tenant plan.'],
-		['market_data:XAUUSD', 'Live market data for one symbol.'],
+		['market_data:XAUUSD', 'Live market data for one symbol. Counts toward the market symbol subscription limit.'],
 		['forex_news', 'Forex news events.'],
-		['stock_news', 'Stock news events.'],
-		['calendar', 'Economic calendar reminder events.'],
-		['x:federalreserve', 'Configured X/Twitter feed events for one username.'],
+		['stock_news', 'Stock news events, subject to plan access.'],
+		['calendar', 'Economic calendar reminder events, subject to plan access.'],
+		['high_impact', 'High-impact macro/news alerts.'],
+		['volatility', 'Volatility spike alerts.'],
+		['x', 'All configured X/Twitter feed events allowed by the tenant plan.'],
+		['x:federalreserve', 'Events for one X/Twitter username. Counts toward the X username subscription limit.'],
+		['system', 'Operational system messages and status events.'],
 		['all', 'Compatibility stream for internal/bot clients with full access.']
+	];
+
+	const wsCommands = [
+		['SUBSCRIBE', 'Add one or more streams to the current connection.'],
+		['UNSUBSCRIBE', 'Remove one or more streams from the current connection.'],
+		['LIST_SUBSCRIPTIONS', 'Return the active stream list for the connection.'],
+		['PING', 'Return a pong response without changing subscriptions.']
 	];
 
 	const events = [
@@ -141,11 +132,9 @@
 	];
 
 	const faqs = [
-		['Is this only a Discord bot?', 'No. The Discord bot is one delivery surface. The platform also exposes HTTP APIs, WebSocket streams, a control plane, and a management portal.'],
-		['How are API keys stored?', 'Raw API keys are shown once, then stored as SHA-256 hashes. Revocation and label updates happen through the control plane.'],
-		['What happens if Redis is unavailable?', 'The system keeps core service availability as the priority. Quota counters can fail open, while database-backed identity and configuration remain authoritative.'],
-		['Can tenants configure their own sources?', 'Tenant configuration supports TradingView symbols and custom RSS feeds, subject to plan capabilities and limits.'],
-		['Which services are required in production?', 'PostgreSQL is required. Redis is recommended for tenant synchronization, quota counters, and low-latency coordination. RSSHub is required for X feed aggregation.']
+		['Is this only a Discord bot?', 'No. The Discord bot is one delivery surface. The platform also exposes HTTP APIs, WebSocket streams, and a management portal.'],
+		['How are API keys stored?', 'Raw API keys are shown once, then stored securely as SHA-256 hashes. Revocation and label updates happen through the developer portal.'],
+		['Can tenants configure their own sources?', 'Tenant configuration supports TradingView symbols and custom RSS feeds, subject to plan capabilities and limits.']
 	];
 </script>
 
@@ -173,7 +162,7 @@
 			<nav class="hidden items-center gap-6 text-sm text-text-muted md:flex">
 				<a href="#api" class="transition-colors hover:text-text">API</a>
 				<a href="#websocket" class="transition-colors hover:text-text">WebSocket</a>
-				<a href="#deployment" class="transition-colors hover:text-text">Deploy</a>
+				<a href="#faq" class="transition-colors hover:text-text">FAQ</a>
 				<a
 					href="/"
 					class="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-text transition-colors hover:border-accent/50 hover:text-accent"
@@ -245,7 +234,7 @@
 				</h1>
 				<p class="mt-6 max-w-3xl text-base leading-8 text-text-muted md:text-lg">
 					Fio is the public product experience for the ATLSD platform: a service-oriented market information system
-					combining Rust data pipelines, HTTP APIs, WebSocket streams, a SaaS control plane, a management portal,
+					combining Rust data pipelines, HTTP APIs, WebSocket streams, a management portal,
 					and Discord delivery workflows.
 				</p>
 
@@ -307,8 +296,8 @@ curl "$CORE_REST_URL/api/v1/forex/news/latest?limit=5" \\
 					{@render FeatureCard('Tenant config', 'Configure TradingView symbols and custom RSS feeds. Validation follows the active plan limits.')}
 				</div>
 				<p class="mt-6 rounded-lg border border-blue/25 bg-blue/10 p-4 text-sm leading-6 text-text-muted">
-					The control plane is the source of truth for user identity, plans, API keys, configuration, and usage history.
-					Core services consume synchronized tenant state so HTTP and WebSocket access remain consistent.
+					The developer portal is where you manage your user identity, plans, API keys, and configuration.
+					These settings are synchronized in real-time so your HTTP and WebSocket access remain consistent.
 				</p>
 			</section>
 
@@ -365,29 +354,28 @@ Content-Type: application/json
 			</section>
 
 			<section id="websocket" class="scroll-mt-24 border-t border-border py-14">
-				{@render SectionHeading('radio', 'WebSocket Streams', 'Low-latency event delivery')}
-				<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-					<div class="rounded-lg border border-border bg-surface">
-						<div class="border-b border-border p-5">
-							<h3 class="text-lg font-semibold">Provider-style streams</h3>
-							<p class="mt-2 text-sm text-text-muted">Connect once to /ws/v1, then subscribe or unsubscribe to named streams dynamically.</p>
-						</div>
-						<div class="divide-y divide-border">
-							{#each wsChannels as channel}
-								<div class="grid gap-3 p-4 text-sm md:grid-cols-[220px_minmax(0,1fr)]">
-									<code class="break-words font-mono text-xs text-accent">{channel[0]}</code>
-									<span class="leading-6 text-text-muted">{channel[1]}</span>
+					{@render SectionHeading('radio', 'WebSocket Streams', 'Low-latency event delivery')}
+					<div class="space-y-8">
+						<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
+							<div class="rounded-lg border border-border bg-surface">
+								<div class="border-b border-border p-5">
+									<h3 class="text-lg font-semibold">Provider-style streams</h3>
+									<p class="mt-2 text-sm leading-6 text-text-muted">Connect once to <code class="font-mono text-accent">/ws/v1</code> with an <code class="font-mono text-accent">api_key</code>, <code class="font-mono text-accent">token</code>, or short-lived <code class="font-mono text-accent">ticket</code>, then manage streams with JSON commands.</p>
 								</div>
-							{/each}
-						</div>
-					</div>
+								<div class="divide-y divide-border">
+									{#each wsChannels as channel}
+										<div class="grid gap-3 p-4 text-sm sm:grid-cols-[160px_1fr]">
+											<code class="break-words font-mono text-xs text-accent">{channel[0]}</code>
+											<span class="leading-6 text-text-muted">{channel[1]}</span>
+										</div>
+									{/each}
+								</div>
+							</div>
 
-					<div class="space-y-6">
-						{@render CodeBlock(
-							'Browser connection',
-							`const ws = new WebSocket(
-  \`\${CORE_WS_URL}/ws/v1?api_key=\${apiKey}\`
-);
+							<div class="space-y-6">
+								{@render CodeBlock(
+									'Browser connection',
+									`const ws = new WebSocket(\`\${CORE_WS_URL}/ws/v1?api_key=\${apiKey}\`);
 
 ws.onopen = () => {
   ws.send(JSON.stringify({
@@ -401,19 +389,64 @@ ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
   console.log(message.stream, message.event, message.data);
 };`
-						)}
+								)}
 
-						<div class="rounded-lg border border-border bg-surface p-5">
-							<h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Event names</h3>
-							<div class="flex flex-wrap gap-2">
-								{#each events as event}
-									<code class="rounded-md border border-border bg-bg px-2.5 py-1.5 font-mono text-xs text-text-muted">{event}</code>
-								{/each}
+								<div class="rounded-lg border border-border bg-surface p-5">
+									<h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Commands</h3>
+									<div class="space-y-3">
+										{#each wsCommands as command}
+											<div class="grid gap-2 text-sm sm:grid-cols-[170px_minmax(0,1fr)]">
+												<code class="font-mono text-xs text-accent">{command[0]}</code>
+												<span class="leading-6 text-text-muted">{command[1]}</span>
+											</div>
+										{/each}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="grid gap-6 xl:grid-cols-3">
+							{@render CodeBlock('Subscribe and unsubscribe', `{ "method": "SUBSCRIBE", "params": ["market_data:XAUUSD", "forex_news"], "id": 1 }
+{ "result": null, "id": 1 }
+
+{ "method": "UNSUBSCRIBE", "params": ["market_data:XAUUSD"], "id": 2 }
+{ "result": null, "id": 2 }`)}
+							{@render CodeBlock('List subscriptions and ping', `{ "method": "LIST_SUBSCRIPTIONS", "id": 3 }
+{ "result": ["forex_news"], "id": 3 }
+
+{ "method": "PING", "id": 4 }
+{ "result": "pong", "id": 4 }`)}
+							{@render CodeBlock('Event and plan error', `{
+  "stream": "market_data:XAUUSD",
+  "channel": "market_data",
+  "event": "market.trade",
+  "data": { "tick": { "symbol": "XAUUSD" } }
+}
+
+{
+  "error": { "code": 429, "msg": "Market symbol subscription limit reached for your plan (3)" },
+  "id": 5
+}`)}
+						</div>
+
+						<div class="grid gap-6 lg:grid-cols-[0.85fr_1fr]">
+							<div class="rounded-lg border border-border bg-surface p-5">
+								<h3 class="text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Plan enforcement</h3>
+								<p class="mt-3 text-sm leading-6 text-text-muted">Core enforces WebSocket connection limits at connect time and stream limits at subscribe time. Symbol streams count against <code class="font-mono text-accent">tv_symbols_max</code>, X username streams count against <code class="font-mono text-accent">x_usernames_max</code>, and tenant allowlists such as <code class="font-mono text-accent">tv_symbols</code> are checked before a subscription is accepted.</p>
+								<p class="mt-3 text-sm leading-6 text-text-muted">Legacy routes under <code class="font-mono text-accent">/api/v1/ws/*</code> still work as compatibility wrappers, but new integrations should use <code class="font-mono text-accent">/ws/v1</code>.</p>
+							</div>
+
+							<div class="rounded-lg border border-border bg-surface p-5">
+								<h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Event names</h3>
+								<div class="flex flex-wrap gap-2">
+									{#each events as event}
+										<code class="rounded-md border border-border bg-bg px-2.5 py-1.5 font-mono text-xs text-text-muted">{event}</code>
+									{/each}
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</section>
+				</section>
 
 			<section id="bot" class="scroll-mt-24 border-t border-border py-14">
 				{@render SectionHeading('bot', 'Discord Bot', 'Operational alerts inside Discord')}
@@ -427,35 +460,6 @@ ws.onmessage = (event) => {
 				</div>
 			</section>
 
-			<section id="deployment" class="scroll-mt-24 border-t border-border py-14">
-				{@render SectionHeading('cloud', 'Deployment', 'Containerized platform services')}
-				<div class="grid gap-6 lg:grid-cols-[0.85fr_1fr]">
-					<div class="space-y-4">
-						{@render FeatureCard('Required services', 'PostgreSQL, core service, control plane, portal, and RSSHub for X feed ingestion.')}
-						{@render FeatureCard('Recommended services', 'Redis for tenant synchronization, quota counters, pub/sub coordination, and news ingest streams.')}
-						{@render FeatureCard('Build artifacts', 'The infrastructure layer provides component Dockerfiles and Compose orchestration for local or server deployment.')}
-					</div>
-					{@render CodeBlock(
-						'Local compose workflow',
-						`cd infrastructure
-docker compose up --build
-
-# Service health
-curl "$CORE_REST_URL/health"
-curl "$CONTROL_PLANE_URL/health"`
-					)}
-				</div>
-			</section>
-
-			<section id="operations" class="scroll-mt-24 border-t border-border py-14">
-				{@render SectionHeading('server', 'Operations', 'Run with visibility and graceful degradation')}
-				<div class="grid gap-4 md:grid-cols-2">
-					{@render FeatureCard('Structured logs', 'Rust services emit structured JSON logs for pipeline status, HTTP behavior, WebSocket connections, and worker failures.')}
-					{@render FeatureCard('Tenant sync', 'Control-plane updates publish Redis notifications so core services refresh API keys, plans, and tenant configuration.')}
-					{@render FeatureCard('Usage tracking', 'API requests are recorded through batched usage logging, with Redis-backed quota counters for low-latency enforcement.')}
-					{@render FeatureCard('Graceful shutdown', 'HTTP servers and scheduled tasks are designed to preserve state consistency during process termination.')}
-				</div>
-			</section>
 
 			<section id="security" class="scroll-mt-24 border-t border-border py-14">
 				{@render SectionHeading('shield', 'Security', 'Access control is enforced at tenant boundaries')}
