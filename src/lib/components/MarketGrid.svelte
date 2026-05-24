@@ -74,10 +74,10 @@
 			unit = 'USD';
 			format = (val: number) => val.toFixed(1);
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/bnb@2x.png' };
-		} else if (sym === 'XAUTUSDT') {
-			name = 'Tether Gold';
-			badge = 'XAUT';
-			displaySymbol = 'XAUT';
+		} else if (sym === 'PAXGUSDT') {
+			name = 'PAX Gold';
+			badge = 'PAXG';
+			displaySymbol = 'PAXG';
 			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
 			unit = 'USD';
 			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });

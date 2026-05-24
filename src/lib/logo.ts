@@ -79,7 +79,7 @@ const logoMap: Record<string, string> = {
 	ETHUSDT: ethLogo,
 	SOLUSDT: solLogo,
 	BNBUSDT: bnbLogo,
-	XAUTUSDT: xautLogo,
+	PAXGUSDT: xautLogo,
 
 	// Stocks
 	ADRO: adroLogo,
@@ -130,7 +130,7 @@ export function getLocalLogo(symbol: string): string | null {
 	if (upper.includes('ETH')) return ethLogo;
 	if (upper.includes('SOL')) return solLogo;
 	if (upper.includes('BNB')) return bnbLogo;
-	if (upper.includes('XAUT')) return xautLogo;
+	if (upper.includes('PAXG')) return xautLogo;
 
 	// Stock ID fallbacks
 	if (upper.includes('ADRO')) return adroLogo;

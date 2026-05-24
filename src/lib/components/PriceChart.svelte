@@ -61,10 +61,10 @@
 			badgeColor = 'bg-[#F3BA2F]/10 text-[#F3BA2F] border border-[#F3BA2F]/20';
 			format = (val: number) => `$${val.toFixed(2)}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/bnb@2x.png' };
-		} else if (upper === 'XAUTUSDT') {
-			name = 'Tether Gold';
-			badge = 'XAUT';
-			displaySymbol = 'XAUT';
+		} else if (upper === 'PAXGUSDT') {
+			name = 'PAX Gold';
+			badge = 'PAXG';
+			displaySymbol = 'PAXG';
 			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
 			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
 			logo = { type: 'svg', url: '' };

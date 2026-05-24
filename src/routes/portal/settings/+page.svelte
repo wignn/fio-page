@@ -37,7 +37,7 @@
 			'BTCUSDT',
 			'ETHUSDT',
 			'SOLUSDT',
-			'XAUTUSDT',
+			'PAXGUSDT',
 			'EURUSD',
 			'GBPUSD',
 			'USDJPY',
