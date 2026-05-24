@@ -25,7 +25,7 @@
 			bid: null,
 			ask: null,
 			volume: null,
-			source: 'market_data',
+			source: 'placeholder',
 			asset_type: assetType,
 			received_at: null,
 			direction: 'none',
@@ -187,7 +187,48 @@
 		}
 	});
 
+	type FreshnessState = 'live' | 'stale' | 'closed' | 'unknown';
+
+	function hasValidPrice(p: PriceData): boolean {
+		return p.source !== 'placeholder' && p.price > 0;
+	}
+
+	function isMarketClosed(symbol: string, assetType: string): boolean {
+		const now = new Date();
+		const day = now.getUTCDay();
+		const hour = now.getUTCHours();
+		const sym = symbol.toUpperCase();
+		const type = assetType.toLowerCase();
+
+		if (type === 'crypto' || sym.endsWith('USDT')) return false;
+		if (sym === 'XAUUSD') return day === 6 || (day === 5 && hour >= 22) || (day === 0 && hour < 23);
+		if (type === 'forex' || /^[A-Z]{6}$/.test(sym)) return day === 6 || (day === 5 && hour >= 22) || (day === 0 && hour < 22);
+		return day === 0 || day === 6;
+	}
+
+	function priceTimestamp(p: PriceData): number {
+		if (p.received_at) {
+			const parsed = Date.parse(p.received_at);
+			if (!Number.isNaN(parsed)) return parsed;
+		}
+		return p.updated_at;
+	}
+
+	function getFreshness(p: PriceData): { state: FreshnessState; label: string; className: string } {
+		if (!hasValidPrice(p)) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
+		const closed = isMarketClosed(p.symbol, p.asset_type ?? '');
+		const ts = priceTimestamp(p);
+		if (!ts) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
+
+		const ageMs = Date.now() - ts;
+		const freshMs = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto' ? 2 * 60_000 : 5 * 60_000;
+		if (ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
+		if (closed) return { state: 'closed', label: 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
+		return { state: 'stale', label: 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
+	}
+
 	function getPercentChange(p: PriceData): { value: number; string: string } {
+		if (!hasValidPrice(p)) return { value: 0, string: '--' };
 		const base = initialPrices.get(p.symbol) ?? p.price;
 		if (base === 0) return { value: 0, string: '0.00%' };
 		const pct = ((p.price - base) / base) * 100;
@@ -236,7 +277,7 @@
 		<h2 class="text-sm font-bold tracking-tight text-text">Live Instruments</h2>
 		<div class="flex items-center gap-1.5 text-xs text-text-dim">
 			<span class="inline-block h-2 w-2 rounded-full {allPrices.length > 0 ? 'bg-green animate-pulse' : 'bg-red'}"></span>
-			<span class="font-medium font-mono">{livePrices.filter((p) => p.price > 0).length}/6 live</span>
+			<span class="font-medium font-mono">{livePrices.filter(hasValidPrice).length}/{primarySymbols.length} live</span>
 		</div>
 	</div>
 
@@ -246,6 +287,8 @@
 				{@const pct = getPercentChange(p)}
 				{@const flash = flashMap.get(p.symbol)}
 				{@const isSelected = selected === p.symbol}
+					{@const validPrice = hasValidPrice(p)}
+					{@const freshness = getFreshness(p)}
 
 				<button
 					onclick={() => onselect(p.symbol)}
@@ -282,23 +325,27 @@
 								{/if}
 							</div>
 						{/if}
-						<span class="text-[9.5px] font-bold text-text-dim uppercase font-mono tracking-tighter">
+						<div class="flex items-center gap-1">
+								<span class="rounded border px-1 py-0.5 text-[7px] font-bold font-mono {freshness.className}">{freshness.label}</span>
+								<span class="text-[9.5px] font-bold text-text-dim uppercase font-mono tracking-tighter">
 							{details.displaySymbol}
 						</span>
 					</div>
 
-					<div class="flex flex-col mt-1.5 w-full">
+					</div>
+
+						<div class="flex flex-col mt-1.5 w-full">
 						<!-- Price -->
 						<div class="flex items-baseline justify-between w-full">
 							<span class="font-mono text-sm font-bold text-text truncate max-w-[100px]">
-								{details.format(p.price)}
+								{validPrice ? details.format(p.price) : '--'}
 							</span>
 							<span class="text-[8px] text-text-dim uppercase font-mono font-semibold pl-1 shrink-0">
 								{details.unit}
 							</span>
 						</div>
 						<div class="flex items-center gap-1 text-[10px] font-bold font-mono mt-0.5 {pct.value >= 0 ? 'text-green' : 'text-red'}">
-							<span>{pct.value >= 0 ? '▲' : '▼'}</span>
+							<span>{validPrice ? (pct.value >= 0 ? '▲' : '▼') : '■'}</span>
 							<span>{pct.string}</span>
 						</div>
 					</div>

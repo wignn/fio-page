@@ -17,7 +17,8 @@
 	let chart: IChartApi | null = null;
 	let areaSeries: ISeriesApi<'Area'> | null = null;
 
-	let historyData = $state<{ time: number; value: number }[]>([]);
+	let historyData = $state<{ time: number; value: number; source?: string }[]>([]);
+	let historySource = $state<'history' | 'last_known' | 'empty'>('empty');
 	let loading = $state(true);
 	let errorMsg = $state('');
 	let liveData = $derived(marketStore.getPrice(symbol));
@@ -112,41 +113,61 @@
 	}
 
 	let meta = $derived(getSymbolMeta(symbol));
+	type FreshnessState = 'live' | 'stale' | 'closed' | 'unknown';
 
-	async function loadHistoricalData(sym: string, initialPrice: number): Promise<{ time: number; value: number }[]> {
+	function isMarketClosed(sym: string, assetType = ''): boolean {
+		const now = new Date();
+		const day = now.getUTCDay();
+		const hour = now.getUTCHours();
+		const upper = sym.toUpperCase();
+		const type = assetType.toLowerCase();
+
+		if (type === 'crypto' || upper.endsWith('USDT')) return false;
+		if (upper === 'XAUUSD') return day === 6 || (day === 5 && hour >= 22) || (day === 0 && hour < 23);
+		if (type === 'forex' || /^[A-Z]{6}$/.test(upper)) return day === 6 || (day === 5 && hour >= 22) || (day === 0 && hour < 22);
+		return day === 0 || day === 6;
+	}
+
+	function priceTimestamp(p: PriceData | undefined): number {
+		if (!p) return 0;
+		if (p.received_at) {
+			const parsed = Date.parse(p.received_at);
+			if (!Number.isNaN(parsed)) return parsed;
+		}
+		return p.updated_at;
+	}
+
+	function getFreshness(p: PriceData | undefined): { state: FreshnessState; label: string; className: string } {
+		if (!p || p.price <= 0) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
+		const ts = priceTimestamp(p);
+		if (!ts) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
+
+		const ageMs = Date.now() - ts;
+		const freshMs = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto' ? 2 * 60_000 : 5 * 60_000;
+		if (ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
+		if (isMarketClosed(p.symbol, p.asset_type ?? '')) return { state: 'closed', label: 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
+		return { state: 'stale', label: 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
+	}
+
+	let freshness = $derived(getFreshness(liveData));
+
+	async function loadHistoricalData(sym: string): Promise<{ time: number; value: number; source?: string }[]> {
 		const upperSym = sym.toUpperCase();
-		const now = Math.floor(Date.now() / 1000);
-		const limit = 120; 
 
 		try {
 			const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
 			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}`);
 			if (res.ok) {
 				const data = await res.json();
-				if (Array.isArray(data) && data.length > 0) {
+				if (Array.isArray(data)) {
 					return data;
 				}
 			}
 		} catch (e) {
-			console.warn(`[PriceChart] Backend history fetch failed for ${upperSym}, using generated fallback`, e);
+			console.warn(`[PriceChart] Backend history fetch failed for ${upperSym}`, e);
 		}
 
-		const fallbackData = [];
-		let price = initialPrice > 0 ? initialPrice : 1.0850; 
-		if (upperSym.includes('JPY')) price = 150.0;
-		if (upperSym === 'XAUUSD') price = 4500.0;
-		if (upperSym === 'SPX') price = 5200.0;
-		if (upperSym === 'DXY') price = 104.50;
-		if (upperSym.endsWith('USDT')) price = upperSym.startsWith('BTC') ? 95000.0 : 3000.0;
-
-		const intervalSec = 60;
-		for (let i = limit - 1; i >= 0; i--) {
-			const time = now - (i * intervalSec);
-			const change = (Math.random() - 0.5) * (price * 0.0004);
-			price = price + change;
-			fallbackData.push({ time, value: price });
-		}
-		return fallbackData;
+		return [];
 	}
 
 	function updateChartColors() {
@@ -259,16 +280,16 @@
 		errorMsg = '';
 
 		async function fetchAndPopulate() {
-			const basePrice = untrack(() => liveData?.price ?? 0);
-			const data = await loadHistoricalData(symbol, basePrice);
-			
+			const data = await loadHistoricalData(symbol);
+
 			if (!active) return;
-			
+
 			historyData = data;
-			
-			if (areaSeries && data.length > 0) {
+			historySource = data.length === 0 ? 'empty' : data.every((point) => point.source === 'last_known') ? 'last_known' : 'history';
+
+			if (areaSeries) {
 				areaSeries.setData(data as any);
-				chart?.timeScale().fitContent();
+				if (data.length > 0) chart?.timeScale().fitContent();
 			}
 			loading = false;
 			updateChartColors();
@@ -346,6 +367,7 @@
 					</div>
 				{/if}
 				<span class="rounded bg-surface-2 border border-border px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-text-dim">{meta.displaySymbol}</span>
+					<span class="rounded border px-1 py-0.5 text-[8px] font-bold font-mono {freshness.className}">{freshness.label}</span>
 				<span class="text-xs font-bold text-text truncate max-w-[85px]">{meta.name}</span>
 			</div>
 			<div class="text-right flex items-center gap-1.5">
@@ -401,7 +423,12 @@
 	{/if}
 
 	<div class="relative bg-surface p-2.5">
-		{#if loading}
+		{#if !loading && historySource === 'last_known'}
+				<div class="absolute left-4 top-4 z-10 rounded border border-border bg-surface/90 px-2 py-1 text-[10px] font-bold text-text-dim shadow-sm">Last known price</div>
+			{:else if !loading && historySource === 'empty'}
+				<div class="absolute inset-0 z-10 flex items-center justify-center bg-surface/75 text-xs font-semibold text-text-dim">No chart history available</div>
+			{/if}
+			{#if loading}
 			<div class="absolute inset-0 flex items-center justify-center bg-surface/75 z-10">
 				<div class="flex flex-col items-center">
 					<div class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
