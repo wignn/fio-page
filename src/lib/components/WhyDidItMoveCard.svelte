@@ -16,6 +16,12 @@
 	let loadedSymbol = $state('');
 
 	let topCauses = $derived(data?.causes.news.slice(0, 3) ?? []);
+	let llmNarrative = $derived(data?.llm?.status === 'generated' ? data.llm.narrative : null);
+	let topCrossAssets = $derived(data?.cross_assets?.slice(0, 3) ?? []);
+	let confidenceLabel = $derived(typeof data?.confidence === 'string' ? data.confidence : data?.confidence?.label);
+	let driverLabels = $derived((llmNarrative?.drivers ?? data?.drivers ?? []).map((driver) => (typeof driver === 'string' ? driver : driver.name)));
+	let matchedTerms = $derived(data?.matched_terms ?? [...new Set((data?.causes.news ?? []).flatMap((cause) => cause.matched_terms ?? []))]);
+	let fallbackSummary = $derived(data?.explanation ?? data?.summary ?? 'No explanation available yet.');
 	let moveTone = $derived(
 		data?.move?.direction === 'up'
 			? 'text-green'
@@ -23,7 +29,7 @@
 				? 'text-red'
 				: 'text-text'
 	);
-	let confidenceClass = $derived(confidenceTone(data?.confidence));
+	let confidenceClass = $derived(confidenceTone(confidenceLabel));
 
 	function confidenceTone(confidence: string | undefined) {
 		if (confidence === 'high') return 'border-green/20 bg-green/10 text-green';
@@ -104,7 +110,7 @@
 		</div>
 		{#if data}
 			<span class="rounded-full border px-3 py-1 text-xs font-bold uppercase {confidenceClass}"
-				>{data.confidence}</span
+				>{confidenceLabel}</span
 			>
 		{/if}
 	</div>
@@ -135,10 +141,25 @@
 					</div>
 				</div>
 				<div>
-					<p class="text-sm leading-relaxed text-text-muted">{data.summary}</p>
-					{#if data.matched_terms.length > 0}
+					{#if llmNarrative}
+							<div class="rounded-lg border border-accent/20 bg-accent/5 p-3">
+								<p class="text-xs font-bold tracking-wide text-accent uppercase">Gemini analyst note</p>
+								<p class="mt-2 text-sm font-black text-text">{llmNarrative.headline}</p>
+								<p class="mt-2 text-sm leading-relaxed text-text-muted">{llmNarrative.explanation}</p>
+							</div>
+						{:else}
+							<p class="text-sm leading-relaxed text-text-muted">{fallbackSummary}</p>
+						{/if}
+						{#if driverLabels.length > 0}
+							<div class="mt-3 flex flex-wrap gap-1.5">
+								{#each driverLabels.slice(0, 6) as driver (driver)}
+									<span class="rounded-full border border-green/20 bg-green/10 px-2 py-0.5 text-[11px] font-bold text-green">{driver}</span>
+								{/each}
+							</div>
+						{/if}
+					{#if matchedTerms.length > 0}
 						<div class="mt-3 flex flex-wrap gap-1.5">
-							{#each data.matched_terms.slice(0, 8) as term (term)}
+							{#each matchedTerms.slice(0, 8) as term (term)}
 								<span
 									class="rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[11px] font-bold text-accent"
 									>{term}</span
@@ -149,7 +170,24 @@
 				</div>
 			</div>
 
-			<div class="mt-4 space-y-2">
+			{#if topCrossAssets.length > 0}
+					<div class="mt-4 rounded-lg border border-border bg-surface-2/25 p-3">
+						<p class="text-xs font-bold tracking-wide text-text-dim uppercase">Same-window cross assets</p>
+						<div class="mt-2 grid gap-2 md:grid-cols-3">
+							{#each topCrossAssets as asset (asset.symbol)}
+								<div class="rounded border border-border bg-surface px-2 py-2">
+									<div class="flex items-center justify-between gap-2">
+										<span class="font-mono text-xs font-black text-text">{asset.symbol}</span>
+										<span class="font-mono text-xs font-bold {asset.direction === 'up' ? 'text-green' : 'text-red'}">{formatMove(asset.move_pct)}</span>
+									</div>
+									<p class="mt-1 text-[11px] leading-snug text-text-dim">{asset.relationship}</p>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<div class="mt-4 space-y-2">
 				{#each topCauses as cause (`${cause.kind}-${cause.title}`)}
 					<!-- svelte-ignore no-navigation-without-resolve -->
 					<a

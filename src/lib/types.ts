@@ -55,28 +55,73 @@ export interface WhyMoveCause {
 	reason: string;
 }
 
+export interface WhyMoveNarrative {
+	headline: string;
+	explanation: string;
+	drivers: string[];
+	confidence: string;
+	caveats: string[];
+}
+
+export interface WhyMoveCrossAsset {
+	symbol: string;
+	asset_type: string;
+	move_pct: number;
+	direction: 'up' | 'down' | string;
+	latest_price: number;
+	tick_count: number;
+	latest_at: string;
+	relationship: string;
+}
+
+export interface WhyMoveDriver {
+	name: string;
+	score: number;
+	evidence: string[];
+}
+
+export interface WhyMoveConfidence {
+	label: 'low' | 'medium' | 'high' | string;
+	score: number;
+	breakdown: Record<string, number>;
+}
+
 export interface WhyMoveResponse {
 	symbol: string;
 	window: string;
-	lookback_minutes: number;
+	lookback_minutes?: number;
 	move: {
-		latest_price: number;
-		baseline_price: number;
-		move_pct: number;
+		latest_price?: number | null;
+		baseline_price?: number | null;
+		move_pct?: number | null;
 		direction: 'up' | 'down' | 'none' | string;
-		severity: 'medium' | 'high' | string | null;
-		threshold_pct: number | null;
+		severity?: 'medium' | 'high' | string | null;
+		threshold_pct?: number | null;
 		tick_count: number;
-		latest_at: string;
-		is_active_spike: boolean;
+		latest_at?: string | null;
+		is_active_spike?: boolean;
 	} | null;
-	summary: string;
-	confidence: 'low' | 'medium' | 'high' | string;
-	matched_terms: string[];
+	headline?: string;
+	explanation?: string;
+	summary?: string;
+	confidence: WhyMoveConfidence | 'low' | 'medium' | 'high' | string;
+	matched_terms?: string[];
+	drivers: WhyMoveDriver[] | string[];
+	news_clusters?: Array<{ theme: string; score: number; sentiment: string; headlines: string[] }>;
+	cross_assets: WhyMoveCrossAsset[];
+	llm: {
+		provider: string;
+		model: string | null;
+		status: 'generated' | 'disabled' | 'failed' | 'fallback' | string;
+		narrative: WhyMoveNarrative | null;
+	};
+	engine?: { status: string; version: string };
+	cache?: { status: string; evidence_hash?: string };
 	causes: {
 		news: WhyMoveCause[];
 		calendar: unknown[];
 	};
+	evidence?: unknown;
 	generated_at: string;
 }
 
