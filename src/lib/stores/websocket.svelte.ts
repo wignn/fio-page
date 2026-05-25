@@ -64,6 +64,14 @@ function handleMarketTrade(tick: any) {
 	const symbol = String(tick.symbol ?? '').toUpperCase();
 	if (!symbol) return;
 	const prev = priceMap[symbol];
+	const receivedAt = tick.received_at ?? null;
+	const receivedAtMs = receivedAt ? Date.parse(receivedAt) : 0;
+	const prevReceivedAtMs = prev?.received_at ? Date.parse(prev.received_at) : 0;
+	if (receivedAtMs && prevReceivedAtMs && receivedAtMs < prevReceivedAtMs) return;
+
+	const now = Date.now();
+	if (prev && tick.price === prev.price && now - prev.updated_at < 1_000) return;
+
 	const prevPrice = prev?.price ?? tick.price;
 	const direction: 'up' | 'down' | 'none' =
 		tick.price > prevPrice ? 'up' : tick.price < prevPrice ? 'down' : (prev?.direction ?? 'none');
@@ -76,10 +84,10 @@ function handleMarketTrade(tick: any) {
 		volume: tick.volume ?? null,
 		source: tick.source ?? '',
 		asset_type: tick.asset_type ?? '',
-		received_at: tick.received_at ?? null,
+		received_at: receivedAt,
 		direction,
 		prev_price: prevPrice,
-		updated_at: Date.now()
+		updated_at: now
 	};
 }
 

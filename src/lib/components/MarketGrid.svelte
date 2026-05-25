@@ -11,7 +11,7 @@
 	let { selected, onselect }: Props = $props();
 
 	let allPrices: PriceData[] = $derived(marketStore.prices);
-	const primarySymbols = ['XAUUSD', 'BTCUSDT', 'ETHUSDT', 'SPX', 'USDJPY', 'EURUSD', 'DXY', 'GBPUSD', 'SSEC', 'ASX200','AUDUSD', 'USDCAD'];
+	const primarySymbols = ['SPX', 'XAUUSD', 'BTCUSDT', 'DXY', 'ETHUSDT', 'EURUSD'];
 	let livePrices: PriceData[] = $derived.by(() => {
 		const bySymbol = new Map(allPrices.map((price) => [price.symbol.toUpperCase(), price]));
 		return primarySymbols.map((symbol) => bySymbol.get(symbol) ?? placeholderPrice(symbol));
@@ -221,10 +221,11 @@
 		if (!ts) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
 
 		const ageMs = Date.now() - ts;
-		const freshMs = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto' ? 2 * 60_000 : 5 * 60_000;
+		const isCrypto = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto';
+		const freshMs = isCrypto ? 15 * 60_000 : 5 * 60_000;
 		if (ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
 		if (closed) return { state: 'closed', label: 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
-		return { state: 'stale', label: 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
+		return { state: 'stale', label: isCrypto ? 'FEED LAG' : 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
 	}
 
 	function getPercentChange(p: PriceData): { value: number; string: string } {
@@ -271,17 +272,19 @@
 	});
 </script>
 
-<div class="flex flex-col bg-surface border border-border rounded-lg shadow-sm overflow-hidden h-full">
-	<!-- Sidebar Header -->
-	<div class="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-4">
-		<h2 class="text-sm font-bold tracking-tight text-text">Live Instruments</h2>
-		<div class="flex items-center gap-1.5 text-xs text-text-dim">
-			<span class="inline-block h-2 w-2 rounded-full {allPrices.length > 0 ? 'bg-green animate-pulse' : 'bg-red'}"></span>
-			<span class="font-medium font-mono">{livePrices.filter(hasValidPrice).length}/{primarySymbols.length} live</span>
+<div class="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+	<div class="flex h-11 shrink-0 items-center justify-between border-b border-border bg-surface px-3">
+		<div>
+			<h2 class="text-xs font-black tracking-tight text-text">Live Instruments</h2>
+			<p class="font-mono text-[9px] font-bold text-text-dim uppercase">Watchlist</p>
+		</div>
+		<div class="flex items-center gap-1.5 text-[10px] text-text-dim">
+			<span class="inline-block h-1.5 w-1.5 rounded-full {allPrices.length > 0 ? 'bg-green animate-pulse' : 'bg-red'}"></span>
+			<span class="font-mono font-bold">{livePrices.filter(hasValidPrice).length}/{primarySymbols.length}</span>
 		</div>
 	</div>
 
-		<div class="grid grid-cols-2 gap-2.5 p-3.5 bg-surface">
+		<div class="divide-y divide-border bg-surface">
 			{#each livePrices as p (p.symbol)}
 				{@const details = getSymbolDetails(p)}
 				{@const pct = getPercentChange(p)}
@@ -292,14 +295,14 @@
 
 				<button
 					onclick={() => onselect(p.symbol)}
-					class="w-full text-left p-2.5 rounded-lg border flex flex-col justify-between transition-all duration-200 cursor-pointer focus:outline-none h-[82px] relative overflow-hidden group
-					{isSelected 
-						? 'bg-accent/5 border-accent shadow-sm shadow-accent/5 dark:bg-accent/10' 
-						: 'bg-surface border-border hover:border-text-dim/40 hover:bg-surface-2/40'}
+					class="group relative flex h-14 w-full cursor-pointer items-center gap-2 overflow-hidden px-3 text-left transition-all duration-150 focus:outline-none
+					{isSelected
+						? 'bg-accent/7 shadow-[inset_2px_0_0_var(--color-accent)] dark:bg-accent/10'
+						: 'bg-surface hover:bg-surface-2/45'}
 					{flash === 'up' ? 'flash-green' : flash === 'down' ? 'flash-red' : ''}"
 				>
 
-					<div class="flex items-center justify-between w-full">
+					<div class="flex w-8 shrink-0 items-center justify-center">
 						{#if details.logo.type === 'img'}
 							<div class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
 								<img src={details.logo.url} alt={details.badge} class="h-full w-full object-cover rounded-full" />
@@ -325,26 +328,21 @@
 								{/if}
 							</div>
 						{/if}
-						<div class="flex items-center gap-1">
-								<span class="rounded border px-1 py-0.5 text-[7px] font-bold font-mono {freshness.className}">{freshness.label}</span>
-								<span class="text-[9.5px] font-bold text-text-dim uppercase font-mono tracking-tighter">
-							{details.displaySymbol}
-						</span>
 					</div>
 
-					</div>
-
-						<div class="flex flex-col mt-1.5 w-full">
-						<!-- Price -->
-						<div class="flex items-baseline justify-between w-full">
-							<span class="font-mono text-sm font-bold text-text truncate max-w-[100px]">
-								{validPrice ? details.format(p.price) : '--'}
-							</span>
-							<span class="text-[8px] text-text-dim uppercase font-mono font-semibold pl-1 shrink-0">
-								{details.unit}
-							</span>
+					<div class="min-w-0 flex-1">
+						<div class="flex items-center gap-1.5">
+							<span class="font-mono text-xs font-black tracking-tight text-text">{details.displaySymbol}</span>
+							<span class="rounded border px-1 py-0.5 font-mono text-[7px] font-bold {freshness.className}">{freshness.label}</span>
 						</div>
-						<div class="flex items-center gap-1 text-[10px] font-bold font-mono mt-0.5 {pct.value >= 0 ? 'text-green' : 'text-red'}">
+						<p class="truncate text-[10px] font-semibold text-text-dim">{details.name}</p>
+					</div>
+
+					<div class="shrink-0 text-right">
+						<div class="font-mono text-sm font-black text-text">
+							{validPrice ? details.format(p.price) : '--'}
+						</div>
+						<div class="flex items-center justify-end gap-1 font-mono text-[10px] font-bold {pct.value >= 0 ? 'text-green' : 'text-red'}">
 							<span>{validPrice ? (pct.value >= 0 ? '▲' : '▼') : '■'}</span>
 							<span>{pct.string}</span>
 						</div>

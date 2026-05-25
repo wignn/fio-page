@@ -147,10 +147,11 @@
 		if (!ts) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
 
 		const ageMs = Date.now() - ts;
-		const freshMs = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto' ? 2 * 60_000 : 5 * 60_000;
+		const isCrypto = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto';
+		const freshMs = isCrypto ? 15 * 60_000 : 5 * 60_000;
 		if (ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
 		if (isMarketClosed(p.symbol, p.asset_type ?? '')) return { state: 'closed', label: 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
-		return { state: 'stale', label: 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
+		return { state: 'stale', label: isCrypto ? 'FEED LAG' : 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
 	}
 
 	let freshness = $derived(getFreshness(liveData));
@@ -325,20 +326,21 @@
 
 			const tickTimeSec = Math.floor(rawTimeMs / 1000);
 			let roundedTime = Math.floor(tickTimeSec / 60) * 60;
-			const lastTime = lastChartTime;
+			const currentHistory = untrack(() => historyData);
+			const lastTime = currentHistory.length > 0 ? currentHistory[currentHistory.length - 1].time : 0;
 			if (roundedTime < lastTime) {
 				roundedTime = lastTime;
 			}
 			normalizedTick.time = roundedTime;
 
 			areaSeries.update(normalizedTick as any);
-			if (historyData.length === 0) {
+			if (currentHistory.length === 0) {
 				historyData = [normalizedTick];
 				historySource = 'history';
 			} else if (roundedTime > lastTime) {
-				historyData = [...historyData.slice(-299), normalizedTick];
+				historyData = [...currentHistory.slice(-299), normalizedTick];
 			} else {
-				historyData = [...historyData.slice(0, -1), normalizedTick];
+				historyData = [...currentHistory.slice(0, -1), normalizedTick];
 			}
 			updateChartColors();
 		}

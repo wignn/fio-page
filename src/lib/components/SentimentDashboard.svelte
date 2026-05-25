@@ -71,16 +71,16 @@
 		let moodColor = 'text-text-dim';
 		if (total > 0) {
 			if (score > 0.6) {
-				moodLabel = 'STRONG BULLISH';
+				moodLabel = 'EXTREME GREED';
 				moodColor = 'text-green font-bold';
 			} else if (score > 0.15) {
-				moodLabel = 'BULLISH';
+				moodLabel = 'GREED';
 				moodColor = 'text-green';
 			} else if (score < -0.6) {
-				moodLabel = 'STRONG BEARISH';
+				moodLabel = 'EXTREME FEAR';
 				moodColor = 'text-red font-bold';
 			} else if (score < -0.15) {
-				moodLabel = 'BEARISH';
+				moodLabel = 'FEAR';
 				moodColor = 'text-red';
 			} else {
 				moodLabel = 'NEUTRAL';
@@ -118,7 +118,7 @@
 
 	let recentAnalyzed = $derived(
 		activeAll
-			.filter(i => i.sentiment)
+			.filter((item) => item.sentiment)
 			.sort((a, b) => {
 				const da = a.processed_at || a.published_at || '';
 				const db = b.processed_at || b.published_at || '';
@@ -126,6 +126,7 @@
 			})
 			.slice(0, 5)
 	);
+	let analyzedCount = $derived(activeAll.filter((item) => item.sentiment).length);
 
 	function sentimentBadge(s: string | null): string {
 		if (!s) return 'bg-text-dim/10 text-text-dim border-text-dim/20';
@@ -160,11 +161,11 @@
 	}
 </script>
 
-<div class="flex flex-col gap-6 p-6">
+<div class="flex flex-col gap-4 p-4">
 	<!-- Tab Toggle Header -->
 	<div class="flex items-center justify-between border-b border-border pb-4">
 		<div class="flex items-center gap-2.5">
-			<span class="text-sm font-bold tracking-wider uppercase text-text-muted">AI Market Sentiment</span>
+			<span class="text-xs font-bold tracking-wider uppercase text-text-muted">AI Market Sentiment</span>
 			{#if activeTab === 'filtered'}
 				<span class="rounded bg-accent/10 border border-accent/20 px-2 py-0.5 text-xs font-bold text-accent uppercase tracking-wider animate-pulse">
 					{selectedSymbol} Filtered
@@ -195,10 +196,10 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center justify-items-center bg-surface border border-border rounded-xl p-6 shadow-sm">
+	<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center justify-items-center bg-surface border border-border rounded-xl p-4 shadow-sm">
 		<div class="flex flex-col items-center gap-3 w-full max-w-[220px] justify-center text-center">
 			<span class="text-xs font-bold tracking-wider uppercase text-text-dim">Forex & Macro</span>
-			<span class="text-lg font-extrabold uppercase tracking-tight {forexStats.moodColor}">
+			<span class="text-sm font-extrabold uppercase tracking-tight {forexStats.moodColor}">
 				{forexStats.moodLabel}
 			</span>
 			
@@ -217,9 +218,9 @@
 			</div>
 			
 			<div class="flex justify-between w-full text-[10px] text-text-dim font-mono font-bold px-1">
-				<span class="text-red">{forexStats.negative} Sell</span>
+				<span class="text-red">{forexStats.negative} Fear</span>
 				<span class="text-text-dim">{forexStats.neutral} Neu</span>
-				<span class="text-green">{forexStats.positive} Buy</span>
+				<span class="text-green">{forexStats.positive} Greed</span>
 			</div>
 		</div>
 
@@ -272,15 +273,15 @@
 
 				<!-- Gauge bottom indicators -->
 				<div class="absolute w-full flex justify-between px-2 top-[95px] text-[9px] font-black text-text-dim/80 uppercase tracking-wider">
-					<span>Sell</span>
+					<span>Fear</span>
 					<span>Neutral</span>
-					<span>Buy</span>
+					<span>Greed</span>
 				</div>
 			</div>
 			
 			<!-- Mood Text & Numeric Score -->
 			<div class="mt-4 flex flex-col items-center">
-				<span class="text-2xl font-black tracking-tight uppercase {stats.moodColor}">
+				<span class="text-lg font-black tracking-tight uppercase {stats.moodColor}">
 					{stats.moodLabel}
 				</span>
 				<span class="text-[11px] font-mono font-bold text-text-dim mt-0.5">
@@ -292,7 +293,7 @@
 		<!-- Right: Stocks / Equities Indicator Gauge -->
 		<div class="flex flex-col items-center gap-3 w-full max-w-[220px] justify-center text-center">
 			<span class="text-xs font-bold tracking-wider uppercase text-text-dim">Stocks & Equities</span>
-			<span class="text-lg font-extrabold uppercase tracking-tight {stockStats.moodColor}">
+			<span class="text-sm font-extrabold uppercase tracking-tight {stockStats.moodColor}">
 				{stockStats.moodLabel}
 			</span>
 			
@@ -311,9 +312,9 @@
 			</div>
 			
 			<div class="flex justify-between w-full text-[10px] text-text-dim font-mono font-bold px-1">
-				<span class="text-red">{stockStats.negative} Sell</span>
+				<span class="text-red">{stockStats.negative} Fear</span>
 				<span class="text-text-dim">{stockStats.neutral} Neu</span>
-				<span class="text-green">{stockStats.positive} Buy</span>
+				<span class="text-green">{stockStats.positive} Greed</span>
 			</div>
 		</div>
 	</div>
@@ -322,7 +323,7 @@
 	<div class="flex flex-wrap items-center justify-center gap-3 bg-surface-2/40 border border-border rounded-lg py-2.5 px-4">
 		<div class="flex items-center gap-1.5 rounded-md bg-red/10 border border-red/20 px-3 py-1 text-xs">
 			<span class="h-2 w-2 rounded-full bg-red"></span>
-			<span class="font-semibold text-text-muted">Negative/Bearish:</span>
+			<span class="font-semibold text-text-muted">Fear:</span>
 			<span class="font-bold text-red font-mono">{stats.negative}</span>
 		</div>
 		<div class="flex items-center gap-1.5 rounded-md bg-text-dim/10 border border-text-dim/20 px-3 py-1 text-xs">
@@ -332,19 +333,19 @@
 		</div>
 		<div class="flex items-center gap-1.5 rounded-md bg-green/10 border border-green/20 px-3 py-1 text-xs">
 			<span class="h-2 w-2 rounded-full bg-green"></span>
-			<span class="font-semibold text-text-muted">Positive/Bullish:</span>
+			<span class="font-semibold text-text-muted">Greed:</span>
 			<span class="font-bold text-green font-mono">{stats.positive}</span>
 		</div>
 		<div class="h-4 w-px bg-border hidden sm:block"></div>
 		<div class="text-xs text-text-muted font-medium">
-			Based on <span class="font-bold text-text font-mono">{stats.total}</span> analyzed articles
+			Based on <span class="font-bold text-text font-mono">{analyzedCount}</span> analyzed articles
 		</div>
 	</div>
 
 	<!-- Bottom Section: Breakdown & Recent News -->
-	<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+	<div class="grid grid-cols-1 gap-4">
 		<!-- Source Breakdown (4 cols) -->
-		<div class="lg:col-span-4 flex flex-col rounded-xl border border-border bg-surface-2/20 p-5 shadow-sm">
+		<div class="flex flex-col rounded-xl border border-border bg-surface-2/20 p-4 shadow-sm">
 			<div class="mb-4 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border pb-2 flex justify-between items-center">
 				<span>Sentiment by Source</span>
 				<span class="text-[10px] text-text-dim font-mono">Top Sources</span>
@@ -376,7 +377,7 @@
 		</div>
 
 		<!-- Recently Analyzed (8 cols) -->
-		<div class="lg:col-span-8 flex flex-col rounded-xl border border-border bg-surface-2/20 p-5 shadow-sm">
+		<div class="lg:col-span-8 flex flex-col rounded-xl border border-border bg-surface-2/20 p-4 shadow-sm">
 			<div class="mb-4 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border pb-2 flex justify-between items-center">
 				<span>Recently Analyzed Feed</span>
 				<span class="text-[10px] text-text-dim font-mono">Real-time Stream</span>
@@ -395,11 +396,11 @@
 								</div>
 								{#if item.original_url || item.url}
 									<a href={item.original_url ?? item.url} target="_blank" rel="noopener noreferrer"
-										class="text-sm font-medium leading-normal text-text group-hover:text-accent transition-colors line-clamp-2 hover:underline">
+										class="text-xs font-medium leading-normal text-text group-hover:text-accent transition-colors line-clamp-2 hover:underline">
 										{getTitle(item)}
 									</a>
 								{:else}
-									<p class="text-sm font-medium leading-normal text-text line-clamp-2">{getTitle(item)}</p>
+									<p class="text-xs font-medium leading-normal text-text line-clamp-2">{getTitle(item)}</p>
 								{/if}
 							</div>
 							<span class="shrink-0 rounded-md border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider {sentimentBadge(item.sentiment)}">

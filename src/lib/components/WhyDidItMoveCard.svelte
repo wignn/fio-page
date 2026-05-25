@@ -46,12 +46,12 @@
 		return 'border-border bg-surface-2 text-text-muted';
 	}
 
-	function formatMove(value: number | undefined) {
+	function formatMove(value: number | null | undefined) {
 		if (value == null) return '—';
 		return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
 	}
 
-	function formatNumber(value: number | undefined) {
+	function formatNumber(value: number | null | undefined) {
 		if (value == null) return '—';
 		return value.toLocaleString(undefined, { maximumFractionDigits: 5 });
 	}
@@ -187,44 +187,15 @@
 					</div>
 				{/if}
 
-				<div class="mt-4 space-y-2">
-				{#each topCauses as cause (`${cause.kind}-${cause.title}`)}
-					<!-- svelte-ignore no-navigation-without-resolve -->
-					<a
-						href={cause.url ?? resolve('/#market')}
-						target={cause.url ? '_blank' : undefined}
-						rel="noopener noreferrer"
-						class="block rounded-lg border border-border bg-surface-2/35 p-3 transition hover:border-accent/30 hover:bg-surface-2/70"
-					>
-						<div class="flex flex-wrap items-center gap-2">
-							<span
-								class="rounded border px-2 py-0.5 text-[10px] font-bold uppercase {sentimentTone(
-									cause.sentiment
-								)}">{cause.sentiment ?? 'neutral'}</span
-							>
-							{#if cause.impact_level}
-								<span class="text-[10px] font-bold tracking-wide text-text-dim uppercase"
-									>{cause.impact_level} impact</span
-								>
-							{/if}
-							<span class="text-[10px] text-text-dim"
-								>{formatTime(cause.processed_at ?? cause.published_at)}</span
-							>
-						</div>
-						<p class="mt-2 line-clamp-2 text-sm font-bold text-text">{causeTitle(cause)}</p>
-						{#if cause.source_name}
-							<p class="mt-1 text-xs text-text-dim">{cause.source_name} · score {cause.score}</p>
-						{/if}
-					</a>
-				{/each}
-				{#if topCauses.length === 0}
-					<div
-						class="rounded-lg border border-border bg-surface-2/35 p-3 text-sm font-semibold text-text-muted"
-					>
-						No matching catalyst found in the current lookback window.
-					</div>
-				{/if}
-			</div>
+				<div class="mt-4 rounded-lg border border-border bg-surface-2/35 p-3">
+					<p class="text-xs font-bold tracking-wide text-text-dim uppercase">News evidence</p>
+					<p class="mt-1 font-mono text-2xl font-black text-text">{data.causes.news.length}</p>
+					<p class="mt-1 text-xs text-text-muted">
+						{data.causes.news.length === 1
+							? 'matching news catalyst found in the lookback window.'
+							: 'matching news catalysts found in the lookback window.'}
+					</p>
+				</div>
 		{/if}
 	</div>
 </section>
