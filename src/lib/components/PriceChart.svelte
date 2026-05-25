@@ -17,6 +17,10 @@
 	let chart: IChartApi | null = null;
 	let areaSeries: ISeriesApi<'Area'> | null = null;
 
+	type ChartResolution = '1m' | '5m' | '15m' | '1h';
+	const chartResolutions: ChartResolution[] = ['1m', '5m', '15m', '1h'];
+
+	let selectedResolution = $state<ChartResolution>('1m');
 	let historyData = $state<{ time: number; value: number; source?: string }[]>([]);
 	let historySource = $state<'history' | 'last_known' | 'empty'>('empty');
 	let loading = $state(true);
@@ -151,12 +155,13 @@
 
 	let freshness = $derived(getFreshness(liveData));
 
-	async function loadHistoricalData(sym: string): Promise<{ time: number; value: number; source?: string }[]> {
+	async function loadHistoricalData(sym: string, resolution: ChartResolution): Promise<{ time: number; value: number; source?: string }[]> {
 		const upperSym = sym.toUpperCase();
 
 		try {
 			const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
-			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}`);
+			const params = new URLSearchParams({ resolution });
+			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}?${params}`);
 			if (res.ok) {
 				const data = await res.json();
 				if (Array.isArray(data)) {
@@ -274,13 +279,14 @@
 
 	$effect(() => {
 		if (!symbol) return;
-		
+		selectedResolution;
+
 		let active = true;
 		loading = true;
 		errorMsg = '';
 
 		async function fetchAndPopulate() {
-			const data = await loadHistoricalData(symbol);
+			const data = await loadHistoricalData(symbol, selectedResolution);
 
 			if (!active) return;
 
@@ -380,7 +386,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="flex items-center justify-between border-b border-border bg-surface px-6 py-4">
+		<div class="flex flex-col gap-3 border-b border-border bg-surface px-6 py-4 md:flex-row md:items-center md:justify-between">
 			<div class="flex items-center gap-3">
 				{#if meta.logo.type === 'img'}
 					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
@@ -410,13 +416,26 @@
 				</div>
 			</div>
 
-			<div class="text-right">
-				<div class="text-2xl font-bold font-mono text-text">
-					{meta.format(currentPrice || (historyData.length > 0 ? historyData[historyData.length-1].value : 0))}
+			<div class="flex flex-col items-start gap-2 md:items-end">
+				<div class="text-left md:text-right">
+					<div class="text-2xl font-bold font-mono text-text">
+						{meta.format(currentPrice || (historyData.length > 0 ? historyData[historyData.length-1].value : 0))}
+					</div>
+					<div class="flex items-center justify-start gap-1.5 text-xs font-semibold font-mono mt-0.5 md:justify-end {direction === 'up' ? 'text-green' : direction === 'down' ? 'text-red' : 'text-text-dim'}">
+						<span>{direction === 'up' ? '▲' : direction === 'down' ? '▼' : '■'}</span>
+						<span>{priceChange >= 0 ? '+' : ''}{meta.format(priceChange)} ({priceChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%)</span>
+					</div>
 				</div>
-				<div class="flex items-center justify-end gap-1.5 text-xs font-semibold font-mono mt-0.5 {direction === 'up' ? 'text-green' : direction === 'down' ? 'text-red' : 'text-text-dim'}">
-					<span>{direction === 'up' ? '▲' : direction === 'down' ? '▼' : '■'}</span>
-					<span>{priceChange >= 0 ? '+' : ''}{meta.format(priceChange)} ({priceChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%)</span>
+				<div class="flex rounded-lg border border-border bg-surface-2 p-0.5">
+					{#each chartResolutions as resolution}
+						<button
+							type="button"
+							class="rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors {selectedResolution === resolution ? 'bg-accent text-white shadow-sm' : 'text-text-dim hover:bg-surface hover:text-text'}"
+							onclick={() => (selectedResolution = resolution)}
+						>
+							{resolution}
+						</button>
+					{/each}
 				</div>
 			</div>
 		</div>
