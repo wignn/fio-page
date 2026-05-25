@@ -310,6 +310,11 @@
 
 	$effect(() => {
 		if (liveData && areaSeries && !loading) {
+			const normalizedTick = {
+				time: 0,
+				value: liveData.price,
+				source: 'realtime'
+			};
 			let rawTimeMs = liveData.updated_at;
 			if (liveData.received_at) {
 				const parsed = Date.parse(liveData.received_at);
@@ -324,11 +329,17 @@
 			if (roundedTime < lastTime) {
 				roundedTime = lastTime;
 			}
+			normalizedTick.time = roundedTime;
 
-			areaSeries.update({
-				time: roundedTime as any,
-				value: liveData.price
-			});
+			areaSeries.update(normalizedTick as any);
+			if (historyData.length === 0) {
+				historyData = [normalizedTick];
+				historySource = 'history';
+			} else if (roundedTime > lastTime) {
+				historyData = [...historyData.slice(-299), normalizedTick];
+			} else {
+				historyData = [...historyData.slice(0, -1), normalizedTick];
+			}
 			updateChartColors();
 		}
 	});

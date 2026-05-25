@@ -61,7 +61,8 @@ function connect() {
 }
 
 function handleMarketTrade(tick: any) {
-	const symbol = tick.symbol;
+	const symbol = String(tick.symbol ?? '').toUpperCase();
+	if (!symbol) return;
 	const prev = priceMap[symbol];
 	const prevPrice = prev?.price ?? tick.price;
 	const direction: 'up' | 'down' | 'none' =
