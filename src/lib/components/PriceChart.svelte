@@ -32,6 +32,13 @@
 	let percentChange = $derived(firstPrice > 0 ? (priceChange / firstPrice) * 100 : 0);
 	let direction = $derived(priceChange > 0 ? 'up' : priceChange < 0 ? 'down' : 'none');
 	let lastChartTime = $derived(historyData.length > 0 ? historyData[historyData.length - 1].time : 0);
+
+	function resolutionSeconds(resolution: ChartResolution) {
+		if (resolution === '5m') return 5 * 60;
+		if (resolution === '15m') return 15 * 60;
+		if (resolution === '1h') return 60 * 60;
+		return 60;
+	}
 	function getSymbolMeta(sym: string) {
 		const upper = sym.toUpperCase();
 		let name = upper;
@@ -325,7 +332,8 @@
 			}
 
 			const tickTimeSec = Math.floor(rawTimeMs / 1000);
-			let roundedTime = Math.floor(tickTimeSec / 60) * 60;
+			const bucketSeconds = resolutionSeconds(selectedResolution);
+			let roundedTime = Math.floor(tickTimeSec / bucketSeconds) * bucketSeconds;
 			const currentHistory = untrack(() => historyData);
 			const lastTime = currentHistory.length > 0 ? currentHistory[currentHistory.length - 1].time : 0;
 			if (roundedTime < lastTime) {
