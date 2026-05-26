@@ -7,6 +7,13 @@ export interface PriceData {
 	source: string;
 	asset_type: string;
 	received_at: string | null;
+	session?: {
+		exchange: string;
+		timezone: string;
+		state: 'open' | 'closed' | 'break' | 'unknown' | string;
+		is_open: boolean;
+		reason: string;
+	};
 	direction: 'up' | 'down' | 'none';
 	prev_price: number;
 	updated_at: number; // timestamp ms

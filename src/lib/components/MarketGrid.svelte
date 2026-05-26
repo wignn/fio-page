@@ -193,19 +193,6 @@
 		return p.source !== 'placeholder' && p.price > 0;
 	}
 
-	function isMarketClosed(symbol: string, assetType: string): boolean {
-		const now = new Date();
-		const day = now.getUTCDay();
-		const hour = now.getUTCHours();
-		const sym = symbol.toUpperCase();
-		const type = assetType.toLowerCase();
-
-		if (type === 'crypto' || sym.endsWith('USDT')) return false;
-		if (sym === 'XAUUSD') return day === 6 || (day === 5 && hour >= 22) || (day === 0 && hour < 23);
-		if (type === 'forex' || /^[A-Z]{6}$/.test(sym)) return day === 6 || (day === 5 && hour >= 22) || (day === 0 && hour < 22);
-		return day === 0 || day === 6;
-	}
-
 	function priceTimestamp(p: PriceData): number {
 		if (p.received_at) {
 			const parsed = Date.parse(p.received_at);
@@ -216,15 +203,16 @@
 
 	function getFreshness(p: PriceData): { state: FreshnessState; label: string; className: string } {
 		if (!hasValidPrice(p)) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
-		const closed = isMarketClosed(p.symbol, p.asset_type ?? '');
 		const ts = priceTimestamp(p);
 		if (!ts) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
 
+		const session = p.session;
 		const ageMs = Date.now() - ts;
 		const isCrypto = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto';
 		const freshMs = isCrypto ? 15 * 60_000 : 5 * 60_000;
+		if (session?.is_open && ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
+		if (session && !session.is_open) return { state: 'closed', label: session.state === 'break' ? 'BREAK' : 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
 		if (ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
-		if (closed) return { state: 'closed', label: 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
 		return { state: 'stale', label: isCrypto ? 'FEED LAG' : 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
 	}
 

@@ -85,6 +85,7 @@ function handleMarketTrade(tick: any) {
 		source: tick.source ?? '',
 		asset_type: tick.asset_type ?? '',
 		received_at: receivedAt,
+		session: tick.session,
 		direction,
 		prev_price: prevPrice,
 		updated_at: now
@@ -178,6 +179,7 @@ async function fetchInitialPrices() {
 							source: item.source ?? '',
 							asset_type: item.asset_type ?? '',
 							received_at: item.received_at ?? null,
+							session: item.session,
 							direction: 'none',
 							prev_price: item.price,
 							updated_at: Date.now()
