@@ -149,12 +149,12 @@
 			name = `${sym} Equity`;
 			badge = sym.slice(0, 4);
 			badgeColor = 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
-			unit = 'IDR';
+			unit = 'USD';
 		} else if (category === 'indices') {
 			name = `${sym} Index`;
 			badge = sym.slice(0, 5);
 			badgeColor = 'bg-violet-500/10 text-violet-400 border border-violet-500/20';
-			unit = 'IDX';
+			unit = 'INDEX';
 		} else if (category === 'forex') {
 			name = sym.length === 6 ? `${sym.slice(0, 3)} / ${sym.slice(3)}` : sym;
 			badge = sym.slice(0, 3);

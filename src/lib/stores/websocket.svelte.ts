@@ -14,6 +14,11 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectDelay = 2000;
 let requestId = 1;
 let desiredStreams = new Set(['market_data', 'forex_news', 'stock_news']);
+const hiddenMarketSymbols = new Set(['BBCA', 'BBRI', 'BMRI', 'TLKM', 'ASII', 'UNVR', 'ICBP', 'BBNI', 'ADRO', 'MDKA', 'JCI']);
+
+function isHiddenMarketSymbol(symbol: string): boolean {
+	return hiddenMarketSymbols.has(symbol.toUpperCase());
+}
 
 function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
@@ -62,7 +67,7 @@ function connect() {
 
 function handleMarketTrade(tick: any) {
 	const symbol = String(tick.symbol ?? '').toUpperCase();
-	if (!symbol) return;
+	if (!symbol || isHiddenMarketSymbol(symbol)) return;
 	const prev = priceMap[symbol];
 	const receivedAt = tick.received_at ?? null;
 	const receivedAtMs = receivedAt ? Date.parse(receivedAt) : 0;
@@ -169,9 +174,11 @@ async function fetchInitialPrices() {
 			const data = await res.json();
 			if (data.items) {
 				for (const item of data.items) {
-					if (!priceMap[item.symbol]) {
-						priceMap[item.symbol] = {
-							symbol: item.symbol,
+					const symbol = String(item.symbol ?? '').toUpperCase();
+					if (!symbol || isHiddenMarketSymbol(symbol)) continue;
+					if (!priceMap[symbol]) {
+						priceMap[symbol] = {
+							symbol,
 							price: item.price,
 							bid: item.bid ?? null,
 							ask: item.ask ?? null,

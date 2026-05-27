@@ -125,7 +125,7 @@
 	const botCommands = [
 		['/market_alert XAUUSD 3400', 'Create a direct price alert for a symbol.'],
 		['/forex_news_setup #channel', 'Send forex news updates to a Discord channel.'],
-		['/stocknews subscribe', 'Subscribe to Indonesian stock news.'],
+		['/stocknews subscribe', 'Subscribe to equity market news.'],
 		['/calendar_setup #channel', 'Enable economic calendar reminders.'],
 		['/twitter_setup #channel', 'Forward configured X account posts.'],
 		['/volatility_setup #channel', 'Enable volatility spike alerts.']

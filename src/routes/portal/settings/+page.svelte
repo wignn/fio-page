@@ -152,7 +152,7 @@
 
 			<section class="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 				<h2 class="font-black text-text">Market symbols</h2>
-				<p class="mt-1 text-sm text-text-muted">One public market symbol per line, such as EURUSD or BBCA.</p>
+				<p class="mt-1 text-sm text-text-muted">One public market symbol per line, such as EURUSD, XAUUSD, SPX, or AAPL.</p>
 				<textarea readonly bind:value={tvSymbols} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted outline-none opacity-80" placeholder="No symbols configured. Contact administrator."></textarea>
 				<div class="mt-4">
 					<span class="inline-flex items-center rounded-xl bg-surface-2 border border-border px-3 py-1.5 text-xs font-bold text-text-muted">

@@ -16,9 +16,13 @@ const config = {
 				'connect-src': [
 					'self',
 					'http://localhost:8081',
+					'http://localhost:8000',
+					'https://api-engine.wign.dev',
 					'ws://localhost:8090',
+					'ws://localhost:8020',
 					'https:',
-					'wss://api-atlsd.wign.cloud'
+					'wss://api-atlsd.wign.cloud',
+					'wss://realtime-engine.wign.dev'
 				]
 			}
 		}

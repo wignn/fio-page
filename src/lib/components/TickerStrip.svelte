@@ -4,7 +4,6 @@
 
 	let items: PriceData[] = $derived(marketStore.prices.slice(0, 20));
 
-	// Duplicate items give the ticker a seamless CSS scroll loop.
 	let tickerItems = $derived(
 		[...items, ...items].map((p, i) => ({
 			...p,

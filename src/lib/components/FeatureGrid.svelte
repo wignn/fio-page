@@ -16,7 +16,7 @@
 		},
 		{
 			title: 'Stock News',
-			description: 'Real-time Indonesian equity news from CNBC, Kontan, Bisnis Indonesia, and IDX Channel.',
+			description: 'Real-time equity headlines and market-moving stock updates from configured sources.',
 			command: '/stocknews subscribe',
 			iconPath: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3'
 		},

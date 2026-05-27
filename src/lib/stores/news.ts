@@ -8,6 +8,17 @@ export const newsLoading = writable(false);
 
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
+function extractNewsItems(data: unknown): NewsItem[] {
+	if (Array.isArray(data)) return data as NewsItem[];
+	if (!data || typeof data !== 'object') return [];
+
+	const payload = data as { items?: unknown; data?: unknown; articles?: unknown; news?: unknown };
+	if (Array.isArray(payload.items)) return payload.items as NewsItem[];
+	if (Array.isArray(payload.articles)) return payload.articles as NewsItem[];
+	if (Array.isArray(payload.news)) return payload.news as NewsItem[];
+	return extractNewsItems(payload.data);
+}
+
 async function fetchForexNews() {
 	try {
 		const res = await fetch(`${CORE_REST_URL}/api/v1/forex/news/latest?limit=15`);
@@ -20,7 +31,7 @@ async function fetchForexNews() {
 			console.warn(`[News] forex API error:`, data.error);
 			return;
 		}
-		if (data.items) forexNews.set(data.items);
+		forexNews.set(extractNewsItems(data));
 	} catch (e) {
 		console.warn('[News] forex fetch error:', e);
 	}
@@ -38,7 +49,7 @@ async function fetchStockNews() {
 			console.warn(`[News] stock API error:`, data.error);
 			return;
 		}
-		if (data.items) stockNews.set(data.items);
+		stockNews.set(extractNewsItems(data));
 	} catch (e) {
 		console.warn('[News] stock fetch error:', e);
 	}
