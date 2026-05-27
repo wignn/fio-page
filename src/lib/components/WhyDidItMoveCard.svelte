@@ -187,7 +187,7 @@
 					</div>
 				{/if}
 
-				<div class="mt-4 rounded-lg border border-border bg-surface-2/35 p-3">
+				<div class="mt-2 rounded-lg border border-border bg-surface-2/35 p-3">
 					<p class="text-xs font-bold tracking-wide text-text-dim uppercase">News evidence</p>
 					<p class="mt-1 font-mono text-2xl font-black text-text">{data.causes.news.length}</p>
 					<p class="mt-1 text-xs text-text-muted">
