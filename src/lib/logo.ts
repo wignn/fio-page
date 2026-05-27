@@ -62,7 +62,10 @@ const logoMap: Record<string, string> = {
 
 	// Index
 	ASX: asxLogo,
+	ASX200: asxLogo,
+	XJO: asxLogo,
 	NIFTY: niftyLogo,
+	NIFTY50: niftyLogo,
 	'NIFTY 50': niftyLogo,
 	DXY: dxyLogo,
 	HSI: hsiLogo,
