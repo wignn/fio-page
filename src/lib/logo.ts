@@ -4,7 +4,8 @@ import euroLogo from './assets/logo/forex/euro.png';
 import gbpLogo from './assets/logo/forex/gbp.png';
 import idrLogo from './assets/logo/forex/idr.png';
 import jpyLogo from './assets/logo/forex/jpy.png';
-
+import aaplLogo from './assets/logo/stock/us/appl.png';
+import nvdaLogo from './assets/logo/stock/us/nvda.jpg';
 import brentLogo from './assets/logo/metal/brent.png';
 import goldLogo from './assets/logo/metal/gold.png';
 import silverLogo from './assets/logo/metal/silver.png';
@@ -94,7 +95,10 @@ const logoMap: Record<string, string> = {
 	ICBP: icbpLogo,
 	MDKA: mdkaLogo,
 	TLKM: tlkmLogo,
-	UNVR: unvrLogo
+	UNVR: unvrLogo,
+	AAPL: aaplLogo,
+	APPL: aaplLogo,
+	NVDA: nvdaLogo
 };
 
 export function getLocalLogo(symbol: string): string | null {
@@ -146,6 +150,10 @@ export function getLocalLogo(symbol: string): string | null {
 	if (upper.includes('MDKA')) return mdkaLogo;
 	if (upper.includes('TLKM')) return tlkmLogo;
 	if (upper.includes('UNVR')) return unvrLogo;
+
+	// Stock US fallbacks
+	if (upper.includes('AAPL') || upper.includes('APPL')) return aaplLogo;
+	if (upper.includes('NVDA')) return nvdaLogo;
 
 	return null;
 }

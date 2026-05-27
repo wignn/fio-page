@@ -18,10 +18,11 @@
 	let areaSeries: ISeriesApi<'Area'> | null = null;
 
 	type ChartResolution = '1m' | '5m' | '15m' | '1h';
+	type ChartPoint = { time: number; value: number; source?: string };
 	const chartResolutions: ChartResolution[] = ['1m', '5m', '15m', '1h'];
 
 	let selectedResolution = $state<ChartResolution>('1m');
-	let historyData = $state<{ time: number; value: number; source?: string }[]>([]);
+	let historyData = $state<ChartPoint[]>([]);
 	let historySource = $state<'history' | 'last_known' | 'empty'>('empty');
 	let loading = $state(true);
 	let errorMsg = $state('');
@@ -163,7 +164,27 @@
 
 	let freshness = $derived(getFreshness(liveData));
 
-	async function loadHistoricalData(sym: string, resolution: ChartResolution): Promise<{ time: number; value: number; source?: string }[]> {
+	function sanitizeChartData(data: unknown): ChartPoint[] {
+		if (!Array.isArray(data)) return [];
+
+		const points = new Map<number, ChartPoint>();
+		for (const point of data) {
+			if (!point || typeof point !== 'object') continue;
+			const row = point as { time?: unknown; value?: unknown; source?: unknown };
+			const time = Number(row.time);
+			const value = Number(row.value);
+			if (!Number.isFinite(time) || !Number.isFinite(value) || time <= 0 || value <= 0) continue;
+			points.set(Math.floor(time), {
+				time: Math.floor(time),
+				value,
+				source: typeof row.source === 'string' ? row.source : undefined
+			});
+		}
+
+		return [...points.values()].sort((a, b) => a.time - b.time);
+	}
+
+	async function loadHistoricalData(sym: string, resolution: ChartResolution): Promise<ChartPoint[]> {
 		const upperSym = sym.toUpperCase();
 
 		try {
@@ -171,10 +192,7 @@
 			const params = new URLSearchParams({ resolution });
 			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}?${params}`);
 			if (res.ok) {
-				const data = await res.json();
-				if (Array.isArray(data)) {
-					return data;
-				}
+				return sanitizeChartData(await res.json());
 			}
 		} catch (e) {
 			console.warn(`[PriceChart] Backend history fetch failed for ${upperSym}`, e);
@@ -318,18 +336,17 @@
 
 	$effect(() => {
 		if (liveData && areaSeries && !loading) {
-			const normalizedTick = {
-				time: 0,
-				value: liveData.price,
-				source: 'realtime'
-			};
-			let rawTimeMs = liveData.updated_at;
+			const value = Number(liveData.price);
+			if (!Number.isFinite(value) || value <= 0) return;
+
+			let rawTimeMs = Number(liveData.updated_at);
 			if (liveData.received_at) {
 				const parsed = Date.parse(liveData.received_at);
-				if (!isNaN(parsed)) {
+				if (!Number.isNaN(parsed)) {
 					rawTimeMs = parsed;
 				}
 			}
+			if (!Number.isFinite(rawTimeMs) || rawTimeMs <= 0) return;
 
 			const tickTimeSec = Math.floor(rawTimeMs / 1000);
 			const bucketSeconds = resolutionSeconds(selectedResolution);
@@ -339,7 +356,12 @@
 			if (roundedTime < lastTime) {
 				roundedTime = lastTime;
 			}
-			normalizedTick.time = roundedTime;
+
+			const normalizedTick: ChartPoint = {
+				time: roundedTime,
+				value,
+				source: 'realtime'
+			};
 
 			areaSeries.update(normalizedTick as any);
 			if (currentHistory.length === 0) {
