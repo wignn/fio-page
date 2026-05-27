@@ -11,7 +11,7 @@
 	let { selected, onselect }: Props = $props();
 
 	let allPrices: PriceData[] = $derived(marketStore.prices);
-	const primarySymbols = ['SPX', 'XAUUSD', 'BTCUSDT', 'DXY', 'ETHUSDT', 'EURUSD'];
+	const primarySymbols = ['SPX', 'XAUUSD', 'BTCUSDT', 'DXY', 'ETHUSDT', 'EURUSD', 'GBPUSD', 'AAPL', 'NVDA'];
 	let livePrices: PriceData[] = $derived.by(() => {
 		const bySymbol = new Map(allPrices.map((price) => [price.symbol.toUpperCase(), price]));
 		return primarySymbols.map((symbol) => bySymbol.get(symbol) ?? placeholderPrice(symbol));
