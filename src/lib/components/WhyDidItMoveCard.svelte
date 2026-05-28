@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { CORE_REST_URL } from '$lib/config';
+	import { apiFetch } from '$lib/api';
 	import type { WhyMoveCause, WhyMoveResponse } from '$lib/types';
 
 	interface Props {
@@ -77,9 +78,8 @@
 		loading = true;
 		error = '';
 		try {
-			const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
-			const res = await fetch(
-				`${restBaseUrl}/api/v1/market/why/${encodeURIComponent(upper)}?window=5m`
+			const res = await apiFetch(
+				`/api/v1/market/why/${encodeURIComponent(upper)}?window=5m`
 			);
 			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 			data = (await res.json()) as WhyMoveResponse;
@@ -186,7 +186,7 @@
 						</div>
 					</div>
 				{/if}
-
+<!-- 
 				<div class="mt-2 rounded-lg border border-border bg-surface-2/35 p-3">
 					<p class="text-xs font-bold tracking-wide text-text-dim uppercase">News evidence</p>
 					<p class="mt-1 font-mono text-2xl font-black text-text">{data.causes.news.length}</p>
@@ -195,7 +195,7 @@
 							? 'matching news catalyst found in the lookback window.'
 							: 'matching news catalysts found in the lookback window.'}
 					</p>
-				</div>
+				</div> -->
 		{/if}
 	</div>
 </section>

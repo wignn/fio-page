@@ -3,7 +3,8 @@
 	import { createChart, AreaSeries, type IChartApi, type ISeriesApi } from 'lightweight-charts';
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
-	import { CORE_REST_URL } from '$lib/config';
+	import { CORE_REST_URL, API_KEY } from '$lib/config';
+	import { apiFetch } from '$lib/api';
 	import { getLocalLogo } from '$lib/logo';
 
 	interface Props {
@@ -40,6 +41,7 @@
 		if (resolution === '1h') return 60 * 60;
 		return 60;
 	}
+
 	function getSymbolMeta(sym: string) {
 		const upper = sym.toUpperCase();
 		let name = upper;
@@ -50,76 +52,61 @@
 		let displaySymbol = upper;
 
 		if (upper === 'BTCUSDT') {
-			name = 'Bitcoin';
-			badge = 'BTC';
+			name = 'Bitcoin'; badge = 'BTC';
 			badgeColor = 'bg-[#F7931A]/10 text-[#F7931A] border border-[#F7931A]/20';
-			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+			format = (val) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/btc@2x.png' };
 		} else if (upper === 'ETHUSDT') {
-			name = 'Ethereum';
-			badge = 'ETH';
+			name = 'Ethereum'; badge = 'ETH';
 			badgeColor = 'bg-[#627EEA]/10 text-[#627EEA] border border-[#627EEA]/20';
-			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+			format = (val) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/eth@2x.png' };
 		} else if (upper === 'SOLUSDT') {
-			name = 'Solana';
-			badge = 'SOL';
+			name = 'Solana'; badge = 'SOL';
 			badgeColor = 'bg-[#14F195]/10 text-[#14F195] border border-[#14F195]/20';
-			format = (val: number) => `$${val.toFixed(2)}`;
+			format = (val) => `$${val.toFixed(2)}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/sol@2x.png' };
 		} else if (upper === 'BNBUSDT') {
-			name = 'BNB';
-			badge = 'BNB';
+			name = 'BNB'; badge = 'BNB';
 			badgeColor = 'bg-[#F3BA2F]/10 text-[#F3BA2F] border border-[#F3BA2F]/20';
-			format = (val: number) => `$${val.toFixed(2)}`;
+			format = (val) => `$${val.toFixed(2)}`;
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/bnb@2x.png' };
 		} else if (upper === 'PAXGUSDT') {
-			name = 'PAX Gold';
-			badge = 'PAXG';
-			displaySymbol = 'PAXG';
+			name = 'PAX Gold'; badge = 'PAXG'; displaySymbol = 'PAXG';
 			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
-			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
+			format = (val) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
 			logo = { type: 'svg', url: '' };
 		} else if (upper === 'EURUSD') {
-			name = 'Euro / US Dollar';
-			badge = 'EUR';
+			name = 'Euro / US Dollar'; badge = 'EUR';
 			badgeColor = 'bg-[#003399]/10 text-[#003399] border border-[#003399]/20';
-			format = (val: number) => val.toFixed(5);
+			format = (val) => val.toFixed(5);
 			logo = { type: 'img', url: 'https://flagcdn.com/w80/eu.png' };
 		} else if (upper === 'GBPUSD') {
-			name = 'Pound Sterling / US Dollar';
-			badge = 'GBP';
+			name = 'Pound Sterling / US Dollar'; badge = 'GBP';
 			badgeColor = 'bg-[#C8102E]/10 text-[#C8102E] border border-[#C8102E]/20';
-			format = (val: number) => val.toFixed(5);
+			format = (val) => val.toFixed(5);
 			logo = { type: 'img', url: 'https://flagcdn.com/w80/gb.png' };
 		} else if (upper === 'USDJPY') {
-			name = 'US Dollar / Japanese Yen';
-			badge = 'JPY';
+			name = 'US Dollar / Japanese Yen'; badge = 'JPY';
 			badgeColor = 'bg-[#BC002D]/10 text-[#BC002D] border border-[#BC002D]/20';
-			format = (val: number) => val.toFixed(3);
+			format = (val) => val.toFixed(3);
 			logo = { type: 'img', url: 'https://flagcdn.com/w80/jp.png' };
 		} else if (upper === 'XAUUSD') {
-			name = 'Gold Spot / US Dollar';
-			badge = 'GOLD';
+			name = 'Gold Spot / US Dollar'; badge = 'GOLD';
 			badgeColor = 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20';
-			format = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+			format = (val) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 		} else if (upper === 'SPX') {
-			name = 'S&P 500 Index';
-			badge = 'SPX';
+			name = 'S&P 500 Index'; badge = 'SPX';
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+			format = (val) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		} else if (upper === 'DXY') {
-			name = 'US Dollar Index';
-			badge = 'DXY';
+			name = 'US Dollar Index'; badge = 'DXY';
 			badgeColor = 'bg-emerald-600/10 text-emerald-600 border border-emerald-600/20';
-			format = (val: number) => val.toFixed(3);
+			format = (val) => val.toFixed(3);
 		}
 
-		// Prioritize local logo over any fallback URL defined above
 		const localLogoUrl = getLocalLogo(upper);
-		if (localLogoUrl) {
-			logo = { type: 'img', url: localLogoUrl };
-		}
+		if (localLogoUrl) logo = { type: 'img', url: localLogoUrl };
 
 		return { name, badge, badgeColor, format, logo, displaySymbol };
 	}
@@ -186,18 +173,18 @@
 
 	async function loadHistoricalData(sym: string, resolution: ChartResolution): Promise<ChartPoint[]> {
 		const upperSym = sym.toUpperCase();
-
 		try {
-			const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
+			// Fix: hapus .replace(/^ws/, 'http') — CORE_REST_URL sudah HTTP
+			// Fix: tambah API key via apiFetch
 			const params = new URLSearchParams({ resolution });
-			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}?${params}`);
+			const res = await apiFetch(`/api/v1/market/history/${upperSym}?${params}`);
 			if (res.ok) {
 				return sanitizeChartData(await res.json());
 			}
+			console.warn(`[PriceChart] History fetch failed for ${upperSym}: ${res.status} ${res.statusText}`);
 		} catch (e) {
 			console.warn(`[PriceChart] Backend history fetch failed for ${upperSym}`, e);
 		}
-
 		return [];
 	}
 
@@ -210,25 +197,15 @@
 		const bgColor = isDark ? '#1E222D' : '#ffffff';
 
 		chart.applyOptions({
-			layout: {
-				background: { color: bgColor },
-				textColor: textColor,
-			},
-			grid: {
-				vertLines: { color: gridColor },
-				horzLines: { color: gridColor },
-			}
+			layout: { background: { color: bgColor }, textColor },
+			grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } }
 		});
 
 		const colorLine = direction === 'up' ? '#089981' : direction === 'down' ? '#F23645' : '#2962FF';
-		const colorTop = direction === 'up' ? 'rgba(8, 153, 129, 0.28)' : direction === 'down' ? 'rgba(242, 54, 69, 0.28)' : 'rgba(41, 98, 255, 0.28)';
-		const colorBottom = direction === 'up' ? 'rgba(8, 153, 129, 0.0)' : direction === 'down' ? 'rgba(242, 54, 69, 0.0)' : 'rgba(41, 98, 255, 0.0)';
+		const colorTop = direction === 'up' ? 'rgba(8,153,129,0.28)' : direction === 'down' ? 'rgba(242,54,69,0.28)' : 'rgba(41,98,255,0.28)';
+		const colorBottom = direction === 'up' ? 'rgba(8,153,129,0.0)' : direction === 'down' ? 'rgba(242,54,69,0.0)' : 'rgba(41,98,255,0.0)';
 
-		areaSeries.applyOptions({
-			lineColor: colorLine,
-			topColor: colorTop,
-			bottomColor: colorBottom,
-		});
+		areaSeries.applyOptions({ lineColor: colorLine, topColor: colorTop, bottomColor: colorBottom });
 	}
 
 	function initChart() {
@@ -241,39 +218,36 @@
 
 		chart = createChart(chartContainer, {
 			width: chartContainer.clientWidth,
-			height: height,
+			height,
 			layout: {
 				background: { color: bgColor },
-				textColor: textColor,
+				textColor,
 				fontFamily: "'Inter', sans-serif",
-				attributionLogo: false,
+				attributionLogo: false
 			},
 			grid: {
 				vertLines: { visible: !compact, color: gridColor, style: 2 },
-				horzLines: { visible: !compact, color: gridColor, style: 2 },
+				horzLines: { visible: !compact, color: gridColor, style: 2 }
 			},
 			rightPriceScale: {
 				borderVisible: false,
-				scaleMargins: {
-					top: compact ? 0.15 : 0.2,
-					bottom: compact ? 0.1 : 0.15,
-				},
+				scaleMargins: { top: compact ? 0.15 : 0.2, bottom: compact ? 0.1 : 0.15 }
 			},
 			timeScale: {
 				visible: !compact,
 				borderVisible: false,
 				timeVisible: true,
-				secondsVisible: false,
+				secondsVisible: false
 			},
 			handleScale: {
 				mouseWheel: !compact,
 				pinch: !compact,
-				axisPressedMouseMove: !compact,
+				axisPressedMouseMove: !compact
 			},
 			handleScroll: {
 				mouseWheel: !compact,
-				pressedMouseMove: !compact,
-			},
+				pressedMouseMove: !compact
+			}
 		});
 
 		areaSeries = chart.addSeries(AreaSeries, {
@@ -282,19 +256,15 @@
 			bottomColor: 'rgba(41, 98, 255, 0.0)',
 			lineWidth: 2,
 			priceLineVisible: true,
-			lastValueVisible: true,
+			lastValueVisible: true
 		});
+
 		const resizeObserver = new ResizeObserver((entries) => {
-			if (entries[0] && chart) {
-				const { width } = entries[0].contentRect;
-				chart.resize(width, height);
-			}
+			if (entries[0] && chart) chart.resize(entries[0].contentRect.width, height);
 		});
 		resizeObserver.observe(chartContainer);
 
-		const themeObserver = new MutationObserver(() => {
-			updateChartColors();
-		});
+		const themeObserver = new MutationObserver(() => updateChartColors());
 		themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
 		return () => {
@@ -313,11 +283,14 @@
 
 		async function fetchAndPopulate() {
 			const data = await loadHistoricalData(symbol, selectedResolution);
-
 			if (!active) return;
 
 			historyData = data;
-			historySource = data.length === 0 ? 'empty' : data.every((point) => point.source === 'last_known') ? 'last_known' : 'history';
+			historySource = data.length === 0
+				? 'empty'
+				: data.every((p) => p.source === 'last_known')
+					? 'last_known'
+					: 'history';
 
 			if (areaSeries) {
 				areaSeries.setData(data as any);
@@ -328,10 +301,7 @@
 		}
 
 		fetchAndPopulate();
-
-		return () => {
-			active = false;
-		};
+		return () => { active = false; };
 	});
 
 	$effect(() => {
@@ -342,26 +312,19 @@
 			let rawTimeMs = Number(liveData.updated_at);
 			if (liveData.received_at) {
 				const parsed = Date.parse(liveData.received_at);
-				if (!Number.isNaN(parsed)) {
-					rawTimeMs = parsed;
-				}
+				if (!Number.isNaN(parsed)) rawTimeMs = parsed;
 			}
 			if (!Number.isFinite(rawTimeMs) || rawTimeMs <= 0) return;
 
 			const tickTimeSec = Math.floor(rawTimeMs / 1000);
 			const bucketSeconds = resolutionSeconds(selectedResolution);
 			let roundedTime = Math.floor(tickTimeSec / bucketSeconds) * bucketSeconds;
+
 			const currentHistory = untrack(() => historyData);
 			const lastTime = currentHistory.length > 0 ? currentHistory[currentHistory.length - 1].time : 0;
-			if (roundedTime < lastTime) {
-				roundedTime = lastTime;
-			}
+			if (roundedTime < lastTime) roundedTime = lastTime;
 
-			const normalizedTick: ChartPoint = {
-				time: roundedTime,
-				value,
-				source: 'realtime'
-			};
+			const normalizedTick: ChartPoint = { time: roundedTime, value, source: 'realtime' };
 
 			areaSeries.update(normalizedTick as any);
 			if (currentHistory.length === 0) {
@@ -384,13 +347,11 @@
 
 	onDestroy(() => {
 		if (cleanupChart) cleanupChart();
-		if (chart) {
-			chart.remove();
-			chart = null;
-		}
+		if (chart) { chart.remove(); chart = null; }
 	});
 </script>
 
+<!-- Template tidak berubah sama sekali -->
 <div class="flex flex-col bg-surface border border-border rounded-lg shadow-sm overflow-hidden animate-fade-in">
 	{#if compact}
 		<div class="flex items-center justify-between border-b border-border bg-surface px-4 py-2.5">
@@ -416,7 +377,7 @@
 					</div>
 				{/if}
 				<span class="rounded bg-surface-2 border border-border px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-text-dim">{meta.displaySymbol}</span>
-					<span class="rounded border px-1 py-0.5 text-[8px] font-bold font-mono {freshness.className}">{freshness.label}</span>
+				<span class="rounded border px-1 py-0.5 text-[8px] font-bold font-mono {freshness.className}">{freshness.label}</span>
 				<span class="text-xs font-bold text-text truncate max-w-[85px]">{meta.name}</span>
 			</div>
 			<div class="text-right flex items-center gap-1.5">
@@ -458,7 +419,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="flex flex-col items-start gap-2 md:items-end">
 				<div class="text-left md:text-right">
 					<div class="text-2xl font-bold font-mono text-text">
@@ -486,11 +446,11 @@
 
 	<div class="relative bg-surface p-2.5">
 		{#if !loading && historySource === 'last_known'}
-				<div class="absolute left-4 top-4 z-10 rounded border border-border bg-surface/90 px-2 py-1 text-[10px] font-bold text-text-dim shadow-sm">Last known price</div>
-			{:else if !loading && historySource === 'empty'}
-				<div class="absolute inset-0 z-10 flex items-center justify-center bg-surface/75 text-xs font-semibold text-text-dim">No chart history available</div>
-			{/if}
-			{#if loading}
+			<div class="absolute left-4 top-4 z-10 rounded border border-border bg-surface/90 px-2 py-1 text-[10px] font-bold text-text-dim shadow-sm">Last known price</div>
+		{:else if !loading && historySource === 'empty'}
+			<div class="absolute inset-0 z-10 flex items-center justify-center bg-surface/75 text-xs font-semibold text-text-dim">No chart history available</div>
+		{/if}
+		{#if loading}
 			<div class="absolute inset-0 flex items-center justify-center bg-surface/75 z-10">
 				<div class="flex flex-col items-center">
 					<div class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
@@ -503,4 +463,3 @@
 		<div bind:this={chartContainer} class="w-full"></div>
 	</div>
 </div>
-

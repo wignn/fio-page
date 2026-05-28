@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
-import { CORE_REST_URL } from '$lib/config';
+import { CORE_REST_URL, API_KEY } from '$lib/config';
+import { apiFetch } from '$lib/api';
 import type { NewsItem } from '$lib/types';
 
 export const forexNews = writable<NewsItem[]>([]);
@@ -21,14 +22,14 @@ function extractNewsItems(data: unknown): NewsItem[] {
 
 async function fetchForexNews() {
 	try {
-		const res = await fetch(`${CORE_REST_URL}/api/v1/forex/news/latest?limit=15`);
+		const res = await apiFetch('/api/v1/forex/news/latest?limit=15');
 		if (!res.ok) {
 			console.warn(`[News] forex fetch failed: ${res.status} ${res.statusText}`);
 			return;
 		}
 		const data = await res.json();
 		if (data.error) {
-			console.warn(`[News] forex API error:`, data.error);
+			console.warn('[News] forex API error:', data.error);
 			return;
 		}
 		forexNews.set(extractNewsItems(data));
@@ -39,14 +40,14 @@ async function fetchForexNews() {
 
 async function fetchStockNews() {
 	try {
-		const res = await fetch(`${CORE_REST_URL}/api/v1/stock/news?limit=15`);
+		const res = await apiFetch('/api/v1/stock/news?limit=15');
 		if (!res.ok) {
 			console.warn(`[News] stock fetch failed: ${res.status} ${res.statusText}`);
 			return;
 		}
 		const data = await res.json();
 		if (data.error) {
-			console.warn(`[News] stock API error:`, data.error);
+			console.warn('[News] stock API error:', data.error);
 			return;
 		}
 		stockNews.set(extractNewsItems(data));

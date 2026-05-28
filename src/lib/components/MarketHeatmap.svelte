@@ -4,6 +4,7 @@
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
 	import { CORE_REST_URL } from '$lib/config';
+	import { apiFetch } from '$lib/api';
 	import { getLocalLogo } from '$lib/logo';
 
 	interface Props {
@@ -248,8 +249,7 @@
 		const limit = 20;
 
 		try {
-			const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
-			const res = await fetch(`${restBaseUrl}/api/v1/market/history/${upperSym}`);
+			const res = await apiFetch(`/api/v1/market/history/${upperSym}`);
 			if (res.ok) {
 				const data = await res.json();
 				if (Array.isArray(data) && data.length > 0) {

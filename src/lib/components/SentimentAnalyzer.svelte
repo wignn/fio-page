@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CORE_REST_URL, API_KEY } from '$lib/config';
+	import { apiFetch } from '$lib/api';
 
 	let text = $state('');
 	let loading = $state(false);
@@ -13,12 +14,8 @@
 		result = null;
 
 		try {
-			const res = await fetch(`${CORE_REST_URL}/api/v1/analyze`, {
+			const res = await apiFetch('/api/v1/analyze', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'x-api-key': API_KEY || ''
-				},
 				body: JSON.stringify({ text })
 			});
 

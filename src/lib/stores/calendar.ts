@@ -1,6 +1,8 @@
 import { writable } from 'svelte/store';
-import { CORE_REST_URL } from '$lib/config';
-import type { CalendarEvent } from '$lib/types';
+import { CORE_REST_URL, API_KEY } from '$lib/config';
+import { apiFetch } from '$lib/api';
+import type { CalendarItem } from '$lib/types';
+
 
 export const calendarEvents = writable<CalendarEvent[]>([]);
 export const calendarLoading = writable(false);
@@ -10,12 +12,12 @@ let pollTimer: ReturnType<typeof setInterval> | null = null;
 async function fetchCalendar() {
 	calendarLoading.set(true);
 	try {
-		const res = await fetch(`${CORE_REST_URL}/api/v1/forex/calendar?impact=high&limit=15`);
+		const res = await apiFetch(`/api/v1/forex/calendar?impact=high&limit=15`);
 		if (!res.ok) return;
 		const data = await res.json();
 		if (data.items) calendarEvents.set(data.items);
 	} catch {
-		// Keep the previous calendar snapshot when polling fails.
+		
 	} finally {
 		calendarLoading.set(false);
 	}

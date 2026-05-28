@@ -1,10 +1,10 @@
 import { CORE_WS_URL, API_KEY, CORE_REST_URL } from '$lib/config';
+import { apiFetch } from '$lib/api';
 import type { PriceData, NewsItem } from '$lib/types';
 
 let priceMap = $state<Record<string, PriceData>>({});
 let isConnected = $state(false);
 
-// Newest-first realtime news buffers are capped to bound memory usage.
 let realtimeForexNews = $state<NewsItem[]>([]);
 let realtimeStockNews = $state<NewsItem[]>([]);
 const MAX_REALTIME_NEWS = 30;
@@ -14,7 +14,10 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectDelay = 2000;
 let requestId = 1;
 let desiredStreams = new Set(['market_data', 'forex_news', 'stock_news']);
-const hiddenMarketSymbols = new Set(['BBCA', 'BBRI', 'BMRI', 'TLKM', 'ASII', 'UNVR', 'ICBP', 'BBNI', 'ADRO', 'MDKA', 'JCI']);
+const hiddenMarketSymbols = new Set([
+	'BBCA', 'BBRI', 'BMRI', 'TLKM', 'ASII',
+	'UNVR', 'ICBP', 'BBNI', 'ADRO', 'MDKA', 'JCI'
+]);
 
 function isHiddenMarketSymbol(symbol: string): boolean {
 	return hiddenMarketSymbols.has(symbol.toUpperCase());
@@ -23,6 +26,7 @@ function isHiddenMarketSymbol(symbol: string): boolean {
 function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
+	// WS pakai query param — browser tidak support custom header di WebSocket
 	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&api_key=${API_KEY}`;
 	ws = new WebSocket(url);
 
@@ -49,7 +53,7 @@ function connect() {
 				handleStockNews(msg.data);
 			}
 		} catch {
-			// Ignore non-JSON frames and channel messages outside this client contract.
+			// Ignore non-JSON frames
 		}
 	};
 
@@ -68,6 +72,7 @@ function connect() {
 function handleMarketTrade(tick: any) {
 	const symbol = String(tick.symbol ?? '').toUpperCase();
 	if (!symbol || isHiddenMarketSymbol(symbol)) return;
+
 	const prev = priceMap[symbol];
 	const receivedAt = tick.received_at ?? null;
 	const receivedAtMs = receivedAt ? Date.parse(receivedAt) : 0;
@@ -118,7 +123,6 @@ function handleForexNews(data: any) {
 	};
 
 	if (realtimeForexNews.some((n) => n.id === item.id)) return;
-
 	realtimeForexNews = [item, ...realtimeForexNews].slice(0, MAX_REALTIME_NEWS);
 }
 
@@ -143,19 +147,12 @@ function handleStockNews(data: any) {
 	};
 
 	if (realtimeStockNews.some((n) => n.id === item.id)) return;
-
 	realtimeStockNews = [item, ...realtimeStockNews].slice(0, MAX_REALTIME_NEWS);
 }
 
 function sendCommand(method: string, params: string[] = []) {
 	if (!ws || ws.readyState !== WebSocket.OPEN) return;
-	ws.send(
-		JSON.stringify({
-			method,
-			params,
-			id: requestId++
-		})
-	);
+	ws.send(JSON.stringify({ method, params, id: requestId++ }));
 }
 
 function scheduleReconnect() {
@@ -168,31 +165,31 @@ function scheduleReconnect() {
 
 async function fetchInitialPrices() {
 	try {
-		const restBaseUrl = CORE_REST_URL.replace(/^ws/, 'http');
-		const res = await fetch(`${restBaseUrl}/api/v1/market/prices`);
-		if (res.ok) {
-			const data = await res.json();
-			if (data.items) {
-				for (const item of data.items) {
-					const symbol = String(item.symbol ?? '').toUpperCase();
-					if (!symbol || isHiddenMarketSymbol(symbol)) continue;
-					if (!priceMap[symbol]) {
-						priceMap[symbol] = {
-							symbol,
-							price: item.price,
-							bid: item.bid ?? null,
-							ask: item.ask ?? null,
-							volume: item.volume ?? null,
-							source: item.source ?? '',
-							asset_type: item.asset_type ?? '',
-							received_at: item.received_at ?? null,
-							session: item.session,
-							direction: 'none',
-							prev_price: item.price,
-							updated_at: Date.now()
-						};
-					}
-				}
+		// Fix: restBaseUrl → apiFetch dengan CORE_REST_URL + API key header
+		const res = await apiFetch('/api/v1/market/prices');
+		if (!res.ok) return;
+
+		const data = await res.json();
+		if (!data.items) return;
+
+		for (const item of data.items) {
+			const symbol = String(item.symbol ?? '').toUpperCase();
+			if (!symbol || isHiddenMarketSymbol(symbol)) continue;
+			if (!priceMap[symbol]) {
+				priceMap[symbol] = {
+					symbol,
+					price: item.price,
+					bid: item.bid ?? null,
+					ask: item.ask ?? null,
+					volume: item.volume ?? null,
+					source: item.source ?? '',
+					asset_type: item.asset_type ?? '',
+					received_at: item.received_at ?? null,
+					session: item.session,
+					direction: 'none',
+					prev_price: item.price,
+					updated_at: Date.now()
+				};
 			}
 		}
 	} catch (e) {
@@ -245,7 +242,6 @@ export const realtimeNewsStore = {
 	get stockNews() {
 		return realtimeStockNews;
 	},
-	/** Merge REST-fetched and realtime items, keeping newest realtime records first. */
 	mergeForex(restItems: NewsItem[]): NewsItem[] {
 		return dedupeAndMerge(realtimeForexNews, restItems);
 	},
@@ -258,13 +254,7 @@ function dedupeAndMerge(realtime: NewsItem[], rest: NewsItem[]): NewsItem[] {
 	const seen = new Set<string>();
 	const merged: NewsItem[] = [];
 
-	for (const item of realtime) {
-		if (!seen.has(item.id)) {
-			seen.add(item.id);
-			merged.push(item);
-		}
-	}
-	for (const item of rest) {
+	for (const item of [...realtime, ...rest]) {
 		if (!seen.has(item.id)) {
 			seen.add(item.id);
 			merged.push(item);
