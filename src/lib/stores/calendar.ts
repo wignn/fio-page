@@ -1,5 +1,4 @@
 import { writable } from 'svelte/store';
-import { CORE_REST_URL, API_KEY } from '$lib/config';
 import { apiFetch } from '$lib/api';
 import type { CalendarItem } from '$lib/types';
 

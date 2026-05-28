@@ -375,7 +375,8 @@ Content-Type: application/json
 							<div class="space-y-6">
 								{@render CodeBlock(
 									'Browser connection',
-									`const ws = new WebSocket(\`\${CORE_WS_URL}/ws/v1?api_key=\${apiKey}\`);
+									`const ticket = await fetch('/api/realtime/session', { method: 'POST' }).then((r) => r.json());
+	const ws = new WebSocket(\`\${CORE_WS_URL}/ws/v1?ticket=\${ticket.token}\`);
 
 ws.onopen = () => {
   ws.send(JSON.stringify({

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { CORE_REST_URL, API_KEY } from '$lib/config';
 	import { apiFetch } from '$lib/api';
 
 	let text = $state('');

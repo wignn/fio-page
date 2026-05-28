@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import { CORE_REST_URL } from '$lib/config';
 	import { apiFetch } from '$lib/api';
 	import type { WhyMoveCause, WhyMoveResponse } from '$lib/types';
 

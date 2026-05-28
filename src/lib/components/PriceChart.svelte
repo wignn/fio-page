@@ -3,7 +3,6 @@
 	import { createChart, AreaSeries, type IChartApi, type ISeriesApi } from 'lightweight-charts';
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
-	import { CORE_REST_URL, API_KEY } from '$lib/config';
 	import { apiFetch } from '$lib/api';
 	import { getLocalLogo } from '$lib/logo';
 
@@ -174,8 +173,6 @@
 	async function loadHistoricalData(sym: string, resolution: ChartResolution): Promise<ChartPoint[]> {
 		const upperSym = sym.toUpperCase();
 		try {
-			// Fix: hapus .replace(/^ws/, 'http') — CORE_REST_URL sudah HTTP
-			// Fix: tambah API key via apiFetch
 			const params = new URLSearchParams({ resolution });
 			const res = await apiFetch(`/api/v1/market/history/${upperSym}?${params}`);
 			if (res.ok) {

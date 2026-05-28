@@ -3,7 +3,6 @@
 	import { Search, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown } from 'lucide-svelte';
 	import { marketStore } from '$lib/stores/websocket.svelte';
 	import type { PriceData } from '$lib/types';
-	import { CORE_REST_URL } from '$lib/config';
 	import { apiFetch } from '$lib/api';
 	import { getLocalLogo } from '$lib/logo';
 

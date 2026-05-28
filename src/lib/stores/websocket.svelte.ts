@@ -1,4 +1,4 @@
-import { CORE_WS_URL, API_KEY, CORE_REST_URL } from '$lib/config';
+import { CORE_WS_URL } from '$lib/config';
 import { apiFetch } from '$lib/api';
 import type { PriceData, NewsItem } from '$lib/types';
 
@@ -23,11 +23,13 @@ function isHiddenMarketSymbol(symbol: string): boolean {
 	return hiddenMarketSymbols.has(symbol.toUpperCase());
 }
 
-function connect() {
+async function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	// WS pakai query param — browser tidak support custom header di WebSocket
-	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&api_key=${API_KEY}`;
+	const session = await fetch('/api/realtime/session', { method: 'POST' });
+	if (!session.ok) throw new Error(`Realtime session failed: ${session.status}`);
+	const { token } = (await session.json()) as { token: string };
+	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&session=${encodeURIComponent(token)}`;
 	ws = new WebSocket(url);
 
 	ws.onopen = () => {
@@ -159,13 +161,12 @@ function scheduleReconnect() {
 	if (reconnectTimer) clearTimeout(reconnectTimer);
 	reconnectTimer = setTimeout(() => {
 		reconnectDelay = Math.min(reconnectDelay * 1.5, 30000);
-		connect();
+		void connect();
 	}, reconnectDelay);
 }
 
 async function fetchInitialPrices() {
 	try {
-		// Fix: restBaseUrl → apiFetch dengan CORE_REST_URL + API key header
 		const res = await apiFetch('/api/v1/market/prices');
 		if (!res.ok) return;
 
@@ -199,7 +200,7 @@ async function fetchInitialPrices() {
 
 export function startWebSocket() {
 	fetchInitialPrices();
-	connect();
+	void connect();
 }
 
 export function subscribe(streams: string[]) {
