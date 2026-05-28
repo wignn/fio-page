@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json, type RequestEvent } from '@sveltejs/kit';
-import { CORE_REST_URL } from '$lib/config';
+import { CORE_REST_URL, CORE_WS_URL } from '$lib/config';
 
 function apiKey() {
 	return env.API_KEY || env.CORE_API_KEY || '';
@@ -8,6 +8,29 @@ function apiKey() {
 
 function joinUrl(base: string, path: string) {
 	return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+}
+
+function realtimeHttpUrl() {
+	return CORE_WS_URL.replace(/^wss:/, 'https:').replace(/^ws:/, 'http:');
+}
+
+function responseHeaders(response: Response) {
+	const headers = new Headers(response.headers);
+	for (const name of [
+		'content-encoding',
+		'content-length',
+		'transfer-encoding',
+		'connection',
+		'keep-alive',
+		'proxy-authenticate',
+		'proxy-authorization',
+		'te',
+		'trailer',
+		'upgrade'
+	]) {
+		headers.delete(name);
+	}
+	return headers;
 }
 
 export async function proxyCore(event: RequestEvent, path: string) {
@@ -19,6 +42,7 @@ export async function proxyCore(event: RequestEvent, path: string) {
 
 	const headers = new Headers(event.request.headers);
 	headers.set('X-API-Key', key);
+	headers.set('Accept-Encoding', 'identity');
 	headers.delete('host');
 	headers.delete('cookie');
 
@@ -32,7 +56,7 @@ export async function proxyCore(event: RequestEvent, path: string) {
 	return new Response(response.body, {
 		status: response.status,
 		statusText: response.statusText,
-		headers: response.headers
+		headers: responseHeaders(response)
 	});
 }
 
@@ -40,9 +64,9 @@ export async function createRealtimeSession() {
 	const key = apiKey();
 	if (!key) return null;
 
-	const response = await fetch(joinUrl(CORE_REST_URL, '/api/v1/realtime/session'), {
+	const response = await fetch(joinUrl(realtimeHttpUrl(), '/api/v1/ws/ticket'), {
 		method: 'POST',
-		headers: { 'X-API-Key': key }
+		headers: { 'X-API-Key': key, 'Accept-Encoding': 'identity' }
 	});
 	if (!response.ok) return null;
 	return response.json();

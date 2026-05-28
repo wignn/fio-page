@@ -1,4 +1,4 @@
-import { CORE_WS_URL } from '$lib/config';
+import { CORE_WS_URL, API_KEY } from '$lib/config';
 import { apiFetch } from '$lib/api';
 import type { PriceData, NewsItem } from '$lib/types';
 
@@ -26,10 +26,7 @@ function isHiddenMarketSymbol(symbol: string): boolean {
 async function connect() {
 	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	const session = await fetch('/api/realtime/session', { method: 'POST' });
-	if (!session.ok) throw new Error(`Realtime session failed: ${session.status}`);
-	const { token } = (await session.json()) as { token: string };
-	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&session=${encodeURIComponent(token)}`;
+	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&api_key=${encodeURIComponent(API_KEY)}`;
 	ws = new WebSocket(url);
 
 	ws.onopen = () => {
