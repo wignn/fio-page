@@ -143,7 +143,7 @@
 				<div>
 					{#if llmNarrative}
 							<div class="rounded-lg border border-accent/20 bg-accent/5 p-3">
-								<p class="text-xs font-bold tracking-wide text-accent uppercase">Gemini analyst note</p>
+								<p class="text-xs font-bold tracking-wide text-accent uppercase">Analyst note</p>
 								<p class="mt-2 text-sm font-black text-text">{llmNarrative.headline}</p>
 								<p class="mt-2 text-sm leading-relaxed text-text-muted">{llmNarrative.explanation}</p>
 							</div>
@@ -169,7 +169,7 @@
 					{/if}
 				</div>
 			</div>
-
+<!-- 
 			{#if topCrossAssets.length > 0}
 					<div class="mt-4 rounded-lg border border-border bg-surface-2/25 p-3">
 						<p class="text-xs font-bold tracking-wide text-text-dim uppercase">Same-window cross assets</p>
@@ -185,7 +185,7 @@
 							{/each}
 						</div>
 					</div>
-				{/if}
+				{/if} -->
 <!-- 
 				<div class="mt-2 rounded-lg border border-border bg-surface-2/35 p-3">
 					<p class="text-xs font-bold tracking-wide text-text-dim uppercase">News evidence</p>
