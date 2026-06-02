@@ -22,7 +22,8 @@ const config = {
 					'ws://localhost:8020',
 					'https:',
 					'wss://api-atlsd.wign.cloud',
-					'wss://realtime-engine.wign.dev'
+					'wss://realtime-engine.wign.dev',
+					'http://api-gateway:8000'
 				]
 			}
 		}
