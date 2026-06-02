@@ -1,6 +1,6 @@
-import { PUBLIC_CORE_REST_URL, PUBLIC_CORE_WS_URL, PUBLIC_DISCORD_INVITE, PUBLIC_API_KEY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
-export const CORE_REST_URL = PUBLIC_CORE_REST_URL;
-export const CORE_WS_URL = PUBLIC_CORE_WS_URL;
-export const API_KEY = PUBLIC_API_KEY;
-export const DISCORD_INVITE = PUBLIC_DISCORD_INVITE;
+export const CORE_REST_URL = env.PUBLIC_CORE_REST_URL || 'http://localhost:8000';
+export const CORE_WS_URL = env.PUBLIC_CORE_WS_URL || 'ws://localhost:8020';
+export const API_KEY = env.PUBLIC_API_KEY || '';
+export const DISCORD_INVITE = env.PUBLIC_DISCORD_INVITE || '';
