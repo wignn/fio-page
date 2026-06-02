@@ -1,9 +1,10 @@
-import { env } from '$env/dynamic/private';
+import { env as privateEnv } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { CORE_REST_URL, CORE_WS_URL } from '$lib/config';
 
 function apiKey() {
-	return env.API_KEY || env.CORE_API_KEY || '';
+	return privateEnv.API_KEY || privateEnv.CORE_API_KEY || publicEnv.PUBLIC_API_KEY || '';
 }
 
 function joinUrl(base: string, path: string) {
@@ -64,10 +65,14 @@ export async function createRealtimeSession() {
 	const key = apiKey();
 	if (!key) return null;
 
-	const response = await fetch(joinUrl(realtimeHttpUrl(), '/api/v1/ws/ticket'), {
-		method: 'POST',
-		headers: { 'X-API-Key': key, 'Accept-Encoding': 'identity' }
-	});
-	if (!response.ok) return null;
-	return response.json();
+	try {
+		const response = await fetch(joinUrl(realtimeHttpUrl(), '/api/v1/ws/ticket'), {
+			method: 'POST',
+			headers: { 'X-API-Key': key, 'Accept-Encoding': 'identity' }
+		});
+		if (!response.ok) return null;
+		return response.json();
+	} catch {
+		return null;
+	}
 }

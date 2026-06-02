@@ -1,4 +1,4 @@
-import { CORE_WS_URL, API_KEY } from '$lib/config';
+import { CORE_WS_URL } from '$lib/config';
 import { apiFetch } from '$lib/api';
 import type { PriceData, NewsItem } from '$lib/types';
 
@@ -11,8 +11,9 @@ const MAX_REALTIME_NEWS = 30;
 
 let ws: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-let reconnectDelay = 2000;
+let reconnectDelay = 1000;
 let requestId = 1;
+let isOpening = false;
 let desiredStreams = new Set(['market_data', 'forex_news', 'stock_news']);
 const hiddenMarketSymbols = new Set([
 	'BBCA', 'BBRI', 'BMRI', 'TLKM', 'ASII',
@@ -23,15 +24,41 @@ function isHiddenMarketSymbol(symbol: string): boolean {
 	return hiddenMarketSymbols.has(symbol.toUpperCase());
 }
 
-async function connect() {
-	if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-	const url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&api_key=${encodeURIComponent(API_KEY)}`;
+async function createRealtimeTicket(): Promise<string> {
+	const res = await fetch('/api/realtime/session', {
+		method: 'POST',
+		cache: 'no-store',
+		credentials: 'same-origin'
+	});
+	if (!res.ok) throw new Error(`Realtime session failed: ${res.status}`);
+	const data = await res.json();
+	if (!data?.ticket) throw new Error('Realtime session response did not include a ticket');
+	return data.ticket;
+}
+
+async function connect() {
+	if (isOpening || (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING))) return;
+	isOpening = true;
+
+	let url: string;
+	try {
+		const ticket = await createRealtimeTicket();
+		url = `${CORE_WS_URL}/ws/v1?bot_id=web_client&ticket=${encodeURIComponent(ticket)}`;
+	} catch (e) {
+		console.warn('[WS] Failed to create realtime session:', e);
+		isConnected = false;
+		isOpening = false;
+		scheduleReconnect();
+		return;
+	}
+
 	ws = new WebSocket(url);
 
 	ws.onopen = () => {
 		console.log('[WS] Connected to core (market + news)');
-		reconnectDelay = 2000;
+		reconnectDelay = 1000;
+		isOpening = false;
 		isConnected = true;
 		sendCommand('SUBSCRIBE', [...desiredStreams]);
 	};
@@ -58,6 +85,7 @@ async function connect() {
 
 	ws.onclose = (evt) => {
 		console.log(`[WS] Disconnected (code=${evt.code}), reconnecting in ${reconnectDelay / 1000}s...`);
+		isOpening = false;
 		isConnected = false;
 		scheduleReconnect();
 	};
@@ -156,10 +184,12 @@ function sendCommand(method: string, params: string[] = []) {
 
 function scheduleReconnect() {
 	if (reconnectTimer) clearTimeout(reconnectTimer);
+	const delay = reconnectDelay + Math.floor(Math.random() * 250);
 	reconnectTimer = setTimeout(() => {
+		reconnectTimer = null;
 		reconnectDelay = Math.min(reconnectDelay * 1.5, 30000);
 		void connect();
-	}, reconnectDelay);
+	}, delay);
 }
 
 async function fetchInitialPrices() {
@@ -217,6 +247,7 @@ export function listSubscriptions() {
 export function stopWebSocket() {
 	if (reconnectTimer) clearTimeout(reconnectTimer);
 	reconnectTimer = null;
+	isOpening = false;
 	ws?.close();
 	ws = null;
 }
