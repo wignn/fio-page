@@ -11,14 +11,30 @@
 	let { selected, onselect }: Props = $props();
 
 	let allPrices: PriceData[] = $derived(marketStore.prices);
-	const primarySymbols = ['SPX', 'XAUUSD', 'BTCUSDT', 'DXY', 'ETHUSDT', 'EURUSD', 'GBPUSD', 'AAPL', 'NVDA'];
+	const primarySymbols = [
+		'SPX',
+		'XAUUSD',
+		'BTCUSDT',
+		'DXY',
+		'ETHUSDT',
+		'EURUSD',
+		'GBPUSD',
+		'AAPL',
+		'NVDA'
+	];
 	let livePrices: PriceData[] = $derived.by(() => {
 		const bySymbol = new Map(allPrices.map((price) => [price.symbol.toUpperCase(), price]));
 		return primarySymbols.map((symbol) => bySymbol.get(symbol) ?? placeholderPrice(symbol));
 	});
 
 	function placeholderPrice(symbol: string): PriceData {
-		const assetType = symbol.endsWith('USDT') ? 'crypto' : symbol === 'SPX' || symbol === 'DXY' ? 'index' : symbol === 'XAUUSD' ? 'commodity' : 'forex';
+		const assetType = symbol.endsWith('USDT')
+			? 'crypto'
+			: symbol === 'SPX' || symbol === 'DXY'
+				? 'index'
+				: symbol === 'XAUUSD'
+					? 'commodity'
+					: 'forex';
 		return {
 			symbol,
 			price: 0,
@@ -36,12 +52,22 @@
 
 	function getSymbolDetails(itemOrSymbol: PriceData | string) {
 		const symbol = typeof itemOrSymbol === 'string' ? itemOrSymbol : itemOrSymbol.symbol;
-		const category = typeof itemOrSymbol === 'string' ? getAssetCategory({ symbol, asset_type: '', price: 0 } as PriceData) : getAssetCategory(itemOrSymbol);
+		const category =
+			typeof itemOrSymbol === 'string'
+				? getAssetCategory({ symbol, asset_type: '', price: 0 } as PriceData)
+				: getAssetCategory(itemOrSymbol);
 		const sym = symbol.toUpperCase();
 		let name = sym;
 		let badge = sym.substring(0, 4);
 		let badgeColor = 'bg-accent/10 text-accent border border-accent/20';
-		let unit = category === 'forex' ? 'RATE' : category === 'stocks' ? 'EQTY' : category === 'indices' ? 'IDX' : 'USD';
+		let unit =
+			category === 'forex'
+				? 'RATE'
+				: category === 'stocks'
+					? 'EQTY'
+					: category === 'indices'
+						? 'IDX'
+						: 'USD';
 		let format = (val: number) => formatPrice(val, category, sym);
 		let logo = { type: 'svg', url: '' };
 		let displaySymbol = sym;
@@ -51,14 +77,16 @@
 			badge = 'BTC';
 			badgeColor = 'bg-[#F7931A]/10 text-[#F7931A] border border-[#F7931A]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/btc@2x.png' };
 		} else if (sym === 'ETHUSDT') {
 			name = 'Ethereum';
 			badge = 'ETH';
 			badgeColor = 'bg-[#627EEA]/10 text-[#627EEA] border border-[#627EEA]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/eth@2x.png' };
 		} else if (sym === 'SOLUSDT') {
 			name = 'Solana';
@@ -80,7 +108,8 @@
 			displaySymbol = 'PAXG';
 			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 			logo = { type: 'svg', url: '' };
 		} else if (sym === 'EURUSD') {
 			name = 'Euro / USD';
@@ -108,13 +137,15 @@
 			badge = 'GOLD';
 			badgeColor = 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 		} else if (sym === 'SPX') {
 			name = 'S&P 500 Index';
 			badge = 'SPX';
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		} else if (sym === 'DXY') {
 			name = 'US Dollar Index';
 			badge = 'DXY';
@@ -147,7 +178,6 @@
 		return { name, badge, badgeColor, unit, format, logo, displaySymbol };
 	}
 
-
 	function getAssetCategory(item: PriceData): string {
 		const assetType = (item.asset_type ?? '').toLowerCase();
 		if (['stock', 'stocks', 'equity', 'saham'].includes(assetType)) return 'stocks';
@@ -164,11 +194,14 @@
 	}
 
 	function formatPrice(val: number, category: string, symbol: string): string {
-		if (category === 'crypto') return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-		if (category === 'stocks' || category === 'indices') return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+		if (category === 'crypto')
+			return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+		if (category === 'stocks' || category === 'indices')
+			return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 		if (category === 'forex') {
 			if (symbol.includes('JPY')) return val.toFixed(3);
-			if (symbol.includes('IDR')) return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+			if (symbol.includes('IDR'))
+				return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
 			return val.toFixed(5);
 		}
 		return val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
@@ -202,18 +235,39 @@
 	}
 
 	function getFreshness(p: PriceData): { state: FreshnessState; label: string; className: string } {
-		if (!hasValidPrice(p)) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
+		if (!hasValidPrice(p))
+			return {
+				state: 'unknown',
+				label: 'NO DATA',
+				className: 'bg-surface-2 text-text-dim border-border'
+			};
 		const ts = priceTimestamp(p);
-		if (!ts) return { state: 'unknown', label: 'NO DATA', className: 'bg-surface-2 text-text-dim border-border' };
+		if (!ts)
+			return {
+				state: 'unknown',
+				label: 'NO DATA',
+				className: 'bg-surface-2 text-text-dim border-border'
+			};
 
 		const session = p.session;
 		const ageMs = Date.now() - ts;
 		const isCrypto = p.symbol.toUpperCase().endsWith('USDT') || p.asset_type === 'crypto';
 		const freshMs = isCrypto ? 15 * 60_000 : 5 * 60_000;
-		if (session?.is_open && ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
-		if (session && !session.is_open) return { state: 'closed', label: session.state === 'break' ? 'BREAK' : 'CLOSED', className: 'bg-surface-2 text-text-dim border-border' };
-		if (ageMs <= freshMs) return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
-		return { state: 'stale', label: isCrypto ? 'FEED LAG' : 'STALE', className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' };
+		if (session?.is_open && ageMs <= freshMs)
+			return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
+		if (session && !session.is_open)
+			return {
+				state: 'closed',
+				label: session.state === 'break' ? 'BREAK' : 'CLOSED',
+				className: 'bg-surface-2 text-text-dim border-border'
+			};
+		if (ageMs <= freshMs)
+			return { state: 'live', label: 'LIVE', className: 'bg-green/10 text-green border-green/20' };
+		return {
+			state: 'stale',
+			label: isCrypto ? 'FEED LAG' : 'STALE',
+			className: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+		};
 	}
 
 	function getPercentChange(p: PriceData): { value: number; string: string } {
@@ -241,12 +295,12 @@
 				}
 
 				flashMap.set(p.symbol, p.direction);
-				
+
 				const timeout = setTimeout(() => {
 					flashMap.delete(p.symbol);
 					activeTimeouts.delete(p.symbol);
 				}, 600);
-				
+
 				activeTimeouts.set(p.symbol, timeout);
 			}
 		}
@@ -260,83 +314,145 @@
 	});
 </script>
 
-<div class="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
-	<div class="flex h-11 shrink-0 items-center justify-between border-b border-border bg-surface px-3">
+<div
+	class="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm"
+>
+	<div
+		class="flex h-11 shrink-0 items-center justify-between border-b border-border bg-surface px-3"
+	>
 		<div>
 			<h2 class="text-xs font-black tracking-tight text-text">Live Instruments</h2>
 			<p class="font-mono text-[9px] font-bold text-text-dim uppercase">Watchlist</p>
 		</div>
 		<div class="flex items-center gap-1.5 text-[10px] text-text-dim">
-			<span class="inline-block h-1.5 w-1.5 rounded-full {allPrices.length > 0 ? 'bg-green animate-pulse' : 'bg-red'}"></span>
-			<span class="font-mono font-bold">{livePrices.filter(hasValidPrice).length}/{primarySymbols.length}</span>
+			<span
+				class="inline-block h-1.5 w-1.5 rounded-full {allPrices.length > 0
+					? 'animate-pulse bg-green'
+					: 'bg-red'}"
+			></span>
+			<span class="font-mono font-bold"
+				>{livePrices.filter(hasValidPrice).length}/{primarySymbols.length}</span
+			>
 		</div>
 	</div>
 
-		<div class="divide-y divide-border bg-surface">
-			{#each livePrices as p (p.symbol)}
-				{@const details = getSymbolDetails(p)}
-				{@const pct = getPercentChange(p)}
-				{@const flash = flashMap.get(p.symbol)}
-				{@const isSelected = selected === p.symbol}
-					{@const validPrice = hasValidPrice(p)}
-					{@const freshness = getFreshness(p)}
+	<div class="divide-y divide-border bg-surface">
+		{#each livePrices as p (p.symbol)}
+			{@const details = getSymbolDetails(p)}
+			{@const pct = getPercentChange(p)}
+			{@const flash = flashMap.get(p.symbol)}
+			{@const isSelected = selected === p.symbol}
+			{@const validPrice = hasValidPrice(p)}
+			{@const freshness = getFreshness(p)}
 
-				<button
-					onclick={() => onselect(p.symbol)}
-					class="group relative flex h-14 w-full cursor-pointer items-center gap-2 overflow-hidden px-3 text-left transition-all duration-150 focus:outline-none
+			<button
+				onclick={() => onselect(p.symbol)}
+				class="group relative flex h-14 w-full cursor-pointer items-center gap-2 overflow-hidden px-3 text-left transition-all duration-150 focus:outline-none
 					{isSelected
-						? 'bg-accent/7 shadow-[inset_2px_0_0_var(--color-accent)] dark:bg-accent/10'
-						: 'bg-surface hover:bg-surface-2/45'}
+					? 'bg-accent/7 shadow-[inset_2px_0_0_var(--color-accent)] dark:bg-accent/10'
+					: 'bg-surface hover:bg-surface-2/45'}
 					{flash === 'up' ? 'flash-green' : flash === 'down' ? 'flash-red' : ''}"
-				>
-
-					<div class="flex w-8 shrink-0 items-center justify-center">
-						{#if details.logo.type === 'img'}
-							<div class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full overflow-hidden border border-border bg-surface-2">
-								<img src={details.logo.url} alt={details.badge} class="h-full w-full object-cover rounded-full" />
-							</div>
-						{:else}
-							<div class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
-								{#if p.symbol.toUpperCase() === 'XAUUSD'}
-									<svg class="h-3.5 w-3.5" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-										<path d="M16 28 L48 28 L40 18 L24 18 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-										<path d="M8 46 L36 46 L30 36 L14 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-										<path d="M28 46 L56 46 L50 36 L34 36 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-									</svg>
-								{:else if p.symbol.toUpperCase() === 'SPX'}
-									<svg class="h-3.5 w-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-										<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-										<polyline points="16 7 22 7 22 13"></polyline>
-									</svg>
-								{:else}
-									<svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-										<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-										<polyline points="16 7 22 7 22 13"></polyline>
-									</svg>
-								{/if}
-							</div>
-						{/if}
-					</div>
-
-					<div class="min-w-0 flex-1">
-						<div class="flex items-center gap-1.5">
-							<span class="font-mono text-xs font-black tracking-tight text-text">{details.displaySymbol}</span>
-							<span class="rounded border px-1 py-0.5 font-mono text-[7px] font-bold {freshness.className}">{freshness.label}</span>
+			>
+				<div class="flex w-8 shrink-0 items-center justify-center">
+					{#if details.logo.type === 'img'}
+						<div
+							class="flex h-5.5 w-5.5 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface-2"
+						>
+							<img
+								src={details.logo.url}
+								alt={details.badge}
+								class="h-full w-full rounded-full object-cover"
+							/>
 						</div>
-						<p class="truncate text-[10px] font-semibold text-text-dim">{details.name}</p>
-					</div>
+					{:else}
+						<div
+							class="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full border border-accent/20 bg-accent/10"
+						>
+							{#if p.symbol.toUpperCase() === 'XAUUSD'}
+								<svg
+									class="h-3.5 w-3.5"
+									viewBox="0 0 64 64"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M16 28 L48 28 L40 18 L24 18 Z"
+										fill="#FFD700"
+										stroke="#DAA520"
+										stroke-width="2"
+									/>
+									<path
+										d="M8 46 L36 46 L30 36 L14 36 Z"
+										fill="#FFD700"
+										stroke="#DAA520"
+										stroke-width="2"
+									/>
+									<path
+										d="M28 46 L56 46 L50 36 L34 36 Z"
+										fill="#FFD700"
+										stroke="#DAA520"
+										stroke-width="2"
+									/>
+								</svg>
+							{:else if p.symbol.toUpperCase() === 'SPX'}
+								<svg
+									class="h-3.5 w-3.5 text-blue-600"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+									<polyline points="16 7 22 7 22 13"></polyline>
+								</svg>
+							{:else}
+								<svg
+									class="h-3.5 w-3.5 text-emerald-600"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+									<polyline points="16 7 22 7 22 13"></polyline>
+								</svg>
+							{/if}
+						</div>
+					{/if}
+				</div>
 
-					<div class="shrink-0 text-right">
-						<div class="font-mono text-sm font-black text-text">
-							{validPrice ? details.format(p.price) : '--'}
-						</div>
-						<div class="flex items-center justify-end gap-1 font-mono text-[10px] font-bold {pct.value >= 0 ? 'text-green' : 'text-red'}">
-							<span>{validPrice ? (pct.value >= 0 ? '▲' : '▼') : '■'}</span>
-							<span>{pct.string}</span>
-						</div>
+				<div class="min-w-0 flex-1">
+					<div class="flex items-center gap-1.5">
+						<span class="font-mono text-xs font-black tracking-tight text-text"
+							>{details.displaySymbol}</span
+						>
+						<span
+							class="rounded border px-1 py-0.5 font-mono text-[7px] font-bold {freshness.className}"
+							>{freshness.label}</span
+						>
 					</div>
-				</button>
-			{/each}
-		</div>
+					<p class="truncate text-[10px] font-semibold text-text-dim">{details.name}</p>
+				</div>
+
+				<div class="shrink-0 text-right">
+					<div class="font-mono text-sm font-black text-text">
+						{validPrice ? details.format(p.price) : '--'}
+					</div>
+					<div
+						class="flex items-center justify-end gap-1 font-mono text-[10px] font-bold {pct.value >=
+						0
+							? 'text-green'
+							: 'text-red'}"
+					>
+						<span>{validPrice ? (pct.value >= 0 ? '▲' : '▼') : '■'}</span>
+						<span>{pct.string}</span>
+					</div>
+				</div>
+			</button>
+		{/each}
+	</div>
 </div>
-

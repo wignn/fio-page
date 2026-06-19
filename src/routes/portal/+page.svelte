@@ -28,7 +28,7 @@
 	});
 </script>
 
-<div class="space-y-6 animate-fade-in">
+<div class="animate-fade-in space-y-6">
 	<!-- Header -->
 	<div>
 		<div class="flex items-center gap-3">
@@ -56,18 +56,8 @@
 				icon={Activity}
 				tone={usageTone}
 			/>
-			<StatCard
-				label="This week"
-				value={usage.this_week}
-				icon={BarChart3}
-				tone="blue"
-			/>
-			<StatCard
-				label="This month"
-				value={usage.this_month}
-				icon={TrendingUp}
-				tone="blue"
-			/>
+			<StatCard label="This week" value={usage.this_week} icon={BarChart3} tone="blue" />
+			<StatCard label="This month" value={usage.this_month} icon={TrendingUp} tone="blue" />
 			<StatCard
 				label="Active API keys"
 				value={session.activeKeys}
@@ -139,10 +129,7 @@
 					</div>
 				</div>
 				<div class="mt-4">
-					<a
-						href="/portal/plans"
-						class="text-sm font-bold text-accent hover:text-accent-glow"
-					>
+					<a href="/portal/plans" class="text-sm font-bold text-accent hover:text-accent-glow">
 						View all plans &rarr;
 					</a>
 				</div>

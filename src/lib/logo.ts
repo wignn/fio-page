@@ -103,7 +103,7 @@ const logoMap: Record<string, string> = {
 
 export function getLocalLogo(symbol: string): string | null {
 	const upper = symbol.toUpperCase().replace(/[^A-Z0-9]/g, '');
-	
+
 	// Try exact match first
 	if (logoMap[upper]) return logoMap[upper];
 
@@ -120,7 +120,13 @@ export function getLocalLogo(symbol: string): string | null {
 	if (upper.includes('BRENT') || upper.includes('UKOIL')) return brentLogo;
 	if (upper.includes('WTI') || upper.includes('USOIL')) return wtiLogo;
 
-	if (upper.includes('SPX') || upper.includes('SPY') || upper.includes('SNP500') || upper.includes('S&P')) return snp500Logo;
+	if (
+		upper.includes('SPX') ||
+		upper.includes('SPY') ||
+		upper.includes('SNP500') ||
+		upper.includes('S&P')
+	)
+		return snp500Logo;
 	if (upper.includes('DXY') || upper.includes('USDOLLAR')) return dxyLogo;
 	if (upper.includes('IHSG')) return ihsgLogo;
 	if (upper.includes('JCI') || upper.includes('COMPOSITE')) return jciLogo;

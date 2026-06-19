@@ -10,7 +10,9 @@
 </script>
 
 <span
-	class="inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-bold capitalize {colors[plan] ?? colors.free}"
+	class="inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-bold capitalize {colors[
+		plan
+	] ?? colors.free}"
 >
 	{plan}
 </span>

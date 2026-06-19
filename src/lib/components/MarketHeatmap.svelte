@@ -60,12 +60,22 @@
 	// Ticker Metadata and Details
 	function getSymbolDetails(itemOrSymbol: PriceData | string) {
 		const symbol = typeof itemOrSymbol === 'string' ? itemOrSymbol : itemOrSymbol.symbol;
-		const category = typeof itemOrSymbol === 'string' ? getAssetCategory({ symbol, asset_type: '', price: 0 } as PriceData) : getAssetCategory(itemOrSymbol);
+		const category =
+			typeof itemOrSymbol === 'string'
+				? getAssetCategory({ symbol, asset_type: '', price: 0 } as PriceData)
+				: getAssetCategory(itemOrSymbol);
 		const sym = symbol.toUpperCase();
 		let name = sym;
 		let badge = sym.substring(0, 4);
 		let badgeColor = 'bg-accent/10 text-accent border border-accent/20';
-		let unit = category === 'forex' ? 'RATE' : category === 'stocks' ? 'EQTY' : category === 'indices' ? 'IDX' : 'USD';
+		let unit =
+			category === 'forex'
+				? 'RATE'
+				: category === 'stocks'
+					? 'EQTY'
+					: category === 'indices'
+						? 'IDX'
+						: 'USD';
 		let format = (val: number) => formatPrice(val, category, sym);
 		let logo = { type: 'svg', url: '' };
 		let displaySymbol = sym;
@@ -75,14 +85,16 @@
 			badge = 'BTC';
 			badgeColor = 'bg-[#F7931A]/10 text-[#F7931A] border border-[#F7931A]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/btc@2x.png' };
 		} else if (sym === 'ETHUSDT') {
 			name = 'Ethereum';
 			badge = 'ETH';
 			badgeColor = 'bg-[#627EEA]/10 text-[#627EEA] border border-[#627EEA]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 			logo = { type: 'img', url: 'https://assets.coincap.io/assets/icons/eth@2x.png' };
 		} else if (sym === 'SOLUSDT') {
 			name = 'Solana';
@@ -104,7 +116,8 @@
 			displaySymbol = 'PAXG';
 			badgeColor = 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 			logo = { type: 'svg', url: '' };
 		} else if (sym === 'EURUSD') {
 			name = 'Euro / USD';
@@ -132,13 +145,15 @@
 			badge = 'GOLD';
 			badgeColor = 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 		} else if (sym === 'SPX') {
 			name = 'S&P 500';
 			badge = 'SPX';
 			badgeColor = 'bg-blue-600/10 text-blue-600 border border-blue-600/20';
 			unit = 'USD';
-			format = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+			format = (val: number) =>
+				val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		} else if (sym === 'DXY') {
 			name = 'US Dollar Index';
 			badge = 'DXY';
@@ -180,7 +195,8 @@
 		}
 		if (category === 'forex') {
 			if (symbol.includes('JPY')) return val.toFixed(3);
-			if (symbol.includes('IDR')) return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+			if (symbol.includes('IDR'))
+				return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
 			return val.toFixed(5);
 		}
 		return val.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
@@ -273,7 +289,7 @@
 		if (upperSym.includes('JPY')) price = 150.0;
 		if (upperSym === 'XAUUSD') price = 4500.0;
 		if (upperSym === 'SPX') price = 5200.0;
-		if (upperSym === 'DXY') price = 104.50;
+		if (upperSym === 'DXY') price = 104.5;
 		if (upperSym.endsWith('USDT')) price = upperSym.startsWith('BTC') ? 95000.0 : 3000.0;
 
 		initialPrices.set(upperSym, price * 0.995); // offset base so we have a nice change
@@ -363,8 +379,7 @@
 			const q = searchQuery.toLowerCase().trim();
 			list = list.filter(
 				(item) =>
-					item.symbol.toLowerCase().includes(q) ||
-					item.details.name.toLowerCase().includes(q)
+					item.symbol.toLowerCase().includes(q) || item.details.name.toLowerCase().includes(q)
 			);
 		}
 
@@ -427,16 +442,13 @@
 		const rowWeight = row.reduce((sum, n) => sum + n.weight, 0);
 		const s = Math.min(w, h);
 		if (s <= 0 || rowWeight <= 0) return Infinity;
-		
+
 		const scale = (w * h) / totalWeight;
-		const minW = Math.min(...row.map(n => n.weight)) * scale;
-		const maxW = Math.max(...row.map(n => n.weight)) * scale;
+		const minW = Math.min(...row.map((n) => n.weight)) * scale;
+		const maxW = Math.max(...row.map((n) => n.weight)) * scale;
 		const sumW = rowWeight * scale;
-		
-		return Math.max(
-			(s * s * maxW) / (sumW * sumW),
-			(sumW * sumW) / (s * s * minW)
-		);
+
+		return Math.max((s * s * maxW) / (sumW * sumW), (sumW * sumW) / (s * s * minW));
 	}
 
 	function layoutRow(
@@ -450,15 +462,15 @@
 	) {
 		const rowWeight = row.reduce((sum, n) => sum + n.weight, 0);
 		if (totalWeight <= 0 || rowWeight <= 0) return;
-		
+
 		const scale = (w * h) / totalWeight;
 		const thickness = (rowWeight * scale) / Math.min(w, h);
-		
+
 		let offset = 0;
 		for (const node of row) {
 			const nodeArea = node.weight * scale;
 			const nodeLength = nodeArea / thickness;
-			
+
 			if (w >= h) {
 				node.x = x;
 				node.y = y + offset;
@@ -491,25 +503,25 @@
 			}
 			return;
 		}
-		
+
 		const nextNode = remaining[0];
 		const newRow = [...row, nextNode];
-		
+
 		const currentWorst = worst(row, w, h, totalWeight);
 		const newWorst = worst(newRow, w, h, totalWeight);
-		
+
 		if (row.length === 0 || newWorst <= currentWorst) {
 			squarify(remaining.slice(1), newRow, w, h, x, y, totalWeight, result);
 		} else {
 			const rowWeight = row.reduce((sum, n) => sum + n.weight, 0);
 			if (totalWeight <= 0) return;
 			const ratio = rowWeight / totalWeight;
-			
+
 			let newX = x;
 			let newY = y;
 			let newW = w;
 			let newH = h;
-			
+
 			if (w >= h) {
 				newX += w * ratio;
 				newW -= w * ratio;
@@ -517,7 +529,7 @@
 				newY += h * ratio;
 				newH -= h * ratio;
 			}
-			
+
 			layoutRow(row, w, h, x, y, totalWeight, result);
 			squarify(remaining, [], newW, newH, newX, newY, totalWeight - rowWeight, result);
 		}
@@ -532,11 +544,19 @@
 	): TreeMapNode[] {
 		if (nodes.length === 0) return [];
 		if (w <= 0 || h <= 0) return [];
-		
+
 		const sorted = nodes
-			.map(n => ({ id: n.id, weight: Math.max(n.weight, 1), x: 0, y: 0, w: 0, h: 0, data: n.data }))
+			.map((n) => ({
+				id: n.id,
+				weight: Math.max(n.weight, 1),
+				x: 0,
+				y: 0,
+				w: 0,
+				h: 0,
+				data: n.data
+			}))
 			.sort((a, b) => b.weight - a.weight);
-			
+
 		const totalWeight = sorted.reduce((sum, n) => sum + n.weight, 0);
 		const result: TreeMapNode[] = [];
 		squarify(sorted, [], w, h, x, y, totalWeight, result);
@@ -546,7 +566,7 @@
 	// Compute flat treemap based on current processed prices, scaled to pixel size and snapped to integers
 	let computedTreeMap = $derived.by(() => {
 		const rawNodes = computeTreeMap(
-			processedPrices.map(p => ({ id: p.symbol, weight: getSymbolWeight(p.symbol), data: p })),
+			processedPrices.map((p) => ({ id: p.symbol, weight: getSymbolWeight(p.symbol), data: p })),
 			0,
 			0,
 			containerWidth,
@@ -554,7 +574,7 @@
 		);
 
 		// Snap nodes to integer pixel grid to prevent sub-pixel rendering gaps
-		return rawNodes.map(node => {
+		return rawNodes.map((node) => {
 			const x = Math.round(node.x);
 			const y = Math.round(node.y);
 			const w = Math.round(node.x + node.w) - x;
@@ -617,66 +637,78 @@
 	}
 </script>
 
-<div class="flex flex-col bg-surface border border-border rounded-xl shadow-lg overflow-hidden h-full">
+<div
+	class="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-lg"
+>
 	<!-- Control Bar: Search, Filters, and Sorting -->
-	<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-border bg-surface/50 backdrop-blur-md px-5 py-3.5 shrink-0 z-20">
-		<div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+	<div
+		class="z-20 flex shrink-0 flex-col items-stretch justify-between gap-4 border-b border-border bg-surface/50 px-5 py-3.5 backdrop-blur-md sm:flex-row sm:items-center"
+	>
+		<div class="scrollbar-none flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
 			{#each categories as cat}
 				<button
-					onclick={() => activeCategory = cat.id}
-					class="px-4 py-2 text-xs font-bold rounded-lg border transition-all whitespace-nowrap cursor-pointer
+					onclick={() => (activeCategory = cat.id)}
+					class="cursor-pointer rounded-lg border px-4 py-2 text-xs font-bold whitespace-nowrap transition-all
 					{activeCategory === cat.id
-						? 'bg-accent text-white border-accent shadow-md shadow-accent/20 scale-[1.02]'
-						: 'bg-surface-2/60 border-border/60 text-text-dim hover:text-text hover:border-text-dim/40 hover:scale-[1.01]'}"
+						? 'scale-[1.02] border-accent bg-accent text-white shadow-md shadow-accent/20'
+						: 'border-border/60 bg-surface-2/60 text-text-dim hover:scale-[1.01] hover:border-text-dim/40 hover:text-text'}"
 				>
 					{cat.name}
 				</button>
 			{/each}
 		</div>
 
-		<div class="flex items-center gap-3 justify-between sm:justify-end">
+		<div class="flex items-center justify-between gap-3 sm:justify-end">
 			<!-- Search -->
-			<div class="relative flex-1 sm:flex-none sm:w-52 group">
-				<Search class="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-dim group-focus-within:text-accent transition-colors" />
+			<div class="group relative flex-1 sm:w-52 sm:flex-none">
+				<Search
+					class="absolute top-2.5 left-3 h-3.5 w-3.5 text-text-dim transition-colors group-focus-within:text-accent"
+				/>
 				<input
 					type="text"
 					bind:value={searchQuery}
 					placeholder="Search symbol..."
-					class="w-full rounded-lg border border-border/80 bg-surface-2/50 pl-9 pr-3.5 py-1.8 text-xs font-semibold text-text placeholder-text-dim focus:outline-none focus:border-accent focus:bg-surface focus:ring-2 focus:ring-accent/15 transition-all"
+					class="py-1.8 w-full rounded-lg border border-border/80 bg-surface-2/50 pr-3.5 pl-9 text-xs font-semibold text-text placeholder-text-dim transition-all focus:border-accent focus:bg-surface focus:ring-2 focus:ring-accent/15 focus:outline-none"
 				/>
 			</div>
 
 			<!-- Sort Info -->
-			<div class="text-[11px] font-bold text-text-dim bg-surface-2/70 border border-border/70 px-3.5 py-1.8 rounded-lg select-none">
+			<div
+				class="py-1.8 rounded-lg border border-border/70 bg-surface-2/70 px-3.5 text-[11px] font-bold text-text-dim select-none"
+			>
 				Size: Market Weight
 			</div>
 		</div>
 	</div>
 
 	<!-- Heatmap Container -->
-	<div class="p-4 bg-gradient-to-b from-surface/20 to-surface-2/5 flex-1 min-h-[550px] relative">
+	<div class="relative min-h-[550px] flex-1 bg-gradient-to-b from-surface/20 to-surface-2/5 p-4">
 		{#if allPrices.length === 0}
-			<div class="flex flex-col items-center justify-center py-20 text-center absolute inset-0">
-				<div class="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
-				<p class="text-xs text-text-muted mt-3 font-semibold">Connecting to market websocket...</p>
+			<div class="absolute inset-0 flex flex-col items-center justify-center py-20 text-center">
+				<div
+					class="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent"
+				></div>
+				<p class="mt-3 text-xs font-semibold text-text-muted">Connecting to market websocket...</p>
 			</div>
 		{:else if processedPrices.length === 0}
-			<div class="flex flex-col items-center justify-center py-20 text-center text-text-dim absolute inset-0">
+			<div
+				class="absolute inset-0 flex flex-col items-center justify-center py-20 text-center text-text-dim"
+			>
 				<p class="text-sm font-semibold">No assets found</p>
-				<p class="text-xs mt-1">Try modifying your filter or search query</p>
+				<p class="mt-1 text-xs">Try modifying your filter or search query</p>
 			</div>
 		{:else}
-			<div 
-				bind:clientWidth={containerWidth} 
-				bind:clientHeight={containerHeight} 
-				class="w-full h-full min-h-[500px] absolute inset-0 select-none overflow-hidden bg-white dark:bg-[#131722] border-t border-l border-white dark:border-[#1e222d]"
+			<div
+				bind:clientWidth={containerWidth}
+				bind:clientHeight={containerHeight}
+				class="absolute inset-0 h-full min-h-[500px] w-full overflow-hidden border-t border-l border-white bg-white select-none dark:border-[#1e222d] dark:bg-[#131722]"
 			>
 				{#each computedTreeMap as node (node.id)}
 					{@const flash = flashMap.get(node.id)}
 					{@const cellStyle = getCellStyles(node.data.pct.value, false)}
 					<button
 						onclick={() => onselect(node.id)}
-						class="absolute heatmap-cell transition-all duration-300 hover:z-30 cursor-pointer overflow-hidden p-2 flex flex-col justify-center items-center text-center border-r border-b border-white dark:border-[#1e222d]
+						class="heatmap-cell absolute flex cursor-pointer flex-col items-center justify-center overflow-hidden border-r border-b border-white p-2 text-center transition-all duration-300 hover:z-30 dark:border-[#1e222d]
 						{flash === 'up' ? 'cell-flash-green' : flash === 'down' ? 'cell-flash-red' : ''}"
 						style="left: {node.x}px; top: {node.y}px; width: {node.w}px; height: {node.h}px; background: {cellStyle.background}; box-shadow: {cellStyle.boxShadow};"
 					>
@@ -684,37 +716,69 @@
 							<!-- Large Cell -->
 							{#if node.h < 90 && node.w >= 120}
 								<!-- Horizontal Large Cell -->
-								<div class="flex flex-row items-center justify-center gap-2.5 w-full h-full p-2 select-none">
+								<div
+									class="flex h-full w-full flex-row items-center justify-center gap-2.5 p-2 select-none"
+								>
 									{#if node.data.details.logo.type === 'img'}
-										<div class="h-9 w-9 shrink-0 rounded-full bg-white p-0.5 border border-black/10 flex items-center justify-center shadow-sm">
-											<img src={node.data.details.logo.url} alt={node.data.details.displaySymbol} class="h-full w-full rounded-full object-contain" />
+										<div
+											class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
+										>
+											<img
+												src={node.data.details.logo.url}
+												alt={node.data.details.displaySymbol}
+												class="h-full w-full rounded-full object-contain"
+											/>
 										</div>
 									{:else}
-										<div class="h-9 w-9 shrink-0 rounded-full bg-white border border-black/10 flex items-center justify-center shadow-sm">
-											<span class="text-[10px] font-black text-black/60">{node.data.details.displaySymbol.substring(0, 4)}</span>
+										<div
+											class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white shadow-sm"
+										>
+											<span class="text-[10px] font-black text-black/60"
+												>{node.data.details.displaySymbol.substring(0, 4)}</span
+											>
 										</div>
 									{/if}
 									<div class="flex flex-col items-start justify-center">
-										<div class="font-extrabold text-sm tracking-wide text-white uppercase leading-tight">{node.data.details.displaySymbol}</div>
-										<div class="text-[11px] font-semibold text-white/90 leading-tight">
+										<div
+											class="text-sm leading-tight font-extrabold tracking-wide text-white uppercase"
+										>
+											{node.data.details.displaySymbol}
+										</div>
+										<div class="text-[11px] leading-tight font-semibold text-white/90">
 											{node.data.pct.string}
 										</div>
 									</div>
 								</div>
 							{:else}
 								<!-- Vertical Large Cell -->
-								<div class="flex flex-col items-center justify-center gap-1.5 w-full h-full select-none">
+								<div
+									class="flex h-full w-full flex-col items-center justify-center gap-1.5 select-none"
+								>
 									{#if node.data.details.logo.type === 'img'}
-										<div class="h-10 w-10 rounded-full bg-white p-0.5 border border-black/10 flex items-center justify-center shadow-sm">
-											<img src={node.data.details.logo.url} alt={node.data.details.displaySymbol} class="h-full w-full rounded-full object-contain" />
+										<div
+											class="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
+										>
+											<img
+												src={node.data.details.logo.url}
+												alt={node.data.details.displaySymbol}
+												class="h-full w-full rounded-full object-contain"
+											/>
 										</div>
 									{:else}
-										<div class="h-10 w-10 rounded-full bg-white border border-black/10 flex items-center justify-center shadow-sm">
-											<span class="text-[10px] font-black text-black/60">{node.data.details.displaySymbol.substring(0, 4)}</span>
+										<div
+											class="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white shadow-sm"
+										>
+											<span class="text-[10px] font-black text-black/60"
+												>{node.data.details.displaySymbol.substring(0, 4)}</span
+											>
 										</div>
 									{/if}
-									<div class="font-extrabold text-sm tracking-wide text-white mt-1.5 uppercase leading-none">{node.data.details.displaySymbol}</div>
-									<div class="text-[11px] font-semibold mt-1 text-white/90 leading-none">
+									<div
+										class="mt-1.5 text-sm leading-none font-extrabold tracking-wide text-white uppercase"
+									>
+										{node.data.details.displaySymbol}
+									</div>
+									<div class="mt-1 text-[11px] leading-none font-semibold text-white/90">
 										{node.data.pct.string}
 									</div>
 								</div>
@@ -724,54 +788,88 @@
 							{#if node.h < 65}
 								{#if node.w >= 85}
 									<!-- Horizontal Medium Cell -->
-									<div class="flex flex-row items-center justify-center gap-2 w-full h-full p-1.5 select-none">
+									<div
+										class="flex h-full w-full flex-row items-center justify-center gap-2 p-1.5 select-none"
+									>
 										{#if node.data.details.logo.type === 'img'}
-											<div class="h-7 w-7 shrink-0 rounded-full bg-white p-0.5 border border-black/10 flex items-center justify-center shadow-sm">
-												<img src={node.data.details.logo.url} alt={node.data.details.displaySymbol} class="h-full w-full rounded-full object-contain" />
+											<div
+												class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
+											>
+												<img
+													src={node.data.details.logo.url}
+													alt={node.data.details.displaySymbol}
+													class="h-full w-full rounded-full object-contain"
+												/>
 											</div>
 										{/if}
 										<div class="flex flex-col items-start justify-center">
-											<div class="font-bold text-xs tracking-wide text-white uppercase leading-tight">{node.data.details.displaySymbol}</div>
-											<div class="text-[9.5px] font-medium text-white/90 leading-tight">
+											<div
+												class="text-xs leading-tight font-bold tracking-wide text-white uppercase"
+											>
+												{node.data.details.displaySymbol}
+											</div>
+											<div class="text-[9.5px] leading-tight font-medium text-white/90">
 												{node.data.pct.string}
 											</div>
 										</div>
 									</div>
 								{:else}
 									<!-- Short & Narrow: Hide Logo to prevent overlap -->
-									<div class="flex flex-col items-center justify-center gap-0.5 w-full h-full select-none">
-										<div class="font-bold text-xs tracking-wide text-white uppercase leading-none">{node.data.details.displaySymbol}</div>
-										<div class="text-[10px] font-medium mt-0.5 text-white/90 leading-none">
+									<div
+										class="flex h-full w-full flex-col items-center justify-center gap-0.5 select-none"
+									>
+										<div class="text-xs leading-none font-bold tracking-wide text-white uppercase">
+											{node.data.details.displaySymbol}
+										</div>
+										<div class="mt-0.5 text-[10px] leading-none font-medium text-white/90">
 											{node.data.pct.string}
 										</div>
 									</div>
 								{/if}
 							{:else}
 								<!-- Vertical Medium Cell -->
-								<div class="flex flex-col items-center justify-center gap-1 w-full h-full select-none">
+								<div
+									class="flex h-full w-full flex-col items-center justify-center gap-1 select-none"
+								>
 									{#if node.data.details.logo.type === 'img'}
-										<div class="h-7 w-7 rounded-full bg-white p-0.5 border border-black/10 flex items-center justify-center shadow-sm">
-											<img src={node.data.details.logo.url} alt={node.data.details.displaySymbol} class="h-full w-full rounded-full object-contain" />
+										<div
+											class="flex h-7 w-7 items-center justify-center rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
+										>
+											<img
+												src={node.data.details.logo.url}
+												alt={node.data.details.displaySymbol}
+												class="h-full w-full rounded-full object-contain"
+											/>
 										</div>
 									{/if}
-									<div class="font-bold text-xs tracking-wide text-white uppercase leading-none mt-0.5">{node.data.details.displaySymbol}</div>
-									<div class="text-[10px] font-medium mt-0.5 text-white/90 leading-none">
+									<div
+										class="mt-0.5 text-xs leading-none font-bold tracking-wide text-white uppercase"
+									>
+										{node.data.details.displaySymbol}
+									</div>
+									<div class="mt-0.5 text-[10px] leading-none font-medium text-white/90">
 										{node.data.pct.string}
 									</div>
 								</div>
 							{/if}
 						{:else if node.w >= 40 && node.h >= 25}
 							<!-- Small Cell -->
-							<div class="flex flex-col items-center justify-center gap-0.5 w-full h-full select-none">
-								<div class="font-bold text-[11px] tracking-wide text-white uppercase leading-none">{node.data.details.displaySymbol}</div>
-								<div class="text-[9px] font-medium text-white/85 leading-none">
+							<div
+								class="flex h-full w-full flex-col items-center justify-center gap-0.5 select-none"
+							>
+								<div class="text-[11px] leading-none font-bold tracking-wide text-white uppercase">
+									{node.data.details.displaySymbol}
+								</div>
+								<div class="text-[9px] leading-none font-medium text-white/85">
 									{node.data.pct.string}
 								</div>
 							</div>
 						{:else}
 							<!-- Very Small Cell -->
-							<div class="flex items-center justify-center w-full h-full select-none">
-								<div class="font-bold text-[9px] tracking-wide text-white uppercase leading-none">{node.data.details.displaySymbol}</div>
+							<div class="flex h-full w-full items-center justify-center select-none">
+								<div class="text-[9px] leading-none font-bold tracking-wide text-white uppercase">
+									{node.data.details.displaySymbol}
+								</div>
 							</div>
 						{/if}
 					</button>
@@ -793,10 +891,13 @@
 
 	.heatmap-cell {
 		border-radius: 0px;
-		transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.2s ease, box-shadow 0.2s ease;
+		transition:
+			transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1),
+			filter 0.2s ease,
+			box-shadow 0.2s ease;
 		outline: none !important;
 	}
-	
+
 	.heatmap-cell:hover {
 		transform: scale(1.015);
 		filter: brightness(1.15);
@@ -806,12 +907,28 @@
 
 	/* Flashing outlines and brightness scaling on WebSocket updates */
 	@keyframes local-pulse-green {
-		0% { outline: 3px solid #089981; outline-offset: -3px; filter: brightness(1.25); }
-		100% { outline: 0px solid transparent; outline-offset: -3px; filter: brightness(1); }
+		0% {
+			outline: 3px solid #089981;
+			outline-offset: -3px;
+			filter: brightness(1.25);
+		}
+		100% {
+			outline: 0px solid transparent;
+			outline-offset: -3px;
+			filter: brightness(1);
+		}
 	}
 	@keyframes local-pulse-red {
-		0% { outline: 3px solid #f23645; outline-offset: -3px; filter: brightness(1.25); }
-		100% { outline: 0px solid transparent; outline-offset: -3px; filter: brightness(1); }
+		0% {
+			outline: 3px solid #f23645;
+			outline-offset: -3px;
+			filter: brightness(1.25);
+		}
+		100% {
+			outline: 0px solid transparent;
+			outline-offset: -3px;
+			filter: brightness(1);
+		}
 	}
 	.cell-flash-green {
 		animation: local-pulse-green 0.7s cubic-bezier(0.25, 1, 0.5, 1);

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { NewsItem } from '$lib/types';
+	import { reveal } from '$lib/actions/reveal';
 
 	interface Props {
 		title: string;
@@ -13,34 +14,38 @@
 		return item.translated_title || item.original_title || item.title || item.summary || '';
 	}
 
-	let displayItems = $derived(items.filter(i => getTitle(i).length > 0));
+	let displayItems = $derived(items.filter((i) => getTitle(i).length > 0));
 
 	function formatTime(iso: string | null): string {
 		if (!iso) return '';
 		try {
 			const d = new Date(iso);
-			return d.toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB';
+			return d.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 		} catch {
 			return '';
 		}
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	function sentimentColor(s: string | null): string {
+		// Not used currently but kept for potential future use
 		if (!s) return 'text-text-dim';
 		const v = s.toLowerCase();
 		if (v === 'positive' || v === 'bullish') return 'text-green';
 		if (v === 'negative' || v === 'bearish') return 'text-red';
-		if (v === 'mixed') return 'text-amber';
+		if (v === 'mixed' || v === 'neutral') return 'text-amber';
 		return 'text-text-dim';
 	}
 
 	function sentimentDot(s: string | null): string {
-		if (!s) return 'bg-text-dim';
+		if (!s) return 'bg-text-dim/50 border-border';
 		const v = s.toLowerCase();
-		if (v === 'positive' || v === 'bullish') return 'bg-green';
-		if (v === 'negative' || v === 'bearish') return 'bg-red';
-		if (v === 'mixed') return 'bg-amber';
-		return 'bg-text-dim';
+		if (v === 'positive' || v === 'bullish')
+			return 'bg-green border-green/30 shadow-[0_0_8px_rgba(34,197,94,0.4)]';
+		if (v === 'negative' || v === 'bearish')
+			return 'bg-red border-red/30 shadow-[0_0_8px_rgba(239,68,68,0.4)]';
+		if (v === 'mixed' || v === 'neutral') return 'bg-amber border-amber/30';
+		return 'bg-text-dim/50 border-border';
 	}
 
 	// Calculate reactive aggregate sentiment statistics
@@ -66,63 +71,116 @@
 	});
 </script>
 
-<div class="flex flex-col p-4">
-	<div class="mb-3 flex items-center justify-between">
-		<h3 class="text-xs font-semibold uppercase tracking-wider text-text-muted">{title}</h3>
+<div class="flex flex-col p-5">
+	<div class="mb-4 flex items-center justify-between">
+		<h3 class="text-xs font-bold tracking-wider text-text-muted uppercase">{title}</h3>
 		{#if stats.total > 0}
-			<div class="flex items-center gap-2 text-[10px] font-mono">
-				<span class="text-green font-bold">▲ {((stats.positive / stats.total) * 100).toFixed(0)}%</span>
-				<span class="text-text-dim font-bold">■ {((stats.neutral / stats.total) * 100).toFixed(0)}%</span>
-				<span class="text-red font-bold">▼ {((stats.negative / stats.total) * 100).toFixed(0)}%</span>
+			<div
+				class="flex items-center gap-3 rounded-md border border-border/50 bg-surface-2/50 px-2 py-1 font-mono text-[11px]"
+			>
+				<span class="flex items-center gap-1 font-bold text-green"
+					><span class="text-[8px]">▲</span>
+					{((stats.positive / stats.total) * 100).toFixed(0)}%</span
+				>
+				<span class="flex items-center gap-1 font-bold text-text-dim"
+					><span class="text-[8px]">■</span>
+					{((stats.neutral / stats.total) * 100).toFixed(0)}%</span
+				>
+				<span class="flex items-center gap-1 font-bold text-red"
+					><span class="text-[8px]">▼</span>
+					{((stats.negative / stats.total) * 100).toFixed(0)}%</span
+				>
 			</div>
 		{/if}
 	</div>
 
 	{#if stats.total > 0}
-		<div class="mb-4 h-1.5 w-full bg-border rounded-full overflow-hidden flex">
-			<div class="h-full bg-green transition-all duration-500" style="width: {(stats.positive / stats.total) * 100}%" title="Positive"></div>
-			<div class="h-full bg-text-dim transition-all duration-500" style="width: {(stats.neutral / stats.total) * 100}%" title="Neutral"></div>
-			<div class="h-full bg-red transition-all duration-500" style="width: {(stats.negative / stats.total) * 100}%" title="Negative"></div>
+		<div
+			class="mb-6 flex h-1.5 w-full overflow-hidden rounded-full border border-border/50 bg-surface-2 shadow-inner"
+		>
+			<div
+				class="h-full bg-green transition-all duration-1000 ease-out"
+				style="width: {(stats.positive / stats.total) * 100}%"
+				title="Positive"
+			></div>
+			<div
+				class="h-full bg-text-dim/40 transition-all duration-1000 ease-out"
+				style="width: {(stats.neutral / stats.total) * 100}%"
+				title="Neutral"
+			></div>
+			<div
+				class="h-full bg-red transition-all duration-1000 ease-out"
+				style="width: {(stats.negative / stats.total) * 100}%"
+				title="Negative"
+			></div>
 		</div>
 	{/if}
 
 	{#if loading && items.length === 0}
-		<div class="space-y-3">
-			{#each Array(4) as _}
-				<div class="h-12 animate-pulse rounded bg-surface-2"></div>
+		<div class="space-y-4">
+			{#each Array(4) as _, idx (idx)}
+				<div class="h-20 animate-pulse rounded-lg bg-surface-2"></div>
 			{/each}
 		</div>
 	{:else if items.length === 0}
-		<div class="p-8 text-center text-sm text-text-muted">
+		<div
+			class="rounded-lg border border-dashed border-border bg-surface-2/30 py-12 text-center text-sm font-medium text-text-muted"
+		>
 			No news available
 		</div>
 	{:else}
-		<div class="flex flex-col gap-1">
+		<div class="flex flex-col gap-3">
 			{#each displayItems as item, i (item.id ?? i)}
-				<article class="group rounded border-b border-border py-3 px-2 transition-colors hover:bg-surface-2 cursor-pointer last:border-0">
-					<div class="flex flex-col gap-1.5">
-						<div class="flex items-center justify-between gap-2 text-xs text-text-dim">
+				<article
+					use:reveal={{ delay: Math.min(i * 80, 500), y: 15 }}
+					class="group cursor-pointer rounded-xl border border-border/60 bg-surface p-4 transition-all duration-300 hover:border-accent/40 hover:bg-surface-2/50 hover:shadow-md"
+				>
+					<div class="flex flex-col gap-2.5">
+						<div class="flex items-center justify-between gap-2 text-xs">
 							<div class="flex items-center gap-2">
-								<span class="inline-block h-2 w-2 shrink-0 rounded-full {sentimentDot(item.sentiment)}"></span>
-								<span class="font-medium text-text-muted">{item.source_name || 'Source'}</span>
+								<span
+									class="inline-block h-2 w-2 shrink-0 rounded-full border {sentimentDot(
+										item.sentiment
+									)} transition-transform duration-300 group-hover:scale-125"
+								></span>
+								<span class="font-bold tracking-wide text-text-muted"
+									>{item.source_name || 'Source'}</span
+								>
 							</div>
-							<span>{formatTime(item.published_at ?? item.processed_at)}</span>
+							<span class="font-mono text-[10px] font-medium text-text-dim"
+								>{formatTime(item.published_at ?? item.processed_at)}</span
+							>
 						</div>
-						<h4 class="text-sm leading-relaxed text-text group-hover:text-accent transition-colors line-clamp-2">
+						<h4
+							class="line-clamp-2 text-sm leading-relaxed font-medium text-text transition-colors group-hover:text-accent"
+						>
 							{#if item.original_url || item.url}
-								<a href={item.original_url ?? item.url} target="_blank" rel="noopener noreferrer" class="hover:underline">
+								<a
+									href={item.original_url ?? item.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="decoration-accent/50 underline-offset-2 hover:underline"
+								>
 									{getTitle(item)}
 								</a>
 							{:else}
 								{item.translated_title ?? item.original_title ?? item.title}
 							{/if}
 						</h4>
-						<div class="flex flex-wrap gap-2 mt-1">
+						<div
+							class="mt-1 flex flex-wrap gap-2 opacity-80 transition-opacity group-hover:opacity-100"
+						>
 							{#if item.currency_pairs}
-								<span class="rounded bg-surface px-1.5 py-0.5 text-[10px] font-mono text-accent border border-border">{item.currency_pairs}</span>
+								<span
+									class="rounded border border-accent/20 bg-surface px-2 py-0.5 font-mono text-[10px] font-bold text-accent shadow-sm"
+									>{item.currency_pairs}</span
+								>
 							{/if}
 							{#if item.tickers}
-								<span class="rounded bg-surface px-1.5 py-0.5 text-[10px] font-mono text-blue border border-border">{item.tickers}</span>
+								<span
+									class="rounded border border-blue-500/20 bg-surface px-2 py-0.5 font-mono text-[10px] font-bold text-blue shadow-sm"
+									>{item.tickers}</span
+								>
 							{/if}
 						</div>
 					</div>

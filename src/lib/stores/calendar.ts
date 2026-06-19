@@ -2,7 +2,6 @@ import { writable } from 'svelte/store';
 import { apiFetch } from '$lib/api';
 import type { CalendarItem } from '$lib/types';
 
-
 export const calendarEvents = writable<CalendarEvent[]>([]);
 export const calendarLoading = writable(false);
 
@@ -16,7 +15,6 @@ async function fetchCalendar() {
 		const data = await res.json();
 		if (data.items) calendarEvents.set(data.items);
 	} catch {
-		
 	} finally {
 		calendarLoading.set(false);
 	}

@@ -52,7 +52,7 @@
 		try {
 			const data = await createKey(label);
 			newRawKey = data.api_key;
-			toastStore.success('API key created. Copy it now — it won\'t be shown again.');
+			toastStore.success("API key created. Copy it now — it won't be shown again.");
 			await load();
 			newLabel = '';
 		} catch (e) {
@@ -91,7 +91,7 @@
 	});
 </script>
 
-<div class="space-y-6 animate-fade-in">
+<div class="animate-fade-in space-y-6">
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 		<div>
 			<h1 class="text-3xl font-black tracking-tight text-text">API Keys</h1>
@@ -122,7 +122,7 @@
 
 	<!-- Create key form -->
 	{#if showCreate}
-		<div class="rounded-2xl border border-accent/20 bg-accent/5 p-5 animate-fade-in">
+		<div class="animate-fade-in rounded-2xl border border-accent/20 bg-accent/5 p-5">
 			<h3 class="text-sm font-bold text-text">Create new API key</h3>
 			<div class="mt-3 flex gap-2">
 				<input
@@ -143,9 +143,7 @@
 
 			{#if newRawKey}
 				<div class="mt-4 rounded-xl border border-green/30 bg-green/10 p-4">
-					<p class="text-xs font-bold text-green">
-						Save this key now. It will not be shown again.
-					</p>
+					<p class="text-xs font-bold text-green">Save this key now. It will not be shown again.</p>
 					<div class="mt-2 flex items-center gap-2">
 						<code class="flex-1 truncate rounded-lg bg-surface p-2 font-mono text-xs text-text">
 							{newRawKey}
@@ -162,12 +160,17 @@
 	{:else if error}
 		<EmptyState title="Keys unavailable" description={error} />
 	{:else if keys.length === 0}
-		<EmptyState title="No API keys" description="Create your first API key to start using the API." />
+		<EmptyState
+			title="No API keys"
+			description="Create your first API key to start using the API."
+		/>
 	{:else}
 		<!-- Active keys -->
 		<section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
 			<div class="border-b border-border bg-surface-2/50 px-4 py-3">
-				<p class="text-sm font-bold text-text">{activeKeys.length} active key{activeKeys.length !== 1 ? 's' : ''}</p>
+				<p class="text-sm font-bold text-text">
+					{activeKeys.length} active key{activeKeys.length !== 1 ? 's' : ''}
+				</p>
 			</div>
 			<div class="divide-y divide-border">
 				{#each activeKeys as key}
@@ -211,7 +214,9 @@
 								{/if}
 							</div>
 							<div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-dim">
-								<code class="rounded bg-surface-2 px-1.5 py-0.5 font-mono">{key.key_prefix}••••</code>
+								<code class="rounded bg-surface-2 px-1.5 py-0.5 font-mono"
+									>{key.key_prefix}••••</code
+								>
 								<span>Created {relativeDate(key.created_at)}</span>
 								{#if key.last_used_at}
 									<span>· Last used {relativeDate(key.last_used_at)}</span>
@@ -237,7 +242,9 @@
 
 		<!-- Revoked keys -->
 		{#if revokedKeys.length > 0}
-			<section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm opacity-60">
+			<section
+				class="overflow-hidden rounded-2xl border border-border bg-surface opacity-60 shadow-sm"
+			>
 				<div class="border-b border-border bg-surface-2/50 px-4 py-3">
 					<p class="text-sm font-bold text-text-muted">{revokedKeys.length} revoked</p>
 				</div>
@@ -247,7 +254,10 @@
 							<KeyRound class="h-4 w-4 text-text-dim" />
 							<span class="text-sm text-text-dim line-through">{key.label}</span>
 							<StatusBadge tone="red" label="Revoked" />
-							<code class="ml-auto rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs text-text-dim">{key.key_prefix}••••</code>
+							<code
+								class="ml-auto rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs text-text-dim"
+								>{key.key_prefix}••••</code
+							>
 						</div>
 					{/each}
 				</div>
@@ -259,7 +269,8 @@
 <ConfirmDialog
 	bind:open={confirmRevokeOpen}
 	title="Revoke API key"
-	description="Revoke key '{revokeTarget?.label ?? ''}'? This action cannot be undone. Any application using this key will lose access immediately."
+	description="Revoke key '{revokeTarget?.label ??
+		''}'? This action cannot be undone. Any application using this key will lose access immediately."
 	confirmLabel="Revoke key"
 	confirmTone="red"
 	onconfirm={handleRevoke}

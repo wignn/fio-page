@@ -45,10 +45,7 @@
 			'SPX',
 			'DXY'
 		].join('\n');
-		rssFeeds = [
-			'Forex News RSS Hub Feed (Active)',
-			'Stock Market Feed (Active)'
-		].join('\n');
+		rssFeeds = ['Forex News RSS Hub Feed (Active)', 'Stock Market Feed (Active)'].join('\n');
 	}
 
 	async function load() {
@@ -94,7 +91,7 @@
 	});
 </script>
 
-<div class="space-y-6 animate-fade-in">
+<div class="animate-fade-in space-y-6">
 	<div>
 		<div class="flex items-center gap-3">
 			<div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/10 text-accent">
@@ -102,7 +99,9 @@
 			</div>
 			<div>
 				<h1 class="text-3xl font-black tracking-tight text-text">Feed settings</h1>
-				<p class="mt-1 text-sm text-text-muted">Configure tenant-specific market intelligence sources.</p>
+				<p class="mt-1 text-sm text-text-muted">
+					Configure tenant-specific market intelligence sources.
+				</p>
 			</div>
 		</div>
 	</div>
@@ -125,7 +124,9 @@
 			</div>
 			<div class="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 				<p class="text-xs font-bold text-text-dim">Custom RSS</p>
-				<p class="mt-1 text-2xl font-black text-text">{planLimits?.can_custom_rss ? 'Enabled' : 'Disabled'}</p>
+				<p class="mt-1 text-2xl font-black text-text">
+					{planLimits?.can_custom_rss ? 'Enabled' : 'Disabled'}
+				</p>
 				<p class="mt-1 text-sm text-text-muted">RSS feeds are validated by the backend.</p>
 			</div>
 		</div>
@@ -141,10 +142,19 @@
 					placeholder="Reuters\nInvestingcom\nfinancialjuice"
 				></textarea>
 				<div class="mt-4 flex gap-2">
-					<button class="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-bold text-white hover:bg-accent-glow disabled:opacity-60" onclick={() => saveConfig('x_usernames', xUsernames)} disabled={!!saving}>
-						<Save class="h-4 w-4" /> {saving === 'x_usernames' ? 'Saving...' : 'Save'}
+					<button
+						class="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-bold text-white hover:bg-accent-glow disabled:opacity-60"
+						onclick={() => saveConfig('x_usernames', xUsernames)}
+						disabled={!!saving}
+					>
+						<Save class="h-4 w-4" />
+						{saving === 'x_usernames' ? 'Saving...' : 'Save'}
 					</button>
-					<button class="rounded-xl border border-border px-4 py-2 text-sm font-bold text-text-muted hover:bg-surface-2 disabled:opacity-60" onclick={() => clearConfig('x_usernames')} disabled={!!saving}>
+					<button
+						class="rounded-xl border border-border px-4 py-2 text-sm font-bold text-text-muted hover:bg-surface-2 disabled:opacity-60"
+						onclick={() => clearConfig('x_usernames')}
+						disabled={!!saving}
+					>
 						<Trash2 class="h-4 w-4" />
 					</button>
 				</div>
@@ -152,10 +162,20 @@
 
 			<section class="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 				<h2 class="font-black text-text">Market symbols</h2>
-				<p class="mt-1 text-sm text-text-muted">One public market symbol per line, such as EURUSD, XAUUSD, SPX, or AAPL.</p>
-				<textarea readonly bind:value={tvSymbols} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted outline-none opacity-80" placeholder="No symbols configured. Contact administrator."></textarea>
+				<p class="mt-1 text-sm text-text-muted">
+					One public market symbol per line, such as EURUSD, XAUUSD, SPX, or AAPL.
+				</p>
+				<textarea
+					readonly
+					bind:value={tvSymbols}
+					rows="10"
+					class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted opacity-80 outline-none"
+					placeholder="No symbols configured. Contact administrator."
+				></textarea>
 				<div class="mt-4">
-					<span class="inline-flex items-center rounded-xl bg-surface-2 border border-border px-3 py-1.5 text-xs font-bold text-text-muted">
+					<span
+						class="inline-flex items-center rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs font-bold text-text-muted"
+					>
 						Managed by Administrator
 					</span>
 				</div>
@@ -164,9 +184,17 @@
 			<section class="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 				<h2 class="font-black text-text">Custom RSS feeds</h2>
 				<p class="mt-1 text-sm text-text-muted">One URL per line. Availability depends on plan.</p>
-				<textarea readonly bind:value={rssFeeds} rows="10" class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted outline-none opacity-80" placeholder="No RSS feeds configured. Contact administrator."></textarea>
+				<textarea
+					readonly
+					bind:value={rssFeeds}
+					rows="10"
+					class="mt-4 w-full resize-none rounded-xl border border-border bg-surface-2 p-3 font-mono text-sm text-text-muted opacity-80 outline-none"
+					placeholder="No RSS feeds configured. Contact administrator."
+				></textarea>
 				<div class="mt-4">
-					<span class="inline-flex items-center rounded-xl bg-surface-2 border border-border px-3 py-1.5 text-xs font-bold text-text-muted">
+					<span
+						class="inline-flex items-center rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs font-bold text-text-muted"
+					>
 						Managed by Administrator
 					</span>
 				</div>

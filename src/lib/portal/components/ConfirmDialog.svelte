@@ -34,7 +34,9 @@
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4 backdrop-blur-sm"
 		onkeydown={(e) => e.key === 'Escape' && (open = false)}
 	>
-		<div class="w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-xl animate-fade-in">
+		<div
+			class="animate-fade-in w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-xl"
+		>
 			<h2 class="text-lg font-bold text-text">{title}</h2>
 			<p class="mt-2 text-sm leading-relaxed text-text-muted">{description}</p>
 			<div class="mt-6 flex justify-end gap-2">
@@ -48,7 +50,8 @@
 				</button>
 				<button
 					type="button"
-					class="rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60 {confirmTone === 'red'
+					class="rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60 {confirmTone ===
+					'red'
 						? 'bg-red hover:bg-red/90'
 						: 'bg-accent hover:bg-accent-glow'}"
 					onclick={confirm}

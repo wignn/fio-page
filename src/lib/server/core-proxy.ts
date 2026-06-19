@@ -50,7 +50,10 @@ export async function proxyCore(event: RequestEvent, path: string) {
 	const response = await fetch(url, {
 		method: event.request.method,
 		headers,
-		body: event.request.method === 'GET' || event.request.method === 'HEAD' ? undefined : event.request.body,
+		body:
+			event.request.method === 'GET' || event.request.method === 'HEAD'
+				? undefined
+				: event.request.body,
 		duplex: 'half'
 	} as RequestInit & { duplex: 'half' });
 

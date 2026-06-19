@@ -76,9 +76,7 @@
 					{/if}
 				</button>
 				<a href="/portal" class="flex items-center gap-2">
-					<div
-						class="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent"
-					>
+					<div class="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
 						<TrendingUp class="h-4 w-4" />
 					</div>
 					<span class="text-sm font-black tracking-tight">Fio</span>
@@ -118,7 +116,7 @@
 	<div class="mx-auto grid max-w-[1400px] grid-cols-1 lg:grid-cols-[240px_1fr]">
 		<!-- Sidebar -->
 		<aside
-			class="border-b border-border bg-surface/70 lg:min-h-[calc(100vh-56px)] lg:border-b-0 lg:border-r lg:bg-transparent {mobileOpen
+			class="border-b border-border bg-surface/70 lg:min-h-[calc(100vh-56px)] lg:border-r lg:border-b-0 lg:bg-transparent {mobileOpen
 				? 'block'
 				: 'hidden lg:block'}"
 		>

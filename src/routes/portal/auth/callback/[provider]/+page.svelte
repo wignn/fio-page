@@ -45,7 +45,7 @@
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-bg px-4 py-12 text-text">
-	<div class="w-full max-w-sm text-center animate-fade-in">
+	<div class="animate-fade-in w-full max-w-sm text-center">
 		{#if processing}
 			<div
 				class="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent"

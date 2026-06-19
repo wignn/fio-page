@@ -2,7 +2,7 @@ import { CORE_WS_URL } from '$lib/config';
 import { apiFetch } from '$lib/api';
 import type { PriceData, NewsItem } from '$lib/types';
 
-let priceMap = $state<Record<string, PriceData>>({});
+const priceMap = $state<Record<string, PriceData>>({});
 let isConnected = $state(false);
 
 let realtimeForexNews = $state<NewsItem[]>([]);
@@ -14,16 +14,24 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectDelay = 1000;
 let requestId = 1;
 let isOpening = false;
-let desiredStreams = new Set(['market_data', 'forex_news', 'stock_news']);
+const desiredStreams = new Set(['market_data', 'forex_news', 'stock_news']);
 const hiddenMarketSymbols = new Set([
-	'BBCA', 'BBRI', 'BMRI', 'TLKM', 'ASII',
-	'UNVR', 'ICBP', 'BBNI', 'ADRO', 'MDKA', 'JCI'
+	'BBCA',
+	'BBRI',
+	'BMRI',
+	'TLKM',
+	'ASII',
+	'UNVR',
+	'ICBP',
+	'BBNI',
+	'ADRO',
+	'MDKA',
+	'JCI'
 ]);
 
 function isHiddenMarketSymbol(symbol: string): boolean {
 	return hiddenMarketSymbols.has(symbol.toUpperCase());
 }
-
 
 async function createRealtimeTicket(): Promise<string> {
 	const res = await fetch('/api/realtime/session', {
@@ -38,7 +46,11 @@ async function createRealtimeTicket(): Promise<string> {
 }
 
 async function connect() {
-	if (isOpening || (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING))) return;
+	if (
+		isOpening ||
+		(ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING))
+	)
+		return;
 	isOpening = true;
 
 	let url: string;
@@ -84,7 +96,9 @@ async function connect() {
 	};
 
 	ws.onclose = (evt) => {
-		console.log(`[WS] Disconnected (code=${evt.code}), reconnecting in ${reconnectDelay / 1000}s...`);
+		console.log(
+			`[WS] Disconnected (code=${evt.code}), reconnecting in ${reconnectDelay / 1000}s...`
+		);
 		isOpening = false;
 		isConnected = false;
 		scheduleReconnect();

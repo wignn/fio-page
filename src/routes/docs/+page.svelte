@@ -36,19 +36,23 @@
 	const capabilities = [
 		{
 			title: 'Market data aggregation',
-			description: 'Live price cache fed by WebSocket ingress workers for forex, crypto, and selected market symbols.'
+			description:
+				'Live price cache fed by WebSocket ingress workers for forex, crypto, and selected market symbols.'
 		},
 		{
 			title: 'News intelligence',
-			description: 'RSS ingestion, article scraping, deduplication, analysis metadata, and real-time distribution.'
+			description:
+				'RSS ingestion, article scraping, deduplication, analysis metadata, and real-time distribution.'
 		},
 		{
 			title: 'Tenant-aware access',
-			description: 'JWT and API-key authentication with plan limits, usage tracking, and centralized tenant configuration.'
+			description:
+				'JWT and API-key authentication with plan limits, usage tracking, and centralized tenant configuration.'
 		},
 		{
 			title: 'Realtime delivery',
-			description: 'Dedicated WebSocket channels for market data, news, calendar reminders, X posts, and system events.'
+			description:
+				'Dedicated WebSocket channels for market data, news, calendar reminders, X posts, and system events.'
 		}
 	];
 
@@ -77,11 +81,23 @@
 			auth: 'API key for protected routes; public market/news routes can be used by the web client.',
 			endpoints: [
 				['GET', '/api/v1/market/prices', 'List all cached live prices.'],
-				['GET', '/api/v1/market/prices/{symbol}', 'Fetch a single cached symbol, case-insensitive.'],
+				[
+					'GET',
+					'/api/v1/market/prices/{symbol}',
+					'Fetch a single cached symbol, case-insensitive.'
+				],
 				['GET', '/api/v1/forex/news?page=1&page_size=20', 'Paginated forex article history.'],
-				['GET', '/api/v1/forex/news/latest?limit=10', 'Latest processed forex news with analysis fields.'],
+				[
+					'GET',
+					'/api/v1/forex/news/latest?limit=10',
+					'Latest processed forex news with analysis fields.'
+				],
 				['GET', '/api/v1/forex/news/{id}', 'Fetch one stored forex article.'],
-				['GET', '/api/v1/forex/calendar?impact=high&limit=10', 'Upcoming Forex Factory calendar events.'],
+				[
+					'GET',
+					'/api/v1/forex/calendar?impact=high&limit=10',
+					'Upcoming Forex Factory calendar events.'
+				],
 				['GET', '/api/v1/stock/news?limit=10', 'Latest processed stock news.'],
 				['POST', '/api/v1/content/scrape', 'Private article scraping endpoint.']
 			]
@@ -91,14 +107,20 @@
 	const wsChannels = [
 		['/ws/v1', 'Provider-style endpoint. Connect once, authenticate, then send stream commands.'],
 		['market_data', 'All live market trade events allowed by the tenant plan.'],
-		['market_data:XAUUSD', 'Live market data for one symbol. Counts toward the market symbol subscription limit.'],
+		[
+			'market_data:XAUUSD',
+			'Live market data for one symbol. Counts toward the market symbol subscription limit.'
+		],
 		['forex_news', 'Forex news events.'],
 		['stock_news', 'Stock news events, subject to plan access.'],
 		['calendar', 'Economic calendar reminder events, subject to plan access.'],
 		['high_impact', 'High-impact macro/news alerts.'],
 		['volatility', 'Volatility spike alerts.'],
 		['x', 'All configured X/Twitter feed events allowed by the tenant plan.'],
-		['x:federalreserve', 'Events for one X/Twitter username. Counts toward the X username subscription limit.'],
+		[
+			'x:federalreserve',
+			'Events for one X/Twitter username. Counts toward the X username subscription limit.'
+		],
 		['system', 'Operational system messages and status events.'],
 		['all', 'Compatibility stream for internal/bot clients with full access.']
 	];
@@ -132,9 +154,18 @@
 	];
 
 	const faqs = [
-		['Is this only a Discord bot?', 'No. The Discord bot is one delivery surface. The platform also exposes HTTP APIs, WebSocket streams, and a management portal.'],
-		['How are API keys stored?', 'Raw API keys are shown once, then stored securely as SHA-256 hashes. Revocation and label updates happen through the developer portal.'],
-		['Can tenants configure their own sources?', 'Tenant configuration supports market symbols and custom RSS feeds, subject to plan capabilities and limits.']
+		[
+			'Is this only a Discord bot?',
+			'No. The Discord bot is one delivery surface. The platform also exposes HTTP APIs, WebSocket streams, and a management portal.'
+		],
+		[
+			'How are API keys stored?',
+			'Raw API keys are shown once, then stored securely as SHA-256 hashes. Revocation and label updates happen through the developer portal.'
+		],
+		[
+			'Can tenants configure their own sources?',
+			'Tenant configuration supports market symbols and custom RSS feeds, subject to plan capabilities and limits.'
+		]
 	];
 </script>
 
@@ -150,7 +181,9 @@
 	<header class="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur">
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8 lg:px-16">
 			<a href="/" class="flex items-center gap-3">
-				<div class="flex h-9 w-9 items-center justify-center rounded-lg border border-accent/25 bg-accent/10 text-accent">
+				<div
+					class="flex h-9 w-9 items-center justify-center rounded-lg border border-accent/25 bg-accent/10 text-accent"
+				>
 					<BookOpen class="h-4 w-4" />
 				</div>
 				<div>
@@ -204,10 +237,14 @@
 		{/if}
 	</header>
 
-	<div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 md:px-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-16">
+	<div
+		class="mx-auto grid max-w-7xl gap-10 px-4 py-10 md:px-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-16"
+	>
 		<aside class="hidden lg:block">
 			<div class="sticky top-24">
-				<div class="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-text-dim">Documentation</div>
+				<div class="mb-4 text-xs font-semibold tracking-[0.18em] text-text-dim uppercase">
+					Documentation
+				</div>
 				<nav class="space-y-1">
 					{#each sections as section}
 						<a
@@ -224,18 +261,20 @@
 
 		<main class="min-w-0">
 			<section id="overview" class="scroll-mt-24 pb-14">
-				<div class="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-muted">
+				<div
+					class="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-muted"
+				>
 					<span class="h-1.5 w-1.5 rounded-full bg-green"></span>
 					Production-oriented market intelligence platform
 				</div>
 
-				<h1 class="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-text md:text-6xl">
+				<h1 class="max-w-3xl text-4xl leading-tight font-bold tracking-tight text-text md:text-6xl">
 					Build with real-time market data, news intelligence, and tenant-aware APIs.
 				</h1>
 				<p class="mt-6 max-w-3xl text-base leading-8 text-text-muted md:text-lg">
-					Fio is the public product experience for the ATLSD platform: a service-oriented market information system
-					combining Rust data pipelines, HTTP APIs, WebSocket streams, a management portal,
-					and Discord delivery workflows.
+					Fio is the public product experience for the ATLSD platform: a service-oriented market
+					information system combining Rust data pipelines, HTTP APIs, WebSocket streams, a
+					management portal, and Discord delivery workflows.
 				</p>
 
 				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -289,35 +328,59 @@ curl "$CORE_REST_URL/api/v1/forex/news/latest?limit=5" \\
 			</section>
 
 			<section id="portal" class="scroll-mt-24 border-t border-border py-14">
-				{@render SectionHeading('dashboard', 'Portal Guide', 'Manage access, plans, and tenant configuration')}
+				{@render SectionHeading(
+					'dashboard',
+					'Portal Guide',
+					'Manage access, plans, and tenant configuration'
+				)}
 				<div class="grid gap-4 md:grid-cols-3">
-					{@render FeatureCard('Dashboard', 'Review account status, current plan, usage summary, and service activity from a single operational view.')}
-					{@render FeatureCard('API keys', 'Create, rename, and revoke API keys. The platform allows up to 10 active keys per user.')}
-					{@render FeatureCard('Tenant config', 'Configure market symbols and custom RSS feeds. Validation follows the active plan limits.')}
+					{@render FeatureCard(
+						'Dashboard',
+						'Review account status, current plan, usage summary, and service activity from a single operational view.'
+					)}
+					{@render FeatureCard(
+						'API keys',
+						'Create, rename, and revoke API keys. The platform allows up to 10 active keys per user.'
+					)}
+					{@render FeatureCard(
+						'Tenant config',
+						'Configure market symbols and custom RSS feeds. Validation follows the active plan limits.'
+					)}
 				</div>
-				<p class="mt-6 rounded-lg border border-blue/25 bg-blue/10 p-4 text-sm leading-6 text-text-muted">
-					The developer portal is where you manage your user identity, plans, API keys, and configuration.
-					These settings are synchronized in real-time so your HTTP and WebSocket access remain consistent.
+				<p
+					class="mt-6 rounded-lg border border-blue/25 bg-blue/10 p-4 text-sm leading-6 text-text-muted"
+				>
+					The developer portal is where you manage your user identity, plans, API keys, and
+					configuration. These settings are synchronized in real-time so your HTTP and WebSocket
+					access remain consistent.
 				</p>
 			</section>
 
 			<section id="api" class="scroll-mt-24 border-t border-border py-14">
-				{@render SectionHeading('braces', 'API Reference', 'HTTP endpoints and authentication model')}
+				{@render SectionHeading(
+					'braces',
+					'API Reference',
+					'HTTP endpoints and authentication model'
+				)}
 				<div class="space-y-8">
 					{#each apiGroups as group}
 						<article class="rounded-lg border border-border bg-surface">
 							<div class="border-b border-border p-5">
 								<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 									<h3 class="text-lg font-semibold">{group.name}</h3>
-									<code class="rounded bg-bg px-2 py-1 font-mono text-xs text-accent">{group.base}</code>
+									<code class="rounded bg-bg px-2 py-1 font-mono text-xs text-accent"
+										>{group.base}</code
+									>
 								</div>
 								<p class="mt-2 text-sm text-text-muted">{group.auth}</p>
 							</div>
 							<div class="divide-y divide-border">
 								{#each group.endpoints as endpoint}
-									<div class="grid gap-3 p-4 text-sm md:grid-cols-[90px_minmax(0,1fr)_minmax(220px,0.8fr)]">
+									<div
+										class="grid gap-3 p-4 text-sm md:grid-cols-[90px_minmax(0,1fr)_minmax(220px,0.8fr)]"
+									>
 										<span class="font-mono text-xs font-semibold text-green">{endpoint[0]}</span>
-										<code class="break-words font-mono text-xs text-text">{endpoint[1]}</code>
+										<code class="font-mono text-xs break-words text-text">{endpoint[1]}</code>
 										<span class="leading-6 text-text-muted">{endpoint[2]}</span>
 									</div>
 								{/each}
@@ -354,28 +417,34 @@ Content-Type: application/json
 			</section>
 
 			<section id="websocket" class="scroll-mt-24 border-t border-border py-14">
-					{@render SectionHeading('radio', 'WebSocket Streams', 'Low-latency event delivery')}
-					<div class="space-y-8">
-						<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-							<div class="rounded-lg border border-border bg-surface">
-								<div class="border-b border-border p-5">
-									<h3 class="text-lg font-semibold">Provider-style streams</h3>
-									<p class="mt-2 text-sm leading-6 text-text-muted">Connect once to <code class="font-mono text-accent">/ws/v1</code> with an <code class="font-mono text-accent">api_key</code>, <code class="font-mono text-accent">token</code>, or short-lived <code class="font-mono text-accent">ticket</code>, then manage streams with JSON commands.</p>
-								</div>
-								<div class="divide-y divide-border">
-									{#each wsChannels as channel}
-										<div class="grid gap-3 p-4 text-sm sm:grid-cols-[160px_1fr]">
-											<code class="break-words font-mono text-xs text-accent">{channel[0]}</code>
-											<span class="leading-6 text-text-muted">{channel[1]}</span>
-										</div>
-									{/each}
-								</div>
+				{@render SectionHeading('radio', 'WebSocket Streams', 'Low-latency event delivery')}
+				<div class="space-y-8">
+					<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
+						<div class="rounded-lg border border-border bg-surface">
+							<div class="border-b border-border p-5">
+								<h3 class="text-lg font-semibold">Provider-style streams</h3>
+								<p class="mt-2 text-sm leading-6 text-text-muted">
+									Connect once to <code class="font-mono text-accent">/ws/v1</code> with an
+									<code class="font-mono text-accent">api_key</code>,
+									<code class="font-mono text-accent">token</code>, or short-lived
+									<code class="font-mono text-accent">ticket</code>, then manage streams with JSON
+									commands.
+								</p>
 							</div>
+							<div class="divide-y divide-border">
+								{#each wsChannels as channel}
+									<div class="grid gap-3 p-4 text-sm sm:grid-cols-[160px_1fr]">
+										<code class="font-mono text-xs break-words text-accent">{channel[0]}</code>
+										<span class="leading-6 text-text-muted">{channel[1]}</span>
+									</div>
+								{/each}
+							</div>
+						</div>
 
-							<div class="space-y-6">
-								{@render CodeBlock(
-									'Browser connection',
-									`const ticket = await fetch('/api/realtime/session', { method: 'POST' }).then((r) => r.json());
+						<div class="space-y-6">
+							{@render CodeBlock(
+								'Browser connection',
+								`const ticket = await fetch('/api/realtime/session', { method: 'POST' }).then((r) => r.json());
 	const ws = new WebSocket(\`\${CORE_WS_URL}/ws/v1?ticket=\${ticket.ticket}\`);
 
 ws.onopen = () => {
@@ -390,34 +459,44 @@ ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
   console.log(message.stream, message.event, message.data);
 };`
-								)}
+							)}
 
-								<div class="rounded-lg border border-border bg-surface p-5">
-									<h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Commands</h3>
-									<div class="space-y-3">
-										{#each wsCommands as command}
-											<div class="grid gap-2 text-sm sm:grid-cols-[170px_minmax(0,1fr)]">
-												<code class="font-mono text-xs text-accent">{command[0]}</code>
-												<span class="leading-6 text-text-muted">{command[1]}</span>
-											</div>
-										{/each}
-									</div>
+							<div class="rounded-lg border border-border bg-surface p-5">
+								<h3 class="mb-4 text-sm font-semibold tracking-[0.16em] text-text-dim uppercase">
+									Commands
+								</h3>
+								<div class="space-y-3">
+									{#each wsCommands as command}
+										<div class="grid gap-2 text-sm sm:grid-cols-[170px_minmax(0,1fr)]">
+											<code class="font-mono text-xs text-accent">{command[0]}</code>
+											<span class="leading-6 text-text-muted">{command[1]}</span>
+										</div>
+									{/each}
 								</div>
 							</div>
 						</div>
+					</div>
 
-						<div class="grid gap-6 xl:grid-cols-3">
-							{@render CodeBlock('Subscribe and unsubscribe', `{ "method": "SUBSCRIBE", "params": ["market_data:XAUUSD", "forex_news"], "id": 1 }
+					<div class="grid gap-6 xl:grid-cols-3">
+						{@render CodeBlock(
+							'Subscribe and unsubscribe',
+							`{ "method": "SUBSCRIBE", "params": ["market_data:XAUUSD", "forex_news"], "id": 1 }
 { "result": null, "id": 1 }
 
 { "method": "UNSUBSCRIBE", "params": ["market_data:XAUUSD"], "id": 2 }
-{ "result": null, "id": 2 }`)}
-							{@render CodeBlock('List subscriptions and ping', `{ "method": "LIST_SUBSCRIPTIONS", "id": 3 }
+{ "result": null, "id": 2 }`
+						)}
+						{@render CodeBlock(
+							'List subscriptions and ping',
+							`{ "method": "LIST_SUBSCRIPTIONS", "id": 3 }
 { "result": ["forex_news"], "id": 3 }
 
 { "method": "PING", "id": 4 }
-{ "result": "pong", "id": 4 }`)}
-							{@render CodeBlock('Event and plan error', `{
+{ "result": "pong", "id": 4 }`
+						)}
+						{@render CodeBlock(
+							'Event and plan error',
+							`{
   "stream": "market_data:XAUUSD",
   "channel": "market_data",
   "event": "market.trade",
@@ -427,27 +506,47 @@ ws.onmessage = (event) => {
 {
   "error": { "code": 429, "msg": "Market symbol subscription limit reached for your plan (3)" },
   "id": 5
-}`)}
+}`
+						)}
+					</div>
+
+					<div class="grid gap-6 lg:grid-cols-[0.85fr_1fr]">
+						<div class="rounded-lg border border-border bg-surface p-5">
+							<h3 class="text-sm font-semibold tracking-[0.16em] text-text-dim uppercase">
+								Plan enforcement
+							</h3>
+							<p class="mt-3 text-sm leading-6 text-text-muted">
+								Core enforces WebSocket connection limits at connect time and stream limits at
+								subscribe time. Symbol streams count against <code class="font-mono text-accent"
+									>tv_symbols_max</code
+								>, X username streams count against
+								<code class="font-mono text-accent">x_usernames_max</code>, and tenant allowlists
+								such as <code class="font-mono text-accent">tv_symbols</code> are checked before a subscription
+								is accepted.
+							</p>
+							<p class="mt-3 text-sm leading-6 text-text-muted">
+								Legacy routes under <code class="font-mono text-accent">/api/v1/ws/*</code> still
+								work as compatibility wrappers, but new integrations should use
+								<code class="font-mono text-accent">/ws/v1</code>.
+							</p>
 						</div>
 
-						<div class="grid gap-6 lg:grid-cols-[0.85fr_1fr]">
-							<div class="rounded-lg border border-border bg-surface p-5">
-								<h3 class="text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Plan enforcement</h3>
-								<p class="mt-3 text-sm leading-6 text-text-muted">Core enforces WebSocket connection limits at connect time and stream limits at subscribe time. Symbol streams count against <code class="font-mono text-accent">tv_symbols_max</code>, X username streams count against <code class="font-mono text-accent">x_usernames_max</code>, and tenant allowlists such as <code class="font-mono text-accent">tv_symbols</code> are checked before a subscription is accepted.</p>
-								<p class="mt-3 text-sm leading-6 text-text-muted">Legacy routes under <code class="font-mono text-accent">/api/v1/ws/*</code> still work as compatibility wrappers, but new integrations should use <code class="font-mono text-accent">/ws/v1</code>.</p>
-							</div>
-
-							<div class="rounded-lg border border-border bg-surface p-5">
-								<h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-text-dim">Event names</h3>
-								<div class="flex flex-wrap gap-2">
-									{#each events as event}
-										<code class="rounded-md border border-border bg-bg px-2.5 py-1.5 font-mono text-xs text-text-muted">{event}</code>
-									{/each}
-								</div>
+						<div class="rounded-lg border border-border bg-surface p-5">
+							<h3 class="mb-4 text-sm font-semibold tracking-[0.16em] text-text-dim uppercase">
+								Event names
+							</h3>
+							<div class="flex flex-wrap gap-2">
+								{#each events as event}
+									<code
+										class="rounded-md border border-border bg-bg px-2.5 py-1.5 font-mono text-xs text-text-muted"
+										>{event}</code
+									>
+								{/each}
 							</div>
 						</div>
 					</div>
-				</section>
+				</div>
+			</section>
 
 			<section id="bot" class="scroll-mt-24 border-t border-border py-14">
 				{@render SectionHeading('bot', 'Discord Bot', 'Operational alerts inside Discord')}
@@ -461,24 +560,36 @@ ws.onmessage = (event) => {
 				</div>
 			</section>
 
-
 			<section id="security" class="scroll-mt-24 border-t border-border py-14">
-				{@render SectionHeading('shield', 'Security', 'Access control is enforced at tenant boundaries')}
+				{@render SectionHeading(
+					'shield',
+					'Security',
+					'Access control is enforced at tenant boundaries'
+				)}
 				<div class="grid gap-6 lg:grid-cols-3">
 					<div class="rounded-lg border border-border bg-surface p-5">
 						<KeyRound class="mb-4 h-5 w-5 text-accent" />
 						<h3 class="font-semibold">API keys</h3>
-						<p class="mt-2 text-sm leading-6 text-text-muted">Keys are generated once, hashed before storage, and synchronized to the core tenant registry.</p>
+						<p class="mt-2 text-sm leading-6 text-text-muted">
+							Keys are generated once, hashed before storage, and synchronized to the core tenant
+							registry.
+						</p>
 					</div>
 					<div class="rounded-lg border border-border bg-surface p-5">
 						<LockKeyhole class="mb-4 h-5 w-5 text-blue" />
 						<h3 class="font-semibold">JWT sessions</h3>
-						<p class="mt-2 text-sm leading-6 text-text-muted">Portal and control-plane requests use signed Bearer tokens with user, email, plan, and expiry claims.</p>
+						<p class="mt-2 text-sm leading-6 text-text-muted">
+							Portal and control-plane requests use signed Bearer tokens with user, email, plan, and
+							expiry claims.
+						</p>
 					</div>
 					<div class="rounded-lg border border-border bg-surface p-5">
 						<ShieldCheck class="mb-4 h-5 w-5 text-green" />
 						<h3 class="font-semibold">Plan limits</h3>
-						<p class="mt-2 text-sm leading-6 text-text-muted">Daily quotas, WebSocket connection caps, rate limits, and feature capabilities are evaluated per tenant.</p>
+						<p class="mt-2 text-sm leading-6 text-text-muted">
+							Daily quotas, WebSocket connection caps, rate limits, and feature capabilities are
+							evaluated per tenant.
+						</p>
 					</div>
 				</div>
 			</section>
@@ -500,7 +611,9 @@ ws.onmessage = (event) => {
 
 {#snippet SectionHeading(icon: string, eyebrow: string, title: string)}
 	<div class="mb-8">
-		<div class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-text-dim">
+		<div
+			class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.18em] text-text-dim uppercase"
+		>
 			{#if icon === 'terminal'}
 				<Terminal class="h-4 w-4 text-accent" />
 			{:else if icon === 'dashboard'}
@@ -529,7 +642,9 @@ ws.onmessage = (event) => {
 {#snippet Step(number: string, title: string, description: string)}
 	<div class="rounded-lg border border-border bg-surface p-5">
 		<div class="mb-3 flex items-center gap-3">
-			<div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent text-sm font-bold text-white">
+			<div
+				class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent text-sm font-bold text-white"
+			>
 				{number}
 			</div>
 			<h3 class="font-semibold">{title}</h3>

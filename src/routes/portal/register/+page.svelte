@@ -59,7 +59,7 @@
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-bg px-4 py-12 text-text">
-	<div class="w-full max-w-md animate-fade-in">
+	<div class="animate-fade-in w-full max-w-md">
 		<div class="mb-8 text-center">
 			<div
 				class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent"

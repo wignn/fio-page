@@ -6,7 +6,5 @@ export function fetchUsageSummary() {
 }
 
 export function fetchUsageHistory(days = 30) {
-	return apiFetch<{ history: DailyUsage[]; days: number }>(
-		`/api/v1/usage/history?days=${days}`
-	);
+	return apiFetch<{ history: DailyUsage[]; days: number }>(`/api/v1/usage/history?days=${days}`);
 }

@@ -11,11 +11,13 @@
 </script>
 
 {#if toastStore.toasts.length > 0}
-	<div class="fixed right-4 top-4 z-50 flex flex-col gap-2">
+	<div class="fixed top-4 right-4 z-50 flex flex-col gap-2">
 		{#each toastStore.toasts as toast (toast.id)}
 			{@const Icon = icons[toast.type]}
 			<div
-				class="flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm animate-fade-in {tones[toast.type]}"
+				class="animate-fade-in flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm {tones[
+					toast.type
+				]}"
 			>
 				<Icon class="h-4 w-4 shrink-0" />
 				<p class="text-sm font-semibold">{toast.message}</p>
