@@ -1,10 +1,18 @@
+interface RevealOptions {
+	delay?: number;
+	duration?: number;
+	threshold?: number;
+	y?: number;
+}
+
 export function reveal(
 	node: HTMLElement,
-	options = { delay: 0, duration: 700, threshold: 0.1, y: 30 }
+	options: RevealOptions = {}
 ) {
+	const { delay = 0, duration = 700, threshold = 0.1, y = 30 } = options;
 	node.style.opacity = '0';
-	node.style.transform = `translateY(${options.y}px)`;
-	node.style.transition = `opacity ${options.duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${options.delay}ms, transform ${options.duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${options.delay}ms`;
+	node.style.transform = `translateY(${y}px)`;
+	node.style.transition = `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
 
 	const observer = new IntersectionObserver(
 		(entries) => {
@@ -14,7 +22,7 @@ export function reveal(
 				observer.unobserve(node);
 			}
 		},
-		{ threshold: options.threshold }
+		{ threshold }
 	);
 
 	observer.observe(node);

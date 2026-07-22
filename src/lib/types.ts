@@ -145,3 +145,44 @@ export interface Command {
 	permission?: string;
 	category: string;
 }
+
+export interface OptionsSnapshot {
+	id: string;
+	symbol: string;
+	underlying_price: number;
+	put_call_ratio: number;
+	max_pain_strike: number;
+	total_open_interest: number;
+	total_volume: number;
+	total_gex: number;
+	iv_atm: number | null;
+	updated_at: string;
+}
+
+export interface OptionsContract {
+	contract_symbol: string;
+	symbol: string;
+	option_type: 'call' | 'put' | string;
+	strike: number;
+	expiration_date: string;
+	mark_price: number;
+	bid: number | null;
+	ask: number | null;
+	implied_volatility: number;
+	delta: number;
+	gamma: number;
+	theta: number;
+	vega: number;
+	gex: number;
+	open_interest: number;
+	volume: number;
+	updated_at: string;
+}
+
+export interface OptionsGexItem {
+	strike: number;
+	call_gex: number;
+	put_gex: number;
+	total_gex: number;
+}
+

@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { apiFetch } from '$lib/api';
-import type { CalendarItem } from '$lib/types';
+import type { CalendarEvent } from '$lib/types';
 
 export const calendarEvents = writable<CalendarEvent[]>([]);
 export const calendarLoading = writable(false);
