@@ -570,6 +570,14 @@
 
 	<div class="h-px w-full bg-border"></div>
 
+	<section id="options" class="bg-surface-2/10 px-3 py-10 md:px-5 lg:px-6" use:reveal={{ y: 40 }}>
+		<div class="mx-auto max-w-[1600px]">
+			<OptionsDashboard />
+		</div>
+	</section>
+
+	<div class="h-px w-full bg-border"></div>
+
 	<section
 		id="analyzer"
 		class="relative bg-surface-2/10 px-3 py-10 md:px-5 lg:px-6"
