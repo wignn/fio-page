@@ -19,6 +19,7 @@
 	import NewsFeed from '$lib/components/NewsFeed.svelte';
 	import CalendarTable from '$lib/components/CalendarTable.svelte';
 	import SentimentDashboard from '$lib/components/SentimentDashboard.svelte';
+	import OptionsDashboard from '$lib/components/OptionsDashboard.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
 	import CommandRef from '$lib/components/CommandRef.svelte';
 	import logoUrl from '$lib/assets/logo.png';
