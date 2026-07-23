@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { RefreshCw, AlertCircle } from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
 	import type { OptionsSnapshot, OptionsContract, OptionsGexItem } from '$lib/types';
@@ -7,7 +6,15 @@
 	import OptionsGexChart from '$lib/components/OptionsGexChart.svelte';
 	import OptionChainTable from '$lib/components/OptionChainTable.svelte';
 
-	const SYMBOLS = ['SPY', 'QQQ', 'AAPL', 'NVDA', 'BTC', 'ETH'] as const;
+	const SYMBOLS = [
+		{ label: 'SPY', value: 'SPY' },
+		{ label: 'QQQ', value: 'QQQ' },
+		{ label: 'AAPL', value: 'AAPL' },
+		{ label: 'NVDA', value: 'NVDA' },
+		{ label: 'GOLD', value: 'GLD' },
+		{ label: 'BTC', value: 'BTC' },
+		{ label: 'ETH', value: 'ETH' }
+	] as const;
 
 	let selectedSymbol = $state<string>('SPY');
 	let loading = $state<boolean>(false);
@@ -86,13 +93,13 @@
 			<div class="flex flex-wrap items-center gap-1 rounded-lg border border-border bg-surface p-1 shadow-xs">
 				{#each SYMBOLS as sym}
 					<button
-						onclick={() => (selectedSymbol = sym)}
+						onclick={() => (selectedSymbol = sym.value)}
 						class="cursor-pointer rounded-md px-3 py-1 text-xs font-bold transition-all {selectedSymbol ===
-						sym
+						sym.value
 							? 'border border-border/50 bg-surface-2 text-text shadow-xs'
 							: 'text-text-dim hover:bg-surface-2/50 hover:text-text'}"
 					>
-						{sym}
+						{sym.label}
 					</button>
 				{/each}
 			</div>
