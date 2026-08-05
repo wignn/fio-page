@@ -17,10 +17,12 @@ const config = {
 					'self',
 					'http://localhost:8081',
 					'http://localhost:8000',
+					'https://slv-gateway.wign.dev',
 					'https://api-engine.wign.dev',
 					'ws://localhost:8090',
 					'ws://localhost:8020',
 					'https:',
+					'wss://slv-realtime.wign.dev',
 					'wss://api-atlsd.wign.cloud',
 					'wss://realtime-engine.wign.dev',
 					'http://api-gateway:8000'

@@ -6,7 +6,7 @@ const csp = [
 	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 	"font-src 'self' https://fonts.gstatic.com",
 	"img-src 'self' data: https:",
-	"connect-src 'self' http://localhost:8081 http://localhost:8000 https://api-engine.wign.dev ws://localhost:8090 ws://localhost:8020 https: wss://api-atlsd.wign.cloud wss://realtime-engine.wign.dev",
+	"connect-src 'self' http://localhost:8081 http://localhost:8000 https://slv-gateway.wign.dev https://api-engine.wign.dev ws://localhost:8090 ws://localhost:8020 https: wss://slv-realtime.wign.dev wss://api-atlsd.wign.cloud wss://realtime-engine.wign.dev",
 	"frame-ancestors 'none'",
 	"base-uri 'self'",
 	"form-action 'self'"
