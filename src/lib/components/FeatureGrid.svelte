@@ -62,7 +62,7 @@
 			>
 				Powerful Capabilities
 			</div>
-			<h2 class="text-4xl font-black tracking-tight text-text md:text-5xl">What Fio Does</h2>
+			<h2 class="text-4xl font-black tracking-tight text-text md:text-5xl">What Winyx Does</h2>
 			<p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-text-muted">
 				Every feature runs in real-time. No delays. No polls. Direct stream from the source straight
 				to your Discord.

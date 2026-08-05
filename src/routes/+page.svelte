@@ -84,9 +84,9 @@
 				<div
 					class="flex h-8 w-8 items-center justify-center rounded bg-accent/10 transition-colors group-hover:bg-accent/20"
 				>
-					<img src={logoUrl} alt="Fio" class="h-6 w-6 object-contain" />
+					<img src={logoUrl} alt="Winyx" class="h-6 w-6 object-contain" />
 				</div>
-				<span class="text-lg font-bold tracking-tight">Fio</span>
+				<span class="text-lg font-bold tracking-tight">Winyx</span>
 			</a>
 		</div>
 
@@ -311,7 +311,7 @@
 										<div class="flex items-center gap-2">
 											<span
 												class="cursor-pointer text-xs leading-none font-bold text-text hover:underline"
-												>Fio Bot</span
+												>Winyx Bot</span
 											>
 											<span
 												class="flex items-center gap-0.5 rounded bg-accent/15 px-1.5 py-0.5 text-[9px] leading-none font-black text-accent uppercase"
@@ -356,7 +356,7 @@
 										<div class="flex items-center gap-2">
 											<span
 												class="cursor-pointer text-xs leading-none font-bold text-text hover:underline"
-												>Fio Bot</span
+												>Winyx Bot</span
 											>
 											<span
 												class="flex items-center gap-0.5 rounded bg-accent/15 px-1.5 py-0.5 text-[9px] leading-none font-black text-accent uppercase"
@@ -403,7 +403,7 @@
 										<div class="flex items-center gap-2">
 											<span
 												class="cursor-pointer text-xs leading-none font-bold text-text hover:underline"
-												>Fio Bot</span
+												>Winyx Bot</span
 											>
 											<span
 												class="flex items-center gap-0.5 rounded bg-accent/15 px-1.5 py-0.5 text-[9px] leading-none font-black text-accent uppercase"
@@ -661,10 +661,10 @@
 		<div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:flex-row">
 			<div class="flex items-center gap-3">
 				<div class="flex h-6 w-6 items-center justify-center rounded bg-text text-bg">
-					<img src={logoUrl} alt="Fio" class="h-4 w-4 object-contain invert dark:invert-0" />
+					<img src={logoUrl} alt="Winyx" class="h-4 w-4 object-contain invert dark:invert-0" />
 				</div>
 				<div class="flex items-center gap-2 text-sm font-medium text-text-muted">
-					<span class="font-bold text-text">Fio</span>
+					<span class="font-bold text-text">Winyx</span>
 					<span class="text-text-dim">×</span>
 					<span>Core</span>
 				</div>
